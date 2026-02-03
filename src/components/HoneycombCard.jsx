@@ -24,12 +24,14 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
   const colors = getGradient(cluster.type);
   const isEvenRow = rowIndex % 2 === 0;
 
-  // Hexagon dimensions for tighter packing
-  const hexWidth = 140;
-  const hexHeight = 160;
-  const horizontalSpacing = hexWidth * 0.88;
-  const verticalSpacing = hexHeight * 0.76;
-  const rowOffset = isEvenRow ? 0 : horizontalSpacing / 2;
+  // Calculate dimensions based on flow count for real layout flow
+  // Base size: 140x160
+  // Scale: 40% increase per 3 flows
+  const sizeLevel = Math.floor((cluster.flow_count || 0) / 3);
+  const scaleRatio = 1 + (sizeLevel * 0.2);
+
+  const hexWidth = 140 * scaleRatio;
+  const hexHeight = 160 * scaleRatio;
 
   return (
     <div
@@ -39,14 +41,22 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
       style={{
         width: `${hexWidth}px`,
         height: `${hexHeight}px`,
+        // Negative margin allows the bounding boxes to overlap slightly,
+        // letting the hexagonal shapes tuck into each other
+        margin: "-10px",
         cursor: "pointer",
         position: "relative",
         transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-        transform: isHovered ? "scale(1.08) translateY(-4px)" : isSelected ? "scale(1.05)" : "scale(1)",
-        zIndex: isHovered || isSelected ? 10 : 1,
-        filter: isHovered ? `drop-shadow(0 20px 40px ${colors.glow})` : 
-                isSelected ? `drop-shadow(0 15px 30px ${colors.glow})` : 
-                "drop-shadow(0 8px 16px rgba(0,0,0,0.3))",
+        // Hover effects now just add scale on top of the physical size
+        transform: isHovered
+          ? "scale(1.1) translateY(-5px)"
+          : isSelected
+            ? "scale(1.05)"
+            : "scale(1)",
+        zIndex: isHovered || isSelected ? 100 : 10, // constant z-index base
+        filter: isHovered ? `drop-shadow(0 20px 40px ${colors.glow})` :
+          isSelected ? `drop-shadow(0 15px 30px ${colors.glow})` :
+            "drop-shadow(0 8px 16px rgba(0,0,0,0.3))",
       }}
     >
       {/* Outer Glow Ring */}
@@ -96,7 +106,7 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
           right: "25%",
           height: "30%",
           clipPath: "polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%)",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%)",
+          // background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%)",
           pointerEvents: "none",
         }}
       />
@@ -212,6 +222,47 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
             animation: "glow 1.5s ease-in-out infinite alternate",
           }}
         />
+      )}
+
+      {/* Tooltip on Hover */}
+      {isHovered && (
+        <div
+          style={{
+            position: "absolute",
+            top: "-40px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(0,0,0,0.9)",
+            color: "#fff",
+            padding: "8px 12px",
+            borderRadius: "6px",
+            fontSize: "10px", // Small text for tooltip
+            whiteSpace: "nowrap",
+            zIndex: 1000,
+            pointerEvents: "none",
+            border: `1px solid ${colors.accent}40`,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+            backdropFilter: "blur(4px)",
+            maxWidth: "200px",
+            textAlign: "center",
+          }}
+        >
+          {cluster.topic}
+          {/* Tooltip arrow */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: "-4px",
+              left: "50%",
+              transform: "translateX(-50%) rotate(45deg)",
+              width: "8px",
+              height: "8px",
+              background: "rgba(0,0,0,0.9)",
+              borderBottom: `1px solid ${colors.accent}40`,
+              borderRight: `1px solid ${colors.accent}40`,
+            }}
+          />
+        </div>
       )}
 
       {/* CSS Animations */}
