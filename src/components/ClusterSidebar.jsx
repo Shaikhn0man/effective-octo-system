@@ -271,73 +271,114 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
   }, [cluster, clusterData]);
 
 
-  const StatsFooter = () => (
-    <div style={{
-      padding: '20px 24px',
-      background: 'rgba(15, 23, 42, 0.9)',
-      backdropFilter: 'blur(20px)',
-      borderTop: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      marginTop: 'auto',
-      zIndex: 50,
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "7px", fontWeight: "800", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 2px 0" }}>Volume</p>
-            <p style={{ fontSize: "11px", fontWeight: "800", color: "#e2e8f0", fontFamily: "monospace", margin: 0 }}>4.2M LOC</p>
-          </div>
-          <div style={{ width: "1px", height: "24px", background: "rgba(255,255,255,0.06)" }} />
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "7px", fontWeight: "800", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 2px 0" }}>Cuts</p>
-            <p style={{ fontSize: "11px", fontWeight: "800", color: "#e2e8f0", fontFamily: "monospace", margin: 0 }}>{clusterData.total_clusters}</p>
-          </div>
-          <div style={{ width: "1px", height: "24px", background: "rgba(255,255,255,0.06)" }} />
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "7px", fontWeight: "800", color: "#ef4444", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 2px 0" }}>Risks</p>
-            <p style={{ fontSize: "11px", fontWeight: "800", color: "#ef4444", fontFamily: "monospace", margin: 0 }}>3</p>
-          </div>
+  const StatsFooter = () => {
+    const stats = [
+      { label: 'TOTAL CUTS', value: `${clusterData.total_clusters} Clusters`, color: '#3b82f6', progress: 75 },
+      { label: 'COMPLEXITY', value: '4.2M LOC', color: '#f59e0b', progress: 85 },
+    ];
+
+    return (
+      <div style={{
+        padding: '16px 20px',
+        background: 'rgba(15, 23, 42, 0.95)',
+        backdropFilter: 'blur(20px)',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        marginTop: 'auto',
+        zIndex: 50,
+      }}>
+        {/* Stats Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '12px',
+          marginBottom: '16px',
+        }}>
+          {stats.map((stat, idx) => (
+            <div key={idx} style={{
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '10px',
+              padding: '12px 14px',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                fontSize: '8px',
+                fontWeight: '800',
+                color: '#64748b',
+                textTransform: 'uppercase',
+                letterSpacing: '1.5px',
+                marginBottom: '6px',
+              }}>
+                {stat.label}
+              </div>
+              <div style={{
+                fontSize: '13px',
+                fontWeight: '900',
+                color: '#ffffff',
+                fontFamily: 'monospace',
+                marginBottom: '8px',
+              }}>
+                {stat.value}
+              </div>
+              {/* Progress Bar */}
+              <div style={{
+                width: '100%',
+                height: '3px',
+                background: 'rgba(255,255,255,0.05)',
+                borderRadius: '2px',
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  width: `${stat.progress}%`,
+                  height: '100%',
+                  background: stat.color,
+                  borderRadius: '2px',
+                  transition: 'width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filter Buttons */}
+        <div style={{
+          background: "rgba(255, 255, 255, 0.03)",
+          padding: "4px",
+          borderRadius: "10px",
+          display: "flex",
+          gap: "4px",
+          border: "1px solid rgba(255,255,255,0.05)",
+        }}>
+          {filterButtons.map((btn) => {
+            const isActive = filterType === btn.type;
+            return (
+              <button
+                key={btn.type}
+                onClick={() => setFilterType(btn.type)}
+                style={{
+                  flex: 1,
+                  padding: "8px",
+                  fontSize: "8px",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  border: "none",
+                  background: isActive ? "rgba(255,255,255,0.1)" : "transparent",
+                  borderRadius: "7px",
+                  cursor: "pointer",
+                  color: isActive ? (btn.color || "#ffffff") : "#64748b",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {btn.label}
+              </button>
+            );
+          })}
         </div>
       </div>
-
-      <div style={{
-        background: "rgba(255, 255, 255, 0.03)",
-        padding: "4px",
-        borderRadius: "12px",
-        display: "flex",
-        gap: "4px",
-        border: "1px solid rgba(255,255,255,0.05)",
-      }}>
-        {filterButtons.map((btn) => {
-          const isActive = filterType === btn.type;
-          return (
-            <button
-              key={btn.type}
-              onClick={() => setFilterType(btn.type)}
-              style={{
-                flex: 1,
-                padding: "8px",
-                fontSize: "9px",
-                fontWeight: "700",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
-                border: "none",
-                background: isActive ? "rgba(255,255,255,0.1)" : "transparent",
-                borderRadius: "8px",
-                cursor: "pointer",
-                color: isActive ? (btn.color || "#ffffff") : "#64748b",
-                transition: "all 0.2s ease",
-              }}
-            >
-              {btn.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
+    );
+  };
 
   if (!cluster) {
     // Empty state with Legend
