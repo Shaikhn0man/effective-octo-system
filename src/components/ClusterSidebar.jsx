@@ -170,9 +170,39 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
   const colors = TYPE_COLORS[cluster.type] || TYPE_COLORS.READ_ONLY_CUT;
   const tabs = [
     { id: 'overview', label: 'Overview' },
+    { id: 'sub-cuts', label: 'Sub Cuts' },
     { id: 'metrics', label: 'Metrics' },
     { id: 'dependencies', label: 'Dependencies' },
   ];
+
+  const activeDependencyInfo = (() => {
+    if (cluster?.dependencies?.reads_from_cuts) {
+      const dependsOn = cluster.dependencies.reads_from_cuts.map(d => {
+        const match = d.match(/^(.*?) \(Table: (.*?)\)$/);
+        if (match) return { cluster_id: match[1], table: match[2] };
+        return { cluster_id: d };
+      });
+
+      const dependedBy = [];
+      if (clusterData?.clusters) {
+        clusterData.clusters.forEach(c => {
+          if (c.cluster_id === cluster.cluster_id) return;
+          const reads = c.dependencies?.reads_from_cuts || [];
+          if (reads.some(r => r.startsWith(cluster.cluster_id))) {
+            if (!dependedBy.find(existing => existing.cluster_id === c.cluster_id)) {
+              dependedBy.push({ cluster_id: c.cluster_id });
+            }
+          }
+        });
+      }
+
+      return {
+        depends_on: { count: dependsOn.length, clusters: dependsOn },
+        depended_by: { count: dependedBy.length, clusters: dependedBy }
+      };
+    }
+    return dependencyInfo;
+  })();
 
   return (
     <div style={{
@@ -334,6 +364,64 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
               </p>
             </section>
 
+            {/* Business Scenarios */}
+            <section style={{
+              background: 'rgba(255,255,255,0.02)',
+              padding: '20px',
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.05)',
+            }}>
+              <h3 style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#64748b',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '12px',
+              }}>Business Scenarios</h3>
+              <ul style={{
+                margin: 0,
+                paddingLeft: '20px',
+                fontSize: '13px',
+                color: '#94a3b8',
+                lineHeight: '1.6',
+              }}>
+                <li>Scenario 1: Standard transaction processing flow</li>
+                <li>Scenario 2: Exception handling and rollback procedures</li>
+              </ul>
+            </section>
+
+            {/* Core Entities */}
+            <section style={{
+              background: 'rgba(255,255,255,0.02)',
+              padding: '20px',
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.05)',
+            }}>
+              <h3 style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#64748b',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '12px',
+              }}>Core Entities</h3>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {['ENTITY_A', 'ENTITY_B'].map(entity => (
+                  <span key={entity} style={{
+                    fontSize: '11px',
+                    color: '#64748b',
+                    background: 'rgba(255,255,255,0.05)',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontWeight: '600',
+                  }}>
+                    {entity}
+                  </span>
+                ))}
+              </div>
+            </section>
+
             {/* Quick stats grid optimized */}
             <section style={{
               display: 'grid',
@@ -370,6 +458,62 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                 </div>
               ))}
             </section>
+          </div>
+        )}
+
+        {activeTab === 'sub-cuts' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {cluster.sub_cuts && cluster.sub_cuts.length > 0 ? (
+              cluster.sub_cuts.map((subCut, idx) => (
+                <div key={idx} style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  padding: '20px',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                }}>
+                  <h3 style={{
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#e2e8f0',
+                    marginBottom: '8px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    {subCut.sub_cut_id}
+                  </h3>
+                  <span style={{
+                    fontSize: '9px',
+                    fontWeight: '700',
+                    color: subCut.sub_cut_type === 'CLEAN_SUBCUT' ? '#22c55e' : '#f59e0b',
+                    background: subCut.sub_cut_type === 'CLEAN_SUBCUT' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    display: 'inline-block',
+                    marginBottom: '12px',
+                  }}>
+                    {subCut.sub_cut_type}
+                  </span>
+                  <p style={{
+                    fontSize: '13px',
+                    color: '#94a3b8',
+                    lineHeight: '1.6',
+                    marginBottom: '0'
+                  }}>
+                    {subCut.sub_cut_topic}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div style={{
+                padding: '20px',
+                textAlign: 'center',
+                color: '#64748b',
+                fontSize: '12px',
+                fontStyle: 'italic'
+              }}>
+                No sub-cuts defined for this cluster.
+              </div>
+            )}
           </div>
         )}
 
@@ -460,11 +604,11 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                   fontSize: '10px',
                   fontWeight: 'bold',
                 }}>↑</span>
-                Depends On ({dependencyInfo?.depends_on?.count || 0})
+                Depends On ({activeDependencyInfo?.depends_on?.count || 0})
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {dependencyInfo?.depends_on?.clusters?.length > 0 ? (
-                  dependencyInfo.depends_on.clusters.map((dep, idx) => (
+                {activeDependencyInfo?.depends_on?.clusters?.length > 0 ? (
+                  activeDependencyInfo.depends_on.clusters.map((dep, idx) => (
                     <div key={idx} style={{
                       background: 'rgba(239, 68, 68, 0.03)',
                       padding: '16px',
@@ -473,8 +617,8 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                       transition: 'all 0.2s ease',
                       cursor: 'pointer',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.1)'}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.1)'}
                     >
                       <div style={{
                         fontSize: '12px',
@@ -526,11 +670,11 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                   fontSize: '10px',
                   fontWeight: 'bold',
                 }}>↓</span>
-                Depended By ({dependencyInfo?.depended_by?.count || 0})
+                Depended By ({activeDependencyInfo?.depended_by?.count || 0})
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {dependencyInfo?.depended_by?.clusters?.length > 0 ? (
-                  dependencyInfo.depended_by.clusters.map((dep, idx) => (
+                {activeDependencyInfo?.depended_by?.clusters?.length > 0 ? (
+                  activeDependencyInfo.depended_by.clusters.map((dep, idx) => (
                     <div key={idx} style={{
                       background: 'rgba(34, 197, 94, 0.03)',
                       padding: '16px',
@@ -539,8 +683,8 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                       transition: 'all 0.2s ease',
                       cursor: 'pointer',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.1)'}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.1)'}
                     >
                       <div style={{
                         fontSize: '12px',
