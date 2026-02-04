@@ -15,7 +15,7 @@ const TYPE_COLORS = {
   },
 };
 
-export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, dependencyMap }) {
+export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, dependencyMap, approvedIds = new Set() }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
@@ -157,6 +157,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
           const isSelected = selectedId === p.cluster.cluster_id;
           const isDependency = dependencyIds.has(p.cluster.cluster_id);
           const isDimmed = selectedId && !isSelected && !isDependency;
+          const isApproved = approvedIds.has(p.cluster.cluster_id);
           const colors = TYPE_COLORS[p.cluster.type] || TYPE_COLORS.READ_ONLY_CUT;
 
           return (
@@ -172,15 +173,16 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
               <path
                 d={p.path}
                 fill={colors.main}
-                fillOpacity={isSelected ? 0.4 : isDependency ? 0.3 : isDimmed ? 0.02 : 0.15}
-                stroke={colors.main}
-                strokeWidth={isSelected ? 4 : isDependency ? 2 : 1}
-                strokeOpacity={isSelected ? 0.8 : isDimmed ? 0.05 : 0.4}
+                fillOpacity={isApproved ? 0.4 : (isSelected ? 0.4 : isDependency ? 0.3 : isDimmed ? 0.02 : 0.15)}
+                stroke={isApproved ? colors.main : (colors.main)}
+                strokeWidth={isApproved ? 3 : (isSelected ? 4 : isDependency ? 2 : 1)}
+                strokeOpacity={isApproved ? 0.9 : (isSelected ? 0.8 : isDimmed ? 0.05 : 0.4)}
+                filter={isApproved ? 'url(#glow)' : ''}
                 style={{
                   transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  animation: isApproved ? 'approvedPulse 3s ease-in-out infinite' : 'none'
                 }}
               />
-
               {/* Topographic texture */}
               <path d={p.path} fill="url(#topo)" style={{ pointerEvents: 'none', opacity: 0.2 }} />
 
@@ -340,6 +342,11 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
       {/* CSS Animations */}
       <style>
         {`
+          @keyframes approvedPulse {
+            0% { filter: drop-shadow(0 0 8px rgba(255,255,255,0.5)); stroke-opacity: 0.9; }
+            50% { filter: drop-shadow(0 0 20px rgba(255,255,255,0.8)); stroke-opacity: 1; stroke-width: 4px; }
+            100% { filter: drop-shadow(0 0 8px rgba(255,255,255,0.5)); stroke-opacity: 0.9; }
+          }
           @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }

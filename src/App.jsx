@@ -1,72 +1,143 @@
+import { Info, LayoutDashboard, Network, Workflow } from "lucide-react";
 import { useState } from "react";
 import { ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
 import "./App.css";
-import { ScreenFlowView } from "./components/ScreenFlowView";
 import { ClusterView } from "./components/ClusterView";
-import { HexagonalStackView } from "./components/HexagonalStackView";
-import { DependencyGraphView } from "./components/DependencyGraphView";
 import { Dashboard } from "./components/Dashboard";
+import { HexagonalStackView } from "./components/HexagonalStackView";
+import { InfoModal } from "./components/InfoModal";
+import { ScreenFlowView } from "./components/ScreenFlowView";
 
 function App() {
-  const [activeTab, setActiveTab] = useState("screen-flow");
+  const [activeTab, setActiveTab] = useState("dashboard"); // Default to Dashboard for better first impression
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   const tabs = [
-    { id: "screen-flow", label: "Screen Flow", icon: "🔄" },
-    { id: "cluster", label: "Cluster View", icon: "📊" },
+    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
+    { id: "screen-flow", label: "Screen Flow", icon: <Workflow size={18} /> },
+    { id: "cluster", label: "Cluster View", icon: <Network size={18} /> },
     // { id: "hexagonal", label: "Hexagonal Stack", icon: "📐" },
-    { id: "dependencies", label: "Dependency Graph", icon: "🔗" },
-    { id: "dashboard", label: "Dashboard", icon: "📈" },
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#020617" }}>
       {/* Tab Navigation */}
       <div
         style={{
           display: "flex",
-          borderBottom: "2px solid #ddd",
-          background: "white",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+          height: "64px",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(2, 6, 23, 0.8)",
+          backdropFilter: "blur(12px)",
+          zIndex: 50,
         }}
       >
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              flex: 1,
-              padding: "14px 20px",
-              border: "none",
-              background: activeTab === tab.id ? "white" : "#f5f5f5",
-              borderBottom: activeTab === tab.id ? "3px solid #2196f3" : "none",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: activeTab === tab.id ? "600" : "500",
-              color: activeTab === tab.id ? "#2196f3" : "#666",
-              transition: "all 0.2s",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-            }}
-          >
-            <span>{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ 
+            marginRight: '32px', 
+            fontWeight: '900', 
+            fontSize: '16px', 
+            color: '#fff', 
+            letterSpacing: '-0.5px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }} />
+            RapidX
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "99px",
+                    border: "1px solid",
+                    borderColor: isActive ? "rgba(59, 130, 246, 0.5)" : "transparent",
+                    background: isActive ? "rgba(59, 130, 246, 0.1)" : "transparent",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    fontWeight: isActive ? "600" : "500",
+                    color: isActive ? "#fff" : "#94a3b8",
+                    transition: "all 0.2s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    outline: "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.color = "#e2e8f0";
+                      e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.color = "#94a3b8";
+                      e.currentTarget.style.background = "transparent";
+                    }
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', opacity: isActive ? 1 : 0.7 }}>{tab.icon}</span>
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Info Button */}
+        <button
+          onClick={() => setIsInfoOpen(true)}
+          style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#f8fafc', // Brighter color (Slate-50)
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+            e.currentTarget.style.color = '#3b82f6';
+            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+            e.currentTarget.style.color = '#f8fafc';
+            e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+          }}
+        >
+          <Info size={20} strokeWidth={2.5} />
+        </button>
       </div>
 
       {/* Tab Content */}
-      <div style={{ flex: 1, overflow: "hidden" }}>
+      <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         <ReactFlowProvider>
           {activeTab === "screen-flow" && <ScreenFlowView />}
           {activeTab === "cluster" && <ClusterView />}
           {activeTab === "hexagonal" && <HexagonalStackView />}
-          {activeTab === "dependencies" && <DependencyGraphView />}
           {activeTab === "dashboard" && <Dashboard />}
         </ReactFlowProvider>
       </div>
+
+      {/* Info Modal */}
+      {isInfoOpen && <InfoModal onClose={() => setIsInfoOpen(false)} />}
     </div>
   );
 }
