@@ -179,6 +179,21 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 />
                 {!isSelected && <circle r="1.5" fill="white" />}
 
+                {/* Sequence Number */}
+                <text
+                  textAnchor="middle"
+                  y={-10}
+                  fontSize="10"
+                  fontWeight="bold"
+                  fill={isSelected ? '#fff' : 'rgba(255,255,255,0.9)'}
+                  style={{
+                    pointerEvents: 'none',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                  }}
+                >
+                  {p.cluster.cut_seq_no}
+                </text>
+
                 {/* Flow type indicators (S/B badges) */}
                 <g transform="translate(0, 20)">
                   <g transform="translate(-14, 0)">
@@ -228,7 +243,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
               {activeDependencies.map((dep) => {
                 const targetPolygon = polygons.find(target => target.cluster.cluster_id === dep.cluster_id);
                 if (!targetPolygon) return null;
-                
+
                 const x1 = p.center.x;
                 const y1 = p.center.y;
                 const x2 = targetPolygon.center.x;

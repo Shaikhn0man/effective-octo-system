@@ -14,7 +14,7 @@ function App() {
   const tabs = [
     { id: "screen-flow", label: "Screen Flow", icon: "🔄" },
     { id: "cluster", label: "Cluster View", icon: "📊" },
-    { id: "hexagonal", label: "Hexagonal Stack", icon: "📐" },
+    // { id: "hexagonal", label: "Hexagonal Stack", icon: "📐" },
     { id: "dependencies", label: "Dependency Graph", icon: "🔗" },
     { id: "dashboard", label: "Dashboard", icon: "📈" },
   ];

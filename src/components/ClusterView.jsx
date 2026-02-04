@@ -9,15 +9,16 @@ export function ClusterView() {
   const [selectedClusterId, setSelectedClusterId] = useState(null);
   const [filterType, setFilterType] = useState("ALL");
 
-  const filteredClusters =
+  const filteredClusters = (
     filterType === "ALL"
-      ? clusterData.clusters
-      : clusterData.clusters.filter((c) => c.type === filterType);
+      ? [...clusterData.clusters]
+      : clusterData.clusters.filter((c) => c.type === filterType)
+  ).sort((a, b) => a.cut_seq_no - b.cut_seq_no);
 
   // Get dependency info for selected cluster
   const getDependencyInfo = (clusterId) => {
     if (!clusterId) return null;
-    
+
     if (clusterId === "Cut_2_SEC-USER-DATA") {
       return clusterSpecificDependencyData;
     }
@@ -132,7 +133,7 @@ export function ClusterView() {
           </p>
         </div>
 
-        </div>
+      </div>
 
       {/* Main Map Area */}
       <main style={{ flex: 1, position: "relative" }}>
