@@ -37,11 +37,13 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
     const width = dimensions.width;
     const height = dimensions.height;
 
-    // Create sites for each cluster in a circular pattern with some randomness
-    const sites = clusters.map((c, i) => {
-      const angle = (i / clusters.length) * 2 * Math.PI + (Math.random() * 0.3);
-      const radius = Math.min(width, height) * 0.35 * (0.8 + Math.random() * 0.4);
-
+    // Filter out clusters without IDs just in case
+    const validClusters = clusters.filter(c => c.cluster_id);
+    
+    // Initial positions (deterministic start to prevent shuffling)
+    const initialSites = validClusters.map((c, i) => {
+      const angle = (i / validClusters.length) * 2 * Math.PI;
+      const radius = Math.min(width, height) * 0.2;
       return {
         id: c.cluster_id,
         x: width / 2 + Math.cos(angle) * radius,
@@ -50,7 +52,27 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
       };
     });
 
-    // Generate Voronoi diagram
+    // Use d3-force to space out seeds based on program_count
+    // Area should be proportional to program_count, so radius proportional to sqrt(program_count)
+    const simulation = d3.forceSimulation(initialSites)
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collide', d3.forceCollide().radius(d => {
+        // Base radius scaled by sqrt of program count
+        // 17 programs (max) -> ~60-80px radius
+        // 1 program (min) -> ~15-20px radius
+        const count = d.cluster.program_count || 1;
+        return Math.sqrt(count) * 20 + 15;
+      }).strength(1))
+      .force('charge', d3.forceManyBody().strength(-100))
+      .stop();
+
+    // Run simulation synchronously for a stable layout
+    // More ticks = more stable/accurate area scaling
+    for (let i = 0; i < 120; ++i) simulation.tick();
+
+    const sites = initialSites;
+
+    // Generate Voronoi diagram from force-placed sites
     const delaunay = d3.Delaunay.from(sites.map(s => [s.x, s.y]));
     const voronoi = delaunay.voronoi([0, 0, width, height]);
 

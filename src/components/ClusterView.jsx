@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { clusterData } from "../data/clusterData";
 import { clusterDependencyMapData, clusterSpecificDependencyData } from "../data/clusterDependencyData";
 import { ClusterSidebar } from "./ClusterSidebar";
@@ -9,11 +9,11 @@ export function ClusterView() {
   const [selectedClusterId, setSelectedClusterId] = useState(null);
   const [filterType, setFilterType] = useState("ALL");
 
-  const filteredClusters = (
+  const filteredClusters = useMemo(() => (
     filterType === "ALL"
       ? [...clusterData.clusters]
       : clusterData.clusters.filter((c) => c.type === filterType)
-  ).sort((a, b) => a.cut_seq_no - b.cut_seq_no);
+  ).sort((a, b) => a.cut_seq_no - b.cut_seq_no), [filterType]);
 
   // Get dependency info for selected cluster
   const getDependencyInfo = (clusterId) => {
@@ -144,6 +144,9 @@ export function ClusterView() {
           selectedId={selectedClusterId}
           dependencyMap={clusterDependencyMapData.dependency_map}
         />
+
+        {/* Map Legend (Floating) */}
+        <MapLegend />
 
         {/* Friction Alert */}
         <div style={{

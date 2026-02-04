@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { MapLegend } from './MapLegend';
+import * as d3 from 'd3';
+import { useState, useMemo } from 'react';
 
 const TYPE_COLORS = {
   CLEAN_CUT: {
@@ -160,7 +160,6 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
             </p>
           </div>
 
-          <MapLegend />
         </div>
         <StatsFooter />
       </div>
@@ -170,39 +169,147 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
   const colors = TYPE_COLORS[cluster.type] || TYPE_COLORS.READ_ONLY_CUT;
   const tabs = [
     { id: 'overview', label: 'Overview' },
-    { id: 'sub-cuts', label: 'Sub Cuts' },
+    { id: 'subcuts', label: 'Subcuts' },
     { id: 'metrics', label: 'Metrics' },
     { id: 'dependencies', label: 'Dependencies' },
   ];
 
-  const activeDependencyInfo = (() => {
-    if (cluster?.dependencies?.reads_from_cuts) {
-      const dependsOn = cluster.dependencies.reads_from_cuts.map(d => {
-        const match = d.match(/^(.*?) \(Table: (.*?)\)$/);
-        if (match) return { cluster_id: match[1], table: match[2] };
-        return { cluster_id: d };
-      });
+  // Compute Dependencies from clusterData
+  const computedDependencies = useMemo(() => {
+    if (!cluster) return { dependsOn: [], dependedBy: [] };
 
-      const dependedBy = [];
-      if (clusterData?.clusters) {
-        clusterData.clusters.forEach(c => {
-          if (c.cluster_id === cluster.cluster_id) return;
-          const reads = c.dependencies?.reads_from_cuts || [];
-          if (reads.some(r => r.startsWith(cluster.cluster_id))) {
-            if (!dependedBy.find(existing => existing.cluster_id === c.cluster_id)) {
-              dependedBy.push({ cluster_id: c.cluster_id });
-            }
+    // OUTGOING: This cluster reads from others (Depends On)
+    const dependsOnRaw = cluster.dependencies?.reads_from_cuts || [];
+    const dependsOn = dependsOnRaw.map(str => {
+      const match = str.match(/^(.*?) \(Table: (.*?)\)$/);
+      if (match) return { cluster_id: match[1], table: match[2] };
+      return { cluster_id: str, table: null };
+    });
+
+    // INCOMING: Other clusters read from this one (Depended By)
+    const dependedBy = [];
+    if (clusterData?.clusters) {
+      clusterData.clusters.forEach(c => {
+        if (c.cluster_id === cluster.cluster_id) return;
+
+        const reads = c.dependencies?.reads_from_cuts || [];
+        reads.forEach(readStr => {
+          const match = readStr.match(/^(.*?) \(Table: (.*?)\)$/);
+          const targetId = match ? match[1] : readStr;
+          const targetTable = match ? match[2] : null;
+
+          if (targetId === cluster.cluster_id) {
+            dependedBy.push({
+              cluster_id: c.cluster_id, // The one reading
+              table: targetTable // The table being read
+            });
           }
         });
-      }
-
-      return {
-        depends_on: { count: dependsOn.length, clusters: dependsOn },
-        depended_by: { count: dependedBy.length, clusters: dependedBy }
-      };
+      });
     }
-    return dependencyInfo;
-  })();
+
+    return { dependsOn, dependedBy };
+  }, [cluster, clusterData]);
+
+  // Mini Hierarchy View for Subcuts Tab (Circle Pack)
+  const SubcutHierarchy = ({ subCuts, mainClusterId }) => {
+    if (!subCuts || subCuts.length === 0) return null;
+
+    const width = 464; // Sidebar content width
+    const height = 180;
+    const padding = 20;
+
+    // Create d3 hierarchy
+    const data = {
+      name: mainClusterId,
+      children: subCuts.map(sc => ({
+        ...sc,
+        value: sc.sub_cut_type === 'CLEAN_SUBCUT' ? 2 : 1, // Prioritize clean cuts
+      }))
+    };
+
+    const root = d3.hierarchy(data)
+      .sum(d => d.value)
+      .sort((a, b) => b.value - a.value);
+
+    d3.pack()
+      .size([width - padding * 2, height - padding * 2])
+      .padding(15)
+      (root);
+
+    return (
+      <div style={{ position: 'relative', width, height, background: 'rgba(255,255,255,0.02)', borderRadius: '16px', overflow: 'hidden' }}>
+        <svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
+          <g transform={`translate(${padding}, ${padding})`}>
+            {/* Outer container circle */}
+            <circle
+              cx={root.x}
+              cy={root.y}
+              r={root.r}
+              fill="rgba(59, 130, 246, 0.03)"
+              stroke="rgba(59, 130, 246, 0.2)"
+              strokeDasharray="4 4"
+            />
+
+            {/* Subcut circles */}
+            {root.children.map((d, i) => {
+              const sc = d.data;
+              const isClean = sc.sub_cut_type === 'CLEAN_SUBCUT';
+              const color = isClean ? '#22c55e' : '#64748b';
+
+              return (
+                <g key={sc.sub_cut_id}>
+                  <circle
+                    cx={d.x}
+                    cy={d.y}
+                    r={d.r}
+                    fill={color}
+                    fillOpacity="0.1"
+                    stroke={color}
+                    strokeOpacity="0.4"
+                    strokeWidth="1.5"
+                  />
+                  {/* Badge Label */}
+                  <g transform={`translate(${d.x}, ${d.y})`}>
+                    <rect
+                      x="-18"
+                      y="-8"
+                      width="36"
+                      height="16"
+                      rx="8"
+                      fill="#0f172a"
+                      stroke={color}
+                      strokeOpacity="0.3"
+                    />
+                    <text
+                      textAnchor="middle"
+                      dy="4"
+                      fontSize="9"
+                      fontWeight="900"
+                      fill={color}
+                      style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                    >
+                      {sc.sub_cut_id.includes('LOGIC') ? 'LOGIC' : 'CLEAN'}
+                    </text>
+                    <text
+                      textAnchor="middle"
+                      y="20"
+                      fontSize="8"
+                      fontWeight="700"
+                      fill="rgba(255,255,255,0.4)"
+                      style={{ textTransform: 'uppercase' }}
+                    >
+                      SEQ.{sc.sub_cut_seq_no}
+                    </text>
+                  </g>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
+    );
+  };
 
   return (
     <div style={{
@@ -364,64 +471,6 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
               </p>
             </section>
 
-            {/* Business Scenarios */}
-            <section style={{
-              background: 'rgba(255,255,255,0.02)',
-              padding: '20px',
-              borderRadius: '16px',
-              border: '1px solid rgba(255,255,255,0.05)',
-            }}>
-              <h3 style={{
-                fontSize: '10px',
-                fontWeight: '700',
-                color: '#64748b',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '12px',
-              }}>Business Scenarios</h3>
-              <ul style={{
-                margin: 0,
-                paddingLeft: '20px',
-                fontSize: '13px',
-                color: '#94a3b8',
-                lineHeight: '1.6',
-              }}>
-                <li>Scenario 1: Standard transaction processing flow</li>
-                <li>Scenario 2: Exception handling and rollback procedures</li>
-              </ul>
-            </section>
-
-            {/* Core Entities */}
-            <section style={{
-              background: 'rgba(255,255,255,0.02)',
-              padding: '20px',
-              borderRadius: '16px',
-              border: '1px solid rgba(255,255,255,0.05)',
-            }}>
-              <h3 style={{
-                fontSize: '10px',
-                fontWeight: '700',
-                color: '#64748b',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '12px',
-              }}>Core Entities</h3>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {['ENTITY_A', 'ENTITY_B'].map(entity => (
-                  <span key={entity} style={{
-                    fontSize: '11px',
-                    color: '#64748b',
-                    background: 'rgba(255,255,255,0.05)',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontWeight: '600',
-                  }}>
-                    {entity}
-                  </span>
-                ))}
-              </div>
-            </section>
-
             {/* Quick stats grid optimized */}
             <section style={{
               display: 'grid',
@@ -461,58 +510,98 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
           </div>
         )}
 
-        {activeTab === 'sub-cuts' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {cluster.sub_cuts && cluster.sub_cuts.length > 0 ? (
-              cluster.sub_cuts.map((subCut, idx) => (
-                <div key={idx} style={{
-                  background: 'rgba(255,255,255,0.02)',
-                  padding: '20px',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(255,255,255,0.05)',
-                }}>
-                  <h3 style={{
-                    fontSize: '12px',
-                    fontWeight: '800',
-                    color: '#e2e8f0',
-                    marginBottom: '8px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>
-                    {subCut.sub_cut_id}
-                  </h3>
-                  <span style={{
-                    fontSize: '9px',
-                    fontWeight: '700',
-                    color: subCut.sub_cut_type === 'CLEAN_SUBCUT' ? '#22c55e' : '#f59e0b',
-                    background: subCut.sub_cut_type === 'CLEAN_SUBCUT' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    display: 'inline-block',
-                    marginBottom: '12px',
-                  }}>
-                    {subCut.sub_cut_type}
-                  </span>
-                  <p style={{
-                    fontSize: '13px',
-                    color: '#94a3b8',
-                    lineHeight: '1.6',
-                    marginBottom: '0'
-                  }}>
-                    {subCut.sub_cut_topic}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <div style={{
-                padding: '20px',
-                textAlign: 'center',
+        {activeTab === 'subcuts' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <section>
+              <h3 style={{
+                fontSize: '10px',
+                fontWeight: '700',
                 color: '#64748b',
-                fontSize: '12px',
-                fontStyle: 'italic'
-              }}>
-                No sub-cuts defined for this cluster.
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '16px',
+              }}>Functional Containment (Circle Pack)</h3>
+              <SubcutHierarchy subCuts={cluster.sub_cuts} mainClusterId={cluster.cluster_id} />
+            </section>
+
+            <section>
+              <h3 style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#64748b',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '12px',
+              }}>Subcut Entities ({cluster.sub_cut_count})</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {cluster.sub_cuts?.map(sc => (
+                  <div key={sc.sub_cut_id} style={{
+                    background: 'rgba(255,255,255,0.02)',
+                    padding: '16px',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '800',
+                        color: sc.sub_cut_type === 'CLEAN_SUBCUT' ? '#22c55e' : '#e2e8f0',
+                        letterSpacing: '-0.3px',
+                      }}>
+                        {sc.sub_cut_id}
+                      </span>
+                      <span style={{
+                        fontSize: '9px',
+                        fontWeight: '700',
+                        color: '#64748b',
+                        fontFamily: 'monospace',
+                      }}>SEQ.{sc.sub_cut_seq_no}</span>
+                    </div>
+                    <p style={{
+                      fontSize: '10px',
+                      color: '#64748b',
+                      lineHeight: '1.4',
+                      margin: 0,
+                    }}>
+                      {sc.sub_cut_topic}
+                    </p>
+                  </div>
+                ))}
               </div>
+            </section>
+
+            {cluster.dependencies?.reads_from_cuts?.length > 0 && (
+              <section>
+                <h3 style={{
+                  fontSize: '10px',
+                  fontWeight: '700',
+                  color: '#3b82f6',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3b82f6' }} />
+                  Shared Infrastructure
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {cluster.dependencies.reads_from_cuts.map((dep, idx) => (
+                    <div key={idx} style={{
+                      background: 'rgba(59, 130, 246, 0.05)',
+                      padding: '12px 16px',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(59, 130, 246, 0.1)',
+                      fontSize: '11px',
+                      color: '#94a3b8',
+                      lineHeight: '1.5',
+                    }}>
+                      {dep}
+                    </div>
+                  ))}
+                </div>
+              </section>
             )}
           </div>
         )}
@@ -580,7 +669,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
 
         {activeTab === 'dependencies' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Depends on section */}
+            {/* Depends On (Outgoing) */}
             <section>
               <h3 style={{
                 fontSize: '10px',
@@ -604,49 +693,69 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                   fontSize: '10px',
                   fontWeight: 'bold',
                 }}>↑</span>
-                Depends On ({activeDependencyInfo?.depends_on?.count || 0})
+                Depends On ({computedDependencies.dependsOn.length})
               </h3>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {activeDependencyInfo?.depends_on?.clusters?.length > 0 ? (
-                  activeDependencyInfo.depends_on.clusters.map((dep, idx) => (
+                {computedDependencies.dependsOn.length > 0 ? (
+                  computedDependencies.dependsOn.map((dep, idx) => (
                     <div key={idx} style={{
                       background: 'rgba(239, 68, 68, 0.03)',
                       padding: '16px',
                       borderRadius: '16px',
                       border: '1px solid rgba(239, 68, 68, 0.1)',
                       transition: 'all 0.2s ease',
-                      cursor: 'pointer',
-                    }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.1)'}
-                    >
+                    }}>
                       <div style={{
-                        fontSize: '12px',
-                        fontWeight: '800',
-                        color: '#fca5a5',
-                        marginBottom: '4px',
-                        letterSpacing: '-0.3px',
-                      }}>{dep.cluster_id || dep}</div>
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: dep.table ? '6px' : '0'
+                      }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} />
+                        <span style={{
+                          fontSize: '12px',
+                          fontWeight: '800',
+                          color: '#fca5a5',
+                          letterSpacing: '-0.3px',
+                        }}>
+                          {dep.cluster_id.replace(/^Cut_\d+_/, '')}
+                        </span>
+                      </div>
+
                       {dep.table && (
                         <div style={{
-                          fontSize: '8px',
-                          color: 'rgba(239, 68, 68, 0.5)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '1px',
-                          fontWeight: 'bold',
-                        }}>via {dep.table}</div>
+                          marginLeft: '14px',
+                          fontSize: '10px',
+                          color: 'rgba(239, 68, 68, 0.7)',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          display: 'inline-block',
+                          fontFamily: 'monospace',
+                        }}>
+                          reading tbl: {dep.table}
+                        </div>
                       )}
                     </div>
                   ))
                 ) : (
-                  <p style={{ fontSize: '11px', color: '#334155', fontStyle: 'italic', paddingLeft: '8px' }}>
-                    No incoming dependencies detected for this cut.
-                  </p>
+                  <div style={{
+                    padding: '24px',
+                    textAlign: 'center',
+                    background: 'rgba(255,255,255,0.01)',
+                    borderRadius: '12px',
+                    border: '1px dashed rgba(255,255,255,0.05)',
+                  }}>
+                    <p style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', margin: 0 }}>
+                      Independent cluster (No outgoing dependencies)
+                    </p>
+                  </div>
                 )}
               </div>
             </section>
 
-            {/* Depended by section */}
+            {/* Depended By (Incoming) */}
             <section>
               <h3 style={{
                 fontSize: '10px',
@@ -670,34 +779,64 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                   fontSize: '10px',
                   fontWeight: 'bold',
                 }}>↓</span>
-                Depended By ({activeDependencyInfo?.depended_by?.count || 0})
+                Depended By ({computedDependencies.dependedBy.length})
               </h3>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {activeDependencyInfo?.depended_by?.clusters?.length > 0 ? (
-                  activeDependencyInfo.depended_by.clusters.map((dep, idx) => (
+                {computedDependencies.dependedBy.length > 0 ? (
+                  computedDependencies.dependedBy.map((dep, idx) => (
                     <div key={idx} style={{
                       background: 'rgba(34, 197, 94, 0.03)',
                       padding: '16px',
                       borderRadius: '16px',
                       border: '1px solid rgba(34, 197, 94, 0.1)',
                       transition: 'all 0.2s ease',
-                      cursor: 'pointer',
-                    }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)'}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.1)'}
-                    >
+                    }}>
                       <div style={{
-                        fontSize: '12px',
-                        fontWeight: '800',
-                        color: '#86efac',
-                        letterSpacing: '-0.3px',
-                      }}>{dep.cluster_id || dep}</div>
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: dep.table ? '6px' : '0'
+                      }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
+                        <span style={{
+                          fontSize: '12px',
+                          fontWeight: '800',
+                          color: '#86efac',
+                          letterSpacing: '-0.3px',
+                        }}>
+                          {dep.cluster_id.replace(/^Cut_\d+_/, '')}
+                        </span>
+                      </div>
+
+                      {dep.table && (
+                        <div style={{
+                          marginLeft: '14px',
+                          fontSize: '10px',
+                          color: 'rgba(34, 197, 94, 0.7)',
+                          background: 'rgba(34, 197, 94, 0.1)',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          display: 'inline-block',
+                          fontFamily: 'monospace',
+                        }}>
+                          accessing tbl: {dep.table}
+                        </div>
+                      )}
                     </div>
                   ))
                 ) : (
-                  <p style={{ fontSize: '11px', color: '#334155', fontStyle: 'italic', paddingLeft: '8px' }}>
-                    No outgoing dependencies detected for this cut.
-                  </p>
+                  <div style={{
+                    padding: '24px',
+                    textAlign: 'center',
+                    background: 'rgba(255,255,255,0.01)',
+                    borderRadius: '12px',
+                    border: '1px dashed rgba(255,255,255,0.05)',
+                  }}>
+                    <p style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', margin: 0 }}>
+                      No downstream dependents detected
+                    </p>
+                  </div>
                 )}
               </div>
             </section>
