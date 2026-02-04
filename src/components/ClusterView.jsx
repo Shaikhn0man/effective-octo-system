@@ -145,6 +145,9 @@ export function ClusterView() {
           dependencyMap={clusterDependencyMapData.dependency_map}
         />
 
+        {/* Map Legend (Floating) */}
+        <MapLegend />
+
         {/* Friction Alert */}
         <div style={{
           position: "absolute",

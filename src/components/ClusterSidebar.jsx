@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { MapLegend } from './MapLegend';
 
 const TYPE_COLORS = {
   CLEAN_CUT: {
@@ -160,7 +159,6 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
             </p>
           </div>
 
-          <MapLegend />
         </div>
         <StatsFooter />
       </div>
