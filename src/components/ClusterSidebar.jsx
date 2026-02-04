@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { useState } from 'react';
 
 const TYPE_COLORS = {
@@ -168,9 +169,110 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
   const colors = TYPE_COLORS[cluster.type] || TYPE_COLORS.READ_ONLY_CUT;
   const tabs = [
     { id: 'overview', label: 'Overview' },
+    { id: 'subcuts', label: 'Subcuts' },
     { id: 'metrics', label: 'Metrics' },
     { id: 'dependencies', label: 'Dependencies' },
   ];
+
+  // Mini Hierarchy View for Subcuts Tab (Circle Pack)
+  const SubcutHierarchy = ({ subCuts, mainClusterId }) => {
+    if (!subCuts || subCuts.length === 0) return null;
+    
+    const width = 464; // Sidebar content width
+    const height = 180;
+    const padding = 20;
+
+    // Create d3 hierarchy
+    const data = {
+      name: mainClusterId,
+      children: subCuts.map(sc => ({
+        ...sc,
+        value: sc.sub_cut_type === 'CLEAN_SUBCUT' ? 2 : 1, // Prioritize clean cuts
+      }))
+    };
+
+    const root = d3.hierarchy(data)
+      .sum(d => d.value)
+      .sort((a, b) => b.value - a.value);
+
+    d3.pack()
+      .size([width - padding * 2, height - padding * 2])
+      .padding(15)
+      (root);
+
+    return (
+      <div style={{ position: 'relative', width, height, background: 'rgba(255,255,255,0.02)', borderRadius: '16px', overflow: 'hidden' }}>
+        <svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
+          <g transform={`translate(${padding}, ${padding})`}>
+            {/* Outer container circle */}
+            <circle
+              cx={root.x}
+              cy={root.y}
+              r={root.r}
+              fill="rgba(59, 130, 246, 0.03)"
+              stroke="rgba(59, 130, 246, 0.2)"
+              strokeDasharray="4 4"
+            />
+            
+            {/* Subcut circles */}
+            {root.children.map((d, i) => {
+              const sc = d.data;
+              const isClean = sc.sub_cut_type === 'CLEAN_SUBCUT';
+              const color = isClean ? '#22c55e' : '#64748b';
+              
+              return (
+                <g key={sc.sub_cut_id}>
+                  <circle
+                    cx={d.x}
+                    cy={d.y}
+                    r={d.r}
+                    fill={color}
+                    fillOpacity="0.1"
+                    stroke={color}
+                    strokeOpacity="0.4"
+                    strokeWidth="1.5"
+                  />
+                  {/* Badge Label */}
+                  <g transform={`translate(${d.x}, ${d.y})`}>
+                    <rect 
+                      x="-18" 
+                      y="-8" 
+                      width="36" 
+                      height="16" 
+                      rx="8" 
+                      fill="#0f172a" 
+                      stroke={color} 
+                      strokeOpacity="0.3" 
+                    />
+                    <text
+                      textAnchor="middle"
+                      dy="4"
+                      fontSize="9"
+                      fontWeight="900"
+                      fill={color}
+                      style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                    >
+                      {sc.sub_cut_id.includes('LOGIC') ? 'LOGIC' : 'CLEAN'}
+                    </text>
+                    <text
+                      textAnchor="middle"
+                      y="20"
+                      fontSize="8"
+                      fontWeight="700"
+                      fill="rgba(255,255,255,0.4)"
+                      style={{ textTransform: 'uppercase' }}
+                    >
+                      SEQ.{sc.sub_cut_seq_no}
+                    </text>
+                  </g>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
+    );
+  };
 
   return (
     <div style={{
@@ -371,6 +473,102 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
           </div>
         )}
 
+        {activeTab === 'subcuts' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <section>
+              <h3 style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#64748b',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '16px',
+              }}>Functional Containment (Circle Pack)</h3>
+              <SubcutHierarchy subCuts={cluster.sub_cuts} mainClusterId={cluster.cluster_id} />
+            </section>
+  
+            <section>
+              <h3 style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#64748b',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '12px',
+              }}>Subcut Entities ({cluster.sub_cut_count})</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {cluster.sub_cuts?.map(sc => (
+                  <div key={sc.sub_cut_id} style={{
+                    background: 'rgba(255,255,255,0.02)',
+                    padding: '16px',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '800',
+                        color: sc.sub_cut_type === 'CLEAN_SUBCUT' ? '#22c55e' : '#e2e8f0',
+                        letterSpacing: '-0.3px',
+                      }}>
+                        {sc.sub_cut_id}
+                      </span>
+                      <span style={{
+                        fontSize: '9px',
+                        fontWeight: '700',
+                        color: '#64748b',
+                        fontFamily: 'monospace',
+                      }}>SEQ.{sc.sub_cut_seq_no}</span>
+                    </div>
+                    <p style={{
+                      fontSize: '10px',
+                      color: '#64748b',
+                      lineHeight: '1.4',
+                      margin: 0,
+                    }}>
+                      {sc.sub_cut_topic}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+  
+            {cluster.dependencies?.reads_from_cuts?.length > 0 && (
+              <section>
+                <h3 style={{
+                  fontSize: '10px',
+                  fontWeight: '700',
+                  color: '#3b82f6',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3b82f6' }} />
+                  Shared Infrastructure
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {cluster.dependencies.reads_from_cuts.map((dep, idx) => (
+                    <div key={idx} style={{
+                      background: 'rgba(59, 130, 246, 0.05)',
+                      padding: '12px 16px',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(59, 130, 246, 0.1)',
+                      fontSize: '11px',
+                      color: '#94a3b8',
+                      lineHeight: '1.5',
+                    }}>
+                      {dep}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
+  
         {activeTab === 'metrics' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* Detailed metrics with progress bars optimized */}

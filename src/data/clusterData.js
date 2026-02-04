@@ -10,7 +10,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 2,
-      "table_count": 6
+      "table_count": 6,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_11_Verify_Daily_Card_Transactions_for_Processing",
@@ -21,7 +33,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 1,
-      "table_count": 6
+      "table_count": 6,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_12_Manage_Customer_Loan_Accounts_and_Processing",
@@ -32,7 +56,19 @@ export const clusterData = {
       "flow_count": 2,
       "screen_count": 0,
       "program_count": 2,
-      "table_count": 10
+      "table_count": 10,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_13_Control_Execution_Delays_for_Batch_Processing",
@@ -43,7 +79,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 2,
-      "table_count": 0
+      "table_count": 0,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_1_User_access_security_and_permission_management",
@@ -54,7 +102,28 @@ export const clusterData = {
       "flow_count": 7,
       "screen_count": 8,
       "program_count": 9,
-      "table_count": 5
+      "table_count": 5,
+      "sub_cut_count": 2,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 2,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        },
+        {
+          "sub_cut_type": "CLEAN_SUBCUT",
+          "sub_cut_topic": "Handling User_access_security_and_permission_management",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_User_access_security_and_permission_management"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": [
+          "Cut_2_Maintain_Transaction_Type_Data (Table: ACCOUNT-RECORD)",
+          "Cut_2_Maintain_Transaction_Type_Data (Table: CUSTOMER-RECORD)"
+        ]
+      }
     },
     {
       "cluster_id": "Cut_2_Maintain_Transaction_Type_Data",
@@ -65,7 +134,27 @@ export const clusterData = {
       "flow_count": 14,
       "screen_count": 14,
       "program_count": 17,
-      "table_count": 11
+      "table_count": 11,
+      "sub_cut_count": 2,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 2,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        },
+        {
+          "sub_cut_type": "CLEAN_SUBCUT",
+          "sub_cut_topic": "Handling Maintain_Transaction_Types_Interface",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_Maintain_Transaction_Types_Interface"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": [
+          "Cut_1_User_access_security_and_permission_management (Table: SEC-USER-DATA)"
+        ]
+      }
     },
     {
       "cluster_id": "Cut_3_Batch_Process_Account_Records_for_Multi_Format_Output",
@@ -76,7 +165,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 2,
-      "table_count": 4
+      "table_count": 4,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_4_Process_and_Report_Cardholder_Records_Sequentially",
@@ -87,7 +188,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 1,
-      "table_count": 1
+      "table_count": 1,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_5_Process_Cross_Reference_File_with_Status_Tracking",
@@ -98,7 +211,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 1,
-      "table_count": 1
+      "table_count": 1,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_6_Automate_Monthly_Interest_Accrual_Processing",
@@ -109,7 +234,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 1,
-      "table_count": 5
+      "table_count": 5,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_7_Manage_Customer_Record_Retrieval_and_Display",
@@ -120,7 +257,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 1,
-      "table_count": 1
+      "table_count": 1,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_8_Execute_Comprehensive_Export_for_Financial_Data",
@@ -131,7 +280,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 1,
-      "table_count": 6
+      "table_count": 6,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     },
     {
       "cluster_id": "Cut_9_Process_and_Import_Customer_Data_Records",
@@ -142,7 +303,19 @@ export const clusterData = {
       "flow_count": 1,
       "screen_count": 0,
       "program_count": 1,
-      "table_count": 7
+      "table_count": 7,
+      "sub_cut_count": 1,
+      "sub_cuts": [
+        {
+          "sub_cut_type": "SUPPORT_LOGIC",
+          "sub_cut_topic": "Read-Only and Logic Flows",
+          "sub_cut_seq_no": 1,
+          "sub_cut_id": "SubCut_LOGIC_AND_READS"
+        }
+      ],
+      "dependencies": {
+        "reads_from_cuts": []
+      }
     }
   ]
 }
