@@ -441,74 +441,19 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
               })}
 
               {/* INCOMING DEPENDENCIES (Green - Others read from this cluster) */}
-              {incomingDeps.map((dep) => {
-                const sourcePolygon = polygons.find(source => source.cluster.cluster_id === dep.cluster_id);
-                if (!sourcePolygon) return null;
-
-                const x1 = sourcePolygon.center.x;
-                const y1 = sourcePolygon.center.y;
-                const x2 = p.center.x;
-                const y2 = p.center.y;
-                const dx = x2 - x1;
-                const dy = y2 - y1;
-                const dr = Math.sqrt(dx * dx + dy * dy) * 1.3;
-                const pathStr = `M${x1},${y1} A${dr},${dr} 0 0,1 ${x2},${y2}`;
-
+              {incomingDeps.map((dep, index) => {
+                const pathStr = `M${dep.sourceX},${dep.sourceY} L${dep.targetX},${dep.targetY}`; // Define pathStr dynamically
                 return (
-                  <g key={`incoming-${dep.cluster_id}-${p.cluster.cluster_id}`}>
-                    {/* Glow path */}
-                    <path
-                      d={pathStr}
-                      fill="none"
-                      stroke="#22c55e"
-                      strokeWidth={4}
-                      strokeOpacity={0.15}
-                      style={{ animation: 'pulse 2s ease-in-out infinite' }}
-                    />
-                    {/* Main path */}
-                    <path
-                      d={pathStr}
-                      fill="none"
-                      stroke="#22c55e"
-                      strokeWidth={2}
-                      strokeOpacity={0.7}
-                      markerEnd="url(#arrowhead-green)"
-                    />
-                    {/* Label */}
-                    <g transform={`translate(${(x1 + x2) / 2}, ${(y1 + y2) / 2 - 15})`}>
-                      <rect
-                        x="-45"
-                        y="-10"
-                        width="90"
-                        height="20"
-                        rx="6"
-                        fill="#0f172a"
-                        stroke="#22c55e"
-                        strokeOpacity="0.3"
-                      />
-                      <text
-                        textAnchor="middle"
-                        dy="5"
-                        fontSize="8"
-                        fontWeight="bold"
-                        fill="#22c55e"
-                        style={{ textTransform: 'uppercase', letterSpacing: '1px' }}
-                      >
-                        {dep.table || 'DEPENDED BY'}
-                      </text>
-                    </g>
-                    {/* Source ping */}
-                    <circle
-                      cx={x1}
-                      cy={y1}
-                      r="8"
-                      fill="none"
-                      stroke="#22c55e"
-                      strokeWidth="1"
-                      strokeOpacity="0.4"
-                      style={{ animation: 'ping 1.5s ease-out infinite' }}
-                    />
-                  </g>
+                  <path
+                    key={`incoming-${dep.source}-${dep.target}-${index}`}
+                    d={pathStr}
+                    fill="none"
+                    stroke="#22c55e"
+                    strokeWidth={4}
+                    strokeOpacity={0.15}
+                    style={{ animation: 'pulse 2s ease-in-out infinite' }}
+                    markerEnd="url(#arrowhead-green)"
+                  />
                 );
               })}
             </g>

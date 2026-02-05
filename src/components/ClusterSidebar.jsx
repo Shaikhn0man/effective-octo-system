@@ -469,100 +469,19 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
 
   // Mini Hierarchy View for Subcuts Tab (Circle Pack)
   const SubcutHierarchy = ({ subCuts, mainClusterId }) => {
-    if (!subCuts || subCuts.length === 0) return null;
-
-    const width = 464; // Sidebar content width
-    const height = 180;
-    const padding = 20;
-
-    // Create d3 hierarchy
-    const data = {
-      name: mainClusterId,
-      children: subCuts.map(sc => ({
-        ...sc,
-        value: sc.sub_cut_type === 'CLEAN_SUBCUT' ? 2 : 1, // Prioritize clean cuts
-      }))
-    };
-
-    const root = d3.hierarchy(data)
-      .sum(d => d.value)
-      .sort((a, b) => b.value - a.value);
-
-    d3.pack()
-      .size([width - padding * 2, height - padding * 2])
-      .padding(15)
-      (root);
+    if (!Array.isArray(subCuts)) return null; // Ensure subCuts is an array
 
     return (
-      <div style={{ position: 'relative', width, height, background: 'rgba(255,255,255,0.02)', borderRadius: '16px', overflow: 'hidden' }}>
-        <svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
-          <g transform={`translate(${padding}, ${padding})`}>
-            {/* Outer container circle */}
-            <circle
-              cx={root.x}
-              cy={root.y}
-              r={root.r}
-              fill="rgba(59, 130, 246, 0.03)"
-              stroke="rgba(59, 130, 246, 0.2)"
-              strokeDasharray="4 4"
-            />
-
-            {/* Subcut circles */}
-            {root.children.map((d, i) => {
-              const sc = d.data;
-              const isClean = sc.sub_cut_type === 'CLEAN_SUBCUT';
-              const color = isClean ? '#22c55e' : '#64748b';
-
-              return (
-                <g key={sc.sub_cut_id}>
-                  <circle
-                    cx={d.x}
-                    cy={d.y}
-                    r={d.r}
-                    fill={color}
-                    fillOpacity="0.1"
-                    stroke={color}
-                    strokeOpacity="0.4"
-                    strokeWidth="1.5"
-                  />
-                  {/* Badge Label */}
-                  <g transform={`translate(${d.x}, ${d.y})`}>
-                    <rect
-                      x="-18"
-                      y="-8"
-                      width="36"
-                      height="16"
-                      rx="8"
-                      fill="#0f172a"
-                      stroke={color}
-                      strokeOpacity="0.3"
-                    />
-                    <text
-                      textAnchor="middle"
-                      dy="4"
-                      fontSize="9"
-                      fontWeight="900"
-                      fill={color}
-                      style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
-                    >
-                      {sc.sub_cut_id.includes('LOGIC') ? 'LOGIC' : 'CLEAN'}
-                    </text>
-                    <text
-                      textAnchor="middle"
-                      y="20"
-                      fontSize="8"
-                      fontWeight="700"
-                      fill="rgba(255,255,255,0.4)"
-                      style={{ textTransform: 'uppercase' }}
-                    >
-                      SEQ.{sc.sub_cut_seq_no}
-                    </text>
-                  </g>
-                </g>
-              );
-            })}
-          </g>
-        </svg>
+      <div>
+        {subCuts.map((subCut, index) => (
+          <div key={`${mainClusterId}-${subCut.id}-${index}`} style={{ marginBottom: '10px' }}>
+            <h4>{subCut.topic}</h4>
+            <p>Type: {subCut.type}</p>
+            <p>Flow Count: {subCut.stats?.flow_count || 0}</p>
+            <p>Batch Flows: {subCut.stats?.batch_flows || 0}</p>
+            <p>Screen Flows: {subCut.stats?.screen_flows || 0}</p>
+          </div>
+        ))}
       </div>
     );
   };
