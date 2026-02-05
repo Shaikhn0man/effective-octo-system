@@ -110,7 +110,7 @@ export function CutExplorer({ clusterId, onClose }) {
               Execution Sequence Flow
             </h2>
             
-            {data.sequence ? (
+            {data.sequence && Array.isArray(data.sequence) && data.sequence.length > 0 ? (
                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                  {data.sequence.map((row, i) => (
                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -135,7 +135,7 @@ export function CutExplorer({ clusterId, onClose }) {
                    </div>
                  ))}
                </div>
-            ) : (
+            ) : data.batchFlow && Array.isArray(data.batchFlow) ? (
               <div style={{ 
                 background: 'rgba(0,0,0,0.2)', 
                 padding: '24px', 
@@ -145,7 +145,7 @@ export function CutExplorer({ clusterId, onClose }) {
                 borderLeft: '4px solid #22c55e'
               }}>
                 <div style={{ marginBottom: '8px', color: '#64748b' }}>// BATCH FLOW STEPS</div>
-                {data.batchFlow?.map((f, i) => <div key={i} style={{ marginBottom: '4px' }}>PROCESS: {f}</div>)}
+                {data.batchFlow.map((f, i) => <div key={i} style={{ marginBottom: '4px' }}>PROCESS: {f}</div>)}
                 {data.steps?.map((p, i) => (
                   <div key={i} style={{ marginTop: '16px' }}>
                     <div style={{ color: '#f59e0b' }}>{p.process}:</div>
@@ -153,6 +153,8 @@ export function CutExplorer({ clusterId, onClose }) {
                   </div>
                 ))}
               </div>
+            ) : (
+              <div style={{ color: '#64748b', fontStyle: 'italic' }}>No sequence or batch flow data available.</div>
             )}
             
             {/* Visual background element */}
