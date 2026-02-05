@@ -196,13 +196,13 @@ export function CutExplorer({ clusterId, onClose }) {
                 }}>
                   <div style={{ fontWeight: '800', color: '#fff', marginBottom: '12px', fontSize: '14px' }}>{int.screen}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {int.reads.length > 0 && (
+                    {int.reads?.length > 0 && (
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         <span style={{ fontSize: '9px', fontWeight: '900', color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>READ</span>
                         {int.reads.map(r => <span key={r} style={{ fontSize: '10px', color: '#94a3b8' }}>{r}</span>)}
                       </div>
                     )}
-                    {int.writes.length > 0 && (
+                    {int.writes?.length > 0 && (
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         <span style={{ fontSize: '9px', fontWeight: '900', color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>WRITE</span>
                         {int.writes.map(w => <span key={w} style={{ fontSize: '10px', color: '#94a3b8' }}>{w}</span>)}
