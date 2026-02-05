@@ -91,7 +91,7 @@ export function ClusterView() {
         zIndex: 20,
       }}>
         {/* Title */}
-        <div>
+        {/* <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
             <div style={{
               width: "20px",
@@ -133,7 +133,7 @@ export function ClusterView() {
           }}>
             Enterprise Core Modernization Mapping
           </p>
-        </div>
+        </div> */}
 
       </div>
 
