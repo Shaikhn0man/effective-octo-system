@@ -1,6 +1,57 @@
 import { useState } from 'react';
 import { cutExplorerData } from '../data/cutExplorerData';
 
+// SVG Icons
+const OverviewIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"></rect>
+    <rect x="14" y="3" width="7" height="7"></rect>
+    <rect x="14" y="14" width="7" height="7"></rect>
+    <rect x="3" y="14" width="7" height="7"></rect>
+  </svg>
+);
+
+const FlowIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M12 1v6m0 6v6"></path>
+    <path d="M17 7l-5 5-5-5"></path>
+  </svg>
+);
+
+const DatabaseIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+  </svg>
+);
+
+const CodeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="16 18 22 12 16 6"></polyline>
+    <polyline points="8 6 2 12 8 18"></polyline>
+  </svg>
+);
+
+const NodeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="10" rx="2" ry="2"></rect>
+    <line x1="12" y1="17" x2="12" y2="22"></line>
+    <line x1="8" y1="22" x2="16" y2="22"></line>
+  </svg>
+);
+
+const DBInteractionIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <polyline points="9 11 12 14 15 11"></polyline>
+  </svg>
+);
+
 // Tab Components
 function SystemOverview({ data, cutId }) {
   return (
@@ -82,30 +133,56 @@ function FlowDiagram({ data, cutId }) {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '32px' }}>
-          {cutId <= 2 ? 'Screen Flow Sequence' : 'Batch Process Flow'}
-        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+          <div style={{ color: '#3b82f6' }}>
+            <NodeIcon />
+          </div>
+          <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>
+            {cutId <= 2 ? 'Screen Flow Sequence' : 'Batch Process Flow'}
+          </h2>
+        </div>
         
         {data.sequence && Array.isArray(data.sequence) && data.sequence.length > 0 ? (
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
              {data.sequence.map((row, i) => (
-               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
                  {row.map((node, j) => (
-                   <div key={j} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                   <div key={j} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                      <div style={{
-                       background: 'rgba(255,255,255,0.05)',
-                       border: '1px solid rgba(255,255,255,0.1)',
-                       padding: '12px 16px',
-                       borderRadius: '8px',
-                       fontSize: '12px',
+                       background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%)',
+                       border: '2px solid rgba(59, 130, 246, 0.3)',
+                       padding: '14px 20px',
+                       borderRadius: '12px',
+                       fontSize: '13px',
                        fontWeight: '700',
                        color: '#e2e8f0',
                        fontFamily: 'monospace',
-                       boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                       boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)',
+                       display: 'flex',
+                       alignItems: 'center',
+                       gap: '10px',
+                       transition: 'all 0.2s ease',
+                       cursor: 'default'
+                     }}
+                     onMouseEnter={e => {
+                       e.currentTarget.style.transform = 'translateY(-2px)';
+                       e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.25)';
+                     }}
+                     onMouseLeave={e => {
+                       e.currentTarget.style.transform = 'translateY(0)';
+                       e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.15)';
                      }}>
-                       [{node}]
+                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                         <rect x="2" y="7" width="20" height="10" rx="2" ry="2"></rect>
+                       </svg>
+                       {node}
                      </div>
-                     {j < row.length - 1 && <span style={{ color: '#334155' }}>→</span>}
+                     {j < row.length - 1 && (
+                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                         <line x1="5" y1="12" x2="19" y2="12"></line>
+                         <polyline points="12 5 19 12 12 19"></polyline>
+                       </svg>
+                     )}
                    </div>
                  ))}
                </div>
@@ -150,10 +227,15 @@ function FlowDiagram({ data, cutId }) {
       {/* Interactive Table Interactions */}
       {data.interactions && data.interactions.length > 0 && (
         <section>
-          <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px' }}>
-            Database & Screen Interactions
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ color: '#64748b' }}>
+              <DBInteractionIcon />
+            </div>
+            <h2 style={{ fontSize: '14px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>
+              Database & Screen Interactions
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
             {data.interactions.map((int, i) => (
               <div key={i} style={{
                 background: 'rgba(255,255,255,0.02)',
@@ -166,23 +248,77 @@ function FlowDiagram({ data, cutId }) {
               onMouseEnter={e => {
                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                 e.currentTarget.style.transform = 'translateY(-2px)';
               }}
               onMouseLeave={e => {
                  e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+                 e.currentTarget.style.transform = 'translateY(0)';
               }}>
-                <div style={{ fontWeight: '800', color: '#fff', marginBottom: '12px', fontSize: '14px' }}>{int.screen}</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="7" width="20" height="10" rx="2" ry="2"></rect>
+                    <line x1="12" y1="17" x2="12" y2="22"></line>
+                    <line x1="8" y1="22" x2="16" y2="22"></line>
+                  </svg>
+                  <div style={{ fontWeight: '800', color: '#fff', fontSize: '14px' }}>{int.screen}</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {int.reads && int.reads.length > 0 && (
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '9px', fontWeight: '900', color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>READ</span>
-                      {int.reads.map(r => <span key={r} style={{ fontSize: '10px', color: '#94a3b8' }}>{r}</span>)}
+                    <div style={{ 
+                      background: 'rgba(34, 197, 94, 0.05)', 
+                      padding: '12px', 
+                      borderRadius: '8px',
+                      border: '1px solid rgba(34, 197, 94, 0.2)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                        <span style={{ fontSize: '10px', fontWeight: '900', color: '#22c55e', textTransform: 'uppercase', letterSpacing: '1px' }}>Read Operations</span>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {int.reads.map(r => (
+                          <span key={r} style={{ 
+                            fontSize: '10px', 
+                            color: '#94a3b8',
+                            background: 'rgba(34, 197, 94, 0.1)',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontFamily: 'monospace'
+                          }}>{r}</span>
+                        ))}
+                      </div>
                     </div>
                   )}
                   {int.writes && int.writes.length > 0 && (
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '9px', fontWeight: '900', color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>WRITE</span>
-                      {int.writes.map(w => <span key={w} style={{ fontSize: '10px', color: '#94a3b8' }}>{w}</span>)}
+                    <div style={{ 
+                      background: 'rgba(239, 68, 68, 0.05)', 
+                      padding: '12px', 
+                      borderRadius: '8px',
+                      border: '1px solid rgba(239, 68, 68, 0.2)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 20h9"></path>
+                          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                        <span style={{ fontSize: '10px', fontWeight: '900', color: '#ef4444', textTransform: 'uppercase', letterSpacing: '1px' }}>Write Operations</span>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {int.writes.map(w => (
+                          <span key={w} style={{ 
+                            fontSize: '10px', 
+                            color: '#94a3b8',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontFamily: 'monospace'
+                          }}>{w}</span>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -410,10 +546,10 @@ export function CutExplorer({ clusterId, onClose }) {
   if (!data) return null;
 
   const tabs = [
-    { id: 'overview', label: 'System Overview', icon: '📊' },
-    { id: 'flow', label: 'Flow Diagram', icon: '🔄' },
-    { id: 'database', label: 'Database Map', icon: '🗄️' },
-    { id: 'ascii', label: 'ASCII Chart', icon: '📋' }
+    { id: 'overview', label: 'System Overview', icon: <OverviewIcon /> },
+    { id: 'flow', label: 'Flow Diagram', icon: <FlowIcon /> },
+    { id: 'database', label: 'Database Map', icon: <DatabaseIcon /> },
+    { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
   ];
 
   return (
@@ -513,7 +649,7 @@ export function CutExplorer({ clusterId, onClose }) {
                 }
               }}
             >
-              <span style={{ fontSize: '16px' }}>{tab.icon}</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}>{tab.icon}</span>
               {tab.label}
             </button>
           ))}
