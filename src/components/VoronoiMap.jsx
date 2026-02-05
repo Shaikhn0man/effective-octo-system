@@ -39,7 +39,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
     // Filter out clusters without IDs just in case
     const validClusters = clusters.filter(c => c.cluster_id);
-    
+
     // Initial positions (deterministic start to prevent shuffling)
     const initialSites = validClusters.map((c, i) => {
       const angle = (i / validClusters.length) * 2 * Math.PI;
@@ -87,13 +87,48 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
   // Get dependencies for selected cluster
   const selectedCluster = clusters.find(c => c.cluster_id === selectedId);
-  const activeDependencies = useMemo(() => {
-    if (!selectedId || !dependencyMap) return [];
-    const clusterDep = dependencyMap.find(d => d.cluster_id === selectedId);
-    return clusterDep?.depends_on || [];
-  }, [selectedId, dependencyMap]);
 
-  const dependencyIds = new Set(activeDependencies.map(d => d.cluster_id));
+  // Compute both outgoing and incoming dependencies
+  const { outgoingDeps, incomingDeps, allDependencyIds } = useMemo(() => {
+    if (!selectedId) return { outgoingDeps: [], incomingDeps: [], allDependencyIds: new Set() };
+
+    // OUTGOING: This cluster reads from others (Depends On)
+    const selectedClusterData = clusters.find(c => c.cluster_id === selectedId);
+    const outgoing = (selectedClusterData?.dependencies?.reads_from_cuts || []).map(str => {
+      const match = str.match(/^(.*?) \(Table: (.*?)\)$/);
+      if (match) return { cluster_id: match[1], table: match[2] };
+      return { cluster_id: str, table: null };
+    });
+
+    // INCOMING: Other clusters read from this one (Depended By)
+    const incoming = [];
+    clusters.forEach(c => {
+      if (c.cluster_id === selectedId) return;
+
+      const reads = c.dependencies?.reads_from_cuts || [];
+      reads.forEach(readStr => {
+        const match = readStr.match(/^(.*?) \(Table: (.*?)\)$/);
+        const targetId = match ? match[1] : readStr;
+        const targetTable = match ? match[2] : null;
+
+        if (targetId === selectedId) {
+          incoming.push({
+            cluster_id: c.cluster_id,
+            table: targetTable
+          });
+        }
+      });
+    });
+
+    const allIds = new Set([
+      ...outgoing.map(d => d.cluster_id),
+      ...incoming.map(d => d.cluster_id)
+    ]);
+
+    return { outgoingDeps: outgoing, incomingDeps: incoming, allDependencyIds: allIds };
+  }, [selectedId, clusters]);
+
+  const dependencyIds = allDependencyIds;
 
   // Get short name for display
   const getShortName = (clusterId) => {
@@ -142,6 +177,9 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
           {/* Arrow markers for dependency lines */}
           <marker id="arrowhead-red" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
             <polygon points="0 0, 6 3, 0 6" fill="#ef4444" opacity="0.8" />
+          </marker>
+          <marker id="arrowhead-green" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#22c55e" opacity="0.8" />
           </marker>
           <marker id="arrowhead-slate" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
             <polygon points="0 0, 6 3, 0 6" fill="#94a3b8" opacity="0.6" />
@@ -207,7 +245,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 <text
                   textAnchor="middle"
                   y={-10}
-                  fontSize="10"
+                  fontSize="14"
                   fontWeight="bold"
                   fill={isSelected ? '#fff' : 'rgba(255,255,255,0.9)'}
                   style={{
@@ -220,19 +258,19 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
                 {/* Flow type indicators (S/B badges) */}
                 <g transform="translate(0, 20)">
-                  <g transform="translate(-14, 0)">
+                  <g transform="translate(-16, 0)">
                     {p.cluster.screen_count > 0 && (
                       <g>
-                        <rect x="-10" y="-8" width="20" height="16" rx="5" fill="#3b82f6" fillOpacity="0.9" />
-                        <text textAnchor="middle" dy="4.5" fontSize="10" fontWeight="900" fill="white">S</text>
+                        <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#3b82f6" fillOpacity="0.9" />
+                        <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">S</text>
                       </g>
                     )}
                   </g>
-                  <g transform="translate(14, 0)">
+                  <g transform="translate(16, 0)">
                     {p.cluster.flow_count > 0 && (
                       <g>
-                        <rect x="-10" y="-8" width="20" height="16" rx="5" fill="#f97316" fillOpacity="0.9" />
-                        <text textAnchor="middle" dy="4.5" fontSize="10" fontWeight="900" fill="white">B</text>
+                        <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#f97316" fillOpacity="0.9" />
+                        <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">B</text>
                       </g>
                     )}
                   </g>
@@ -242,7 +280,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 <g transform="translate(0, -32)">
                   <text
                     textAnchor="middle"
-                    fontSize={isSelected ? 14 : 9}
+                    fontSize={isSelected ? 18 : 12}
                     fontWeight="900"
                     fill={isSelected ? 'white' : '#64748b'}
                     style={{
@@ -262,9 +300,11 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
         {/* Render dependency paths for selected cluster */}
         {selectedId && polygons.map((p) => {
           if (p.cluster.cluster_id !== selectedId) return null;
+
           return (
             <g key={`deps-${p.cluster.cluster_id}`} style={{ pointerEvents: 'none' }}>
-              {activeDependencies.map((dep) => {
+              {/* OUTGOING DEPENDENCIES (Red - This cluster reads from others) */}
+              {outgoingDeps.map((dep) => {
                 const targetPolygon = polygons.find(target => target.cluster.cluster_id === dep.cluster_id);
                 if (!targetPolygon) return null;
 
@@ -278,7 +318,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 const pathStr = `M${x1},${y1} A${dr},${dr} 0 0,1 ${x2},${y2}`;
 
                 return (
-                  <g key={`${p.cluster.cluster_id}-${dep.cluster_id}`}>
+                  <g key={`outgoing-${p.cluster.cluster_id}-${dep.cluster_id}`}>
                     {/* Glow path */}
                     <path
                       d={pathStr}
@@ -314,10 +354,10 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                         dy="5"
                         fontSize="8"
                         fontWeight="bold"
-                        fill="#94a3b8"
+                        fill="#ef4444"
                         style={{ textTransform: 'uppercase', letterSpacing: '1px' }}
                       >
-                        {dep.table || 'DEPENDENCY'}
+                        {dep.table || 'READS FROM'}
                       </text>
                     </g>
                     {/* Target ping */}
@@ -327,6 +367,78 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                       r="8"
                       fill="none"
                       stroke="#ef4444"
+                      strokeWidth="1"
+                      strokeOpacity="0.4"
+                      style={{ animation: 'ping 1.5s ease-out infinite' }}
+                    />
+                  </g>
+                );
+              })}
+
+              {/* INCOMING DEPENDENCIES (Green - Others read from this cluster) */}
+              {incomingDeps.map((dep) => {
+                const sourcePolygon = polygons.find(source => source.cluster.cluster_id === dep.cluster_id);
+                if (!sourcePolygon) return null;
+
+                const x1 = sourcePolygon.center.x;
+                const y1 = sourcePolygon.center.y;
+                const x2 = p.center.x;
+                const y2 = p.center.y;
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const dr = Math.sqrt(dx * dx + dy * dy) * 1.3;
+                const pathStr = `M${x1},${y1} A${dr},${dr} 0 0,1 ${x2},${y2}`;
+
+                return (
+                  <g key={`incoming-${dep.cluster_id}-${p.cluster.cluster_id}`}>
+                    {/* Glow path */}
+                    <path
+                      d={pathStr}
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth={4}
+                      strokeOpacity={0.15}
+                      style={{ animation: 'pulse 2s ease-in-out infinite' }}
+                    />
+                    {/* Main path */}
+                    <path
+                      d={pathStr}
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth={2}
+                      strokeOpacity={0.7}
+                      markerEnd="url(#arrowhead-green)"
+                    />
+                    {/* Label */}
+                    <g transform={`translate(${(x1 + x2) / 2}, ${(y1 + y2) / 2 - 15})`}>
+                      <rect
+                        x="-45"
+                        y="-10"
+                        width="90"
+                        height="20"
+                        rx="6"
+                        fill="#0f172a"
+                        stroke="#22c55e"
+                        strokeOpacity="0.3"
+                      />
+                      <text
+                        textAnchor="middle"
+                        dy="5"
+                        fontSize="8"
+                        fontWeight="bold"
+                        fill="#22c55e"
+                        style={{ textTransform: 'uppercase', letterSpacing: '1px' }}
+                      >
+                        {dep.table || 'DEPENDED BY'}
+                      </text>
+                    </g>
+                    {/* Source ping */}
+                    <circle
+                      cx={x1}
+                      cy={y1}
+                      r="8"
+                      fill="none"
+                      stroke="#22c55e"
                       strokeWidth="1"
                       strokeOpacity="0.4"
                       style={{ animation: 'ping 1.5s ease-out infinite' }}
