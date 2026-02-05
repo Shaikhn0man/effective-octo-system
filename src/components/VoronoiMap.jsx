@@ -44,26 +44,61 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
     const initialSites = validClusters.map((c, i) => {
       const angle = (i / validClusters.length) * 2 * Math.PI;
       const radius = Math.min(width, height) * 0.2;
+      const x = Math.max(70, Math.min(width - 70, width / 2 + Math.cos(angle) * radius));
+      const y = Math.max(70, Math.min(height - 70, height / 2 + Math.sin(angle) * radius));
       return {
         id: c.cluster_id,
-        x: width / 2 + Math.cos(angle) * radius,
-        y: height / 2 + Math.sin(angle) * radius,
+        x,
+        y,
         cluster: c,
       };
     });
 
-    // Use d3-force to space out seeds based on program_count
-    // Area should be proportional to program_count, so radius proportional to sqrt(program_count)
+    // Calculate cluster size based on weighted combination of metrics
+    // This creates a more accurate representation of cluster complexity
     const simulation = d3.forceSimulation(initialSites)
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collide', d3.forceCollide().radius(d => {
-        // Base radius scaled by sqrt of program count
-        // 17 programs (max) -> ~60-80px radius
-        // 1 program (min) -> ~15-20px radius
-        const count = d.cluster.program_count || 1;
-        return Math.sqrt(count) * 20 + 15;
+        const cluster = d.cluster;
+
+        // Extract metrics with defaults
+        const programCount = cluster.program_count || 0;
+        const flowCount = cluster.flow_count || 0;
+        const screenCount = cluster.screen_count || 0;
+
+        // Weighted complexity score
+        // Programs: 40% weight (core logic/functionality)
+        // Flows: 35% weight (business processes)
+        // Screens: 25% weight (user interaction points)
+        const complexityScore = (
+          (programCount * 0.40) +
+          (flowCount * 0.35) +
+          (screenCount * 0.25)
+        );
+
+        // Ensure minimum score of 1 for clusters with no data
+        const normalizedScore = Math.max(complexityScore, 1);
+
+        // Calculate radius with more aggressive scaling for visual impact
+        // Using power of 0.65 instead of 0.5 (square root) for more pronounced differences
+        // Base radius: 25px (minimum viable cluster)
+        // Scale factor: 28px per unit of complexity
+        // Formula: radius = Math.max(70, 25 + (complexityScore^0.65 × 28))
+        // ENFORCED MINIMUM: 70px to ensure all content (number, badges, topic) is visible
+        //
+        // Example sizes:
+        // - Score 1 (minimal): 70px radius (enforced minimum)
+        // - Score 5 (small): ~95px radius
+        // - Score 10 (medium): ~135px radius
+        // - Score 15 (large): ~167px radius
+        // - Score 20+ (very large): ~195px+ radius
+        const radius = Math.max(70, 25 + (Math.pow(normalizedScore, 0.65) * 28));
+
+        // Ensure minimum radius to display content
+        const minRadius = 50; // Minimum radius to always show topic number and S/B tags
+        return Math.max(radius, minRadius);
       }).strength(1))
-      .force('charge', d3.forceManyBody().strength(-100))
+      .force('charge', d3.forceManyBody().strength(-150))
       .stop();
 
     // Run simulation synchronously for a stable layout
@@ -130,14 +165,30 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
   const dependencyIds = allDependencyIds;
 
-  // Get short name for display
+  // Get short name for display (truncated to 3 words)
   const getShortName = (clusterId) => {
     // Extract meaningful part from cluster ID
     const parts = clusterId.split('_');
     if (parts.length >= 3) {
-      return parts.slice(2).join(' ').split('-')[0].toUpperCase();
+      const fullName = parts.slice(2).join(' ').replace(/_/g, ' ').split('-')[0];
+      const words = fullName.split(' ').filter(w => w.length > 0);
+
+      // Truncate to 3 words and add ellipsis if needed
+      if (words.length > 3) {
+        return words.slice(0, 3).join(' ').toUpperCase() + '...';
+      }
+      return fullName.toUpperCase();
     }
     return clusterId.slice(0, 12);
+  };
+
+  // Get full name for tooltip
+  const getFullName = (clusterId) => {
+    const parts = clusterId.split('_');
+    if (parts.length >= 3) {
+      return parts.slice(2).join(' ').replace(/_/g, ' ').split('-')[0];
+    }
+    return clusterId;
   };
 
   const handleBackgroundClick = (e) => {
@@ -257,23 +308,34 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 </text>
 
                 {/* Flow type indicators (S/B badges) */}
-                <g transform="translate(0, 20)">
-                  <g transform="translate(-16, 0)">
-                    {p.cluster.screen_count > 0 && (
-                      <g>
+                {/* Separate opacity control to keep badges visible even when dimmed */}
+                <g transform="translate(0, 20)" style={{ opacity: isDimmed ? 0.6 : 1 }}>
+                  {/* Dynamically position badges based on what's present */}
+                  {p.cluster.screen_count > 0 && p.cluster.flow_count > 0 ? (
+                    // Both badges - show side by side
+                    <>
+                      <g transform="translate(-16, 0)">
                         <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#3b82f6" fillOpacity="0.9" />
                         <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">S</text>
                       </g>
-                    )}
-                  </g>
-                  <g transform="translate(16, 0)">
-                    {p.cluster.flow_count > 0 && (
-                      <g>
+                      <g transform="translate(16, 0)">
                         <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#f97316" fillOpacity="0.9" />
                         <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">B</text>
                       </g>
-                    )}
-                  </g>
+                    </>
+                  ) : p.cluster.screen_count > 0 ? (
+                    // Only S badge - center it
+                    <g transform="translate(0, 0)">
+                      <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#3b82f6" fillOpacity="0.9" />
+                      <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">S</text>
+                    </g>
+                  ) : p.cluster.flow_count > 0 ? (
+                    // Only B badge - center it
+                    <g transform="translate(0, 0)">
+                      <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#f97316" fillOpacity="0.9" />
+                      <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">B</text>
+                    </g>
+                  ) : null}
                 </g>
 
                 {/* Cluster name */}
@@ -287,9 +349,12 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                       textTransform: 'uppercase',
                       letterSpacing: isSelected ? '1px' : '0.5px',
                       transition: 'all 0.4s ease',
+                      cursor: 'pointer',
                     }}
                   >
                     {getShortName(p.cluster.cluster_id)}
+                    {/* Tooltip with full name */}
+                    <title>{getFullName(p.cluster.cluster_id)}</title>
                   </text>
                 </g>
               </g>
