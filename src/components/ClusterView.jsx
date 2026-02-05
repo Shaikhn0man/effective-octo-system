@@ -150,7 +150,7 @@ export function ClusterView() {
         {/* Map Legend (Floating) */}
         <MapLegend />
 
-        {/* Friction Alert */}
+        {/* Friction Alert
         <div style={{
           position: "absolute",
           top: "90px",
@@ -193,7 +193,7 @@ export function ClusterView() {
               margin: "4px 0 0 0",
             }}>Resolve Auth & Settlements Priority</p>
           </div>
-        </div>
+        </div> */}
       </main>
 
       {/* Detail Sidebar */}
