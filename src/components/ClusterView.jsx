@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 import { clusterData } from "../data/clusterData";
 import { clusterDependencyMapData, clusterSpecificDependencyData } from "../data/clusterDependencyData";
 import { ClusterSidebar } from "./ClusterSidebar";
+import { CutExplorer } from "./CutExplorer";
 import { MapLegend } from "./MapLegend";
 import { VoronoiMap } from "./VoronoiMap";
 
 export function ClusterView() {
   const [selectedClusterId, setSelectedClusterId] = useState(null);
   const [filterType, setFilterType] = useState("ALL");
+  const [isExplorerOpen, setIsExplorerOpen] = useState(false);
 
   const filteredClusters = useMemo(() => (
     filterType === "ALL"
@@ -203,7 +205,15 @@ export function ClusterView() {
         setFilterType={setFilterType}
         filterButtons={filterButtons}
         clusterData={clusterData}
+        onOpenExplorer={() => setIsExplorerOpen(true)}
       />
+
+      {isExplorerOpen && selectedClusterId && (
+        <CutExplorer 
+          clusterId={selectedClusterId} 
+          onClose={() => setIsExplorerOpen(false)} 
+        />
+      )}
 
       {/* Subtle background grid */}
       <div style={{

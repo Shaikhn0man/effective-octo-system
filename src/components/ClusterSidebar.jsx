@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const TYPE_COLORS = {
   CLEAN_CUT: {
@@ -230,7 +230,7 @@ const DependencyVisualizer = ({ dependsOn, dependedBy, currentClusterId }) => {
   );
 };
 
-export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, setFilterType, filterButtons, clusterData }) {
+export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, setFilterType, filterButtons, clusterData, onOpenExplorer }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   // Compute Dependencies from clusterData
@@ -659,6 +659,44 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
         }}>
           {cluster.cluster_id.split('_').slice(2).join(' ').replace(/-/g, ' ')}
         </h1>
+
+        {/* Cut Explorer Button */}
+        <button
+          onClick={onOpenExplorer}
+          style={{
+            width: '100%',
+            padding: '14px',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+            border: 'none',
+            borderRadius: '12px',
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: '900',
+            textTransform: 'uppercase',
+            letterSpacing: '1.5px',
+            cursor: 'pointer',
+            marginBottom: '20px',
+            boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(37, 99, 235, 0.6)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 15px rgba(37, 99, 235, 0.4)';
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+          </svg>
+          Deep Dive: Cut Explorer
+        </button>
 
         {/* Tabs */}
         <div style={{
