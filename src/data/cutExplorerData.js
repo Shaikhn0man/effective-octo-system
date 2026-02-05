@@ -59,11 +59,11 @@ export const cutExplorerData = {
       ]
     },
     interactions: [
-      { screen: "COUSR2A", writes: ["SEC-USER-DATA"] },
-      { screen: "COUSR0A", reads: ["SEC-USER-DATA"] },
-      { screen: "COUSR3A", writes: ["SEC-USER-DATA"] },
-      { screen: "COPAU0A", reads: ["SEC-USER-DATA"] },
-      { screen: "COSGN0A", reads: ["SEC-USER-DATA"] }
+      { screen: "COUSR2A", reads: [], writes: ["SEC-USER-DATA"] },
+      { screen: "COUSR0A", reads: ["SEC-USER-DATA"], writes: [] },
+      { screen: "COUSR3A", reads: [], writes: ["SEC-USER-DATA"] },
+      { screen: "COPAU0A", reads: ["SEC-USER-DATA"], writes: [] },
+      { screen: "COSGN0A", reads: ["SEC-USER-DATA"], writes: [] }
     ],
     dependencies: { readsFrom: "Cut 1 (ACCOUNT-RECORD, CUSTOMER-RECORD)", providesTo: "Cut 1 (SEC-USER-DATA)" }
   },
