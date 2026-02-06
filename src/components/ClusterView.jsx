@@ -27,7 +27,7 @@ export function ClusterView() {
     }
 
     const clusterDep = clusterDependencyMapData.dependency_map.find(
-      (c) => c.cluster_id === clusterId
+      (c) => c.id === clusterId
     );
 
     if (clusterDep) {
@@ -46,10 +46,10 @@ export function ClusterView() {
   };
 
   const handleClusterSelect = (cluster) => {
-    if (selectedClusterId === cluster.cluster_id) {
+    if (selectedClusterId === cluster.id) {
       setSelectedClusterId(null);
     } else {
-      setSelectedClusterId(cluster.cluster_id);
+      setSelectedClusterId(cluster.id);
     }
   };
 
@@ -57,7 +57,7 @@ export function ClusterView() {
     setSelectedClusterId(null);
   };
 
-  const selectedCluster = clusterData.clusters.find(c => c.cluster_id === selectedClusterId);
+  const selectedCluster = clusterData.clusters.find(c => c.id === selectedClusterId);
   const dependencyInfo = getDependencyInfo(selectedClusterId);
 
   const filterButtons = [

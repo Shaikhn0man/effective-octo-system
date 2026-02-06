@@ -139,7 +139,7 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
             letterSpacing: "0.3px",
           }}
         >
-          {cluster.cluster_id.split("_").slice(1).join("_").substring(0, 18)}
+          {cluster.topic}
         </h4>
 
         {/* Type Badge */}

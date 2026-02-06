@@ -1,7 +1,46 @@
 import { Info, Map, X } from 'lucide-react';
 import React from 'react';
 
+import { MermaidDiagram } from './MermaidDiagram';
+
 export function InfoModal({ onClose }) {
+  const chart = `graph TB
+    %% ============ CARDDEMO BIRD'S EYE VIEW ============
+    
+    subgraph CARDDEMO["💳 CARDDEMO - Credit Card Management System"]
+        direction TB
+        
+        USERS["👥 Users<br/>Customers & Staff"]
+        
+        SCREENS["💻 Online Screens<br/>CICS Transactions<br/>Account, Card & Transaction Management"]
+        
+        BATCH["🔄 Batch Processing<br/>JCL Jobs<br/>Interest, Reports & Data Processing"]
+        
+        DATA[("🗄️ Data Storage<br/>VSAM Files<br/>Customer, Account & Transaction Data")]
+        
+        EXTENSIONS["🔀 Optional Extensions<br/>DB2 • IMS • MQ<br/>Advanced Features"]
+    end
+    
+    %% Simple Flow
+    USERS --> SCREENS
+    SCREENS <--> DATA
+    BATCH <--> DATA
+    DATA -.-> EXTENSIONS
+    
+    %% Styling
+    classDef userStyle fill:#E8F5E8,stroke:#388E3C,stroke-width:3px,color:#1B5E20,font-weight:bold
+    classDef screenStyle fill:#E3F2FD,stroke:#1976D2,stroke-width:3px,color:#0D47A1,font-weight:bold
+    classDef batchStyle fill:#FFF3E0,stroke:#F57C00,stroke-width:3px,color:#E65100,font-weight:bold
+    classDef dataStyle fill:#FCE4EC,stroke:#C2185B,stroke-width:3px,color:#880E4F,font-weight:bold
+    classDef extStyle fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#4A148C,font-style:italic
+    
+    class USERS userStyle
+    class SCREENS screenStyle
+    class BATCH batchStyle
+    class DATA dataStyle
+    class EXTENSIONS extStyle
+  `;
+
   return (
     <div style={{
       position: 'fixed',
@@ -105,6 +144,23 @@ export function InfoModal({ onClose }) {
               Serves as a reference application for mainframe modernization, migration testing, and technology evaluation
               on AWS and partner platforms.
             </p>
+          </div>
+
+          {/* System Diagram */}
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            padding: '24px',
+            borderRadius: '16px',
+            border: '1px solid rgba(255,255,255,0.05)',
+            marginBottom: '24px',
+            overflow: 'hidden',
+          }}>
+             <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '16px' }}>
+              System Architecture
+            </h3>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <MermaidDiagram chart={chart} id="system-view" />
+            </div>
           </div>
 
           {/* Functional Domains Grid */}

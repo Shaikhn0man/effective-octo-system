@@ -22,11 +22,11 @@ export function Dashboard() {
     if (isAllApproved) {
       setApprovedIds(new Set());
     } else {
-      setApprovedIds(new Set(clusters.map(c => c.cluster_id)));
+      setApprovedIds(new Set(clusters.map(c => c.id)));
     }
   };
 
-  const selectedCluster = clusters.find(c => c.cluster_id === selectedId);
+  const selectedCluster = clusters.find(c => c.id === selectedId);
 
   return (
     <div style={{
@@ -97,13 +97,13 @@ export function Dashboard() {
           gap: '12px',
         }}>
           {clusters.map((c) => {
-            const isApproved = approvedIds.has(c.cluster_id);
-            const isSelected = selectedId === c.cluster_id;
+            const isApproved = approvedIds.has(c.id);
+            const isSelected = selectedId === c.id;
 
             return (
               <div
-                key={c.cluster_id}
-                onClick={() => setSelectedId(c.cluster_id)}
+                key={c.id}
+                onClick={() => setSelectedId(c.id)}
                 style={{
                   padding: '16px',
                   borderRadius: '16px',
@@ -121,7 +121,7 @@ export function Dashboard() {
                     letterSpacing: '-0.2px',
                     maxWidth: '180px',
                   }}>
-                    {c.cluster_id.split('_').slice(2).join(' ').replace(/-/g, ' ')}
+                    {c.topic}
                   </div>
                   <div style={{
                     fontSize: '14px',
@@ -135,7 +135,7 @@ export function Dashboard() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleApproval(c.cluster_id);
+                      toggleApproval(c.id);
                     }}
                     style={{
                       flex: 1,
@@ -159,7 +159,7 @@ export function Dashboard() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      alert(`Modify ${c.cluster_id}`);
+                      alert(`Modify ${c.id}`);
                     }}
                     style={{
                       padding: '8px 12px',
@@ -188,7 +188,7 @@ export function Dashboard() {
           clusters={clusters}
           selectedId={selectedId}
           approvedIds={approvedIds}
-          onSelect={(c) => setSelectedId(c.cluster_id)}
+          onSelect={(c) => setSelectedId(c.id)}
           onDeselect={() => setSelectedId(null)}
         />
         

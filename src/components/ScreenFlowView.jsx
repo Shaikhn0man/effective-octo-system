@@ -1,9 +1,9 @@
 import ReactFlow, {
-  Background,
-  Controls,
-  MiniMap,
-  useEdgesState,
-  useNodesState,
+    Background,
+    Controls,
+    MiniMap,
+    useEdgesState,
+    useNodesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { screenFlowData } from "../data/screenFlowData";

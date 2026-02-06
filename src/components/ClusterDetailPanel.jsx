@@ -102,7 +102,7 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
             maxWidth: "70%",
             color: "#ffffff",
           }}>
-            {cluster.cluster_id}
+            {cluster.id}
           </h3>
           <span
             style={{

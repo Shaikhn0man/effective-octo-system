@@ -251,7 +251,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
     const dependedBy = [];
     if (clusterData?.clusters) {
       clusterData.clusters.forEach(c => {
-        if (c.cluster_id === cluster.cluster_id) return;
+        if (c.id === cluster.id) return;
 
         const reads = c.dependencies?.reads_from_cuts || [];
         reads.forEach(readStr => {
@@ -259,9 +259,9 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
           const targetId = match ? match[1] : readStr;
           const targetTable = match ? match[2] : null;
 
-          if (targetId === cluster.cluster_id) {
+          if (targetId === cluster.id) {
             dependedBy.push({
-              cluster_id: c.cluster_id, // The one reading
+              cluster_id: c.id, // The one reading
               table: targetTable // The table being read
             });
           }
@@ -1087,7 +1087,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
             textTransform: 'uppercase',
             letterSpacing: '1px',
           }}>
-            {cluster.cluster_id.split('_').slice(0, 2).join('_')}
+            {cluster.id.split('_').slice(0, 2).join('_')}
           </span>
         </div>
 
@@ -1101,7 +1101,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
           marginBottom: '10px',
           lineHeight: '1.2',
         }}>
-          {cluster.cluster_id.split('_').slice(2).join(' ').replace(/-/g, ' ')}
+          {cluster.topic}
         </h1>
 
         {/* Cut Explorer Button */}
@@ -1143,7 +1143,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
         </button>
 
         {/* Screen Flow Sequence Preview */}
-        {cutExplorerData[parseInt(cluster.cluster_id.match(/Cut_(\d+)_/)?.[1])]?.sequence && (
+        {cutExplorerData[parseInt(cluster.id.match(/Cut_(\d+)_/)?.[1])]?.sequence && (
           <div style={{ marginTop: '20px' }}>
              <div style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
                SCREEN FLOW SEQUENCE
@@ -1158,7 +1158,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                color: '#e2e8f0',
                lineHeight: '1.6'
              }}>
-               {cutExplorerData[parseInt(cluster.cluster_id.match(/Cut_(\d+)_/)?.[1])].sequence.map((row, i) => (
+               {cutExplorerData[parseInt(cluster.id.match(/Cut_(\d+)_/)?.[1])].sequence.map((row, i) => (
                  <div key={i} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
                    {row.map((node, j) => (
                      <span key={j}>
@@ -1348,7 +1348,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                   borderRadius: '4px',
                 }}>{cluster.sub_cut_count}</span>
               </h3>
-              <SubcutHierarchy subCuts={cluster.sub_cuts} mainClusterId={cluster.cluster_id} />
+              <SubcutHierarchy subCuts={cluster.sub_cuts} mainClusterId={cluster.id} />
             </section>
 
             {cluster.dependencies?.reads_from_cuts?.length > 0 && (
@@ -1934,7 +1934,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
               <DependencyVisualizer
                 dependsOn={computedDependencies.dependsOn}
                 dependedBy={computedDependencies.dependedBy}
-                currentClusterId={cluster.cluster_id}
+                currentClusterId={cluster.id}
               />
             </div>
           </div>

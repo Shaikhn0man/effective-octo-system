@@ -14,7 +14,7 @@ export function HexagonalStackView() {
 
   // Sort clusters by cut number (order)
   const sortedClusters = [...clusterData.clusters].sort(
-    (a, b) => getCutNumber(a.cluster_id) - getCutNumber(b.cluster_id)
+    (a, b) => getCutNumber(a.id) - getCutNumber(b.id)
   );
 
   // Get min and max screen counts for scaling
@@ -84,11 +84,11 @@ export function HexagonalStackView() {
           {sortedClusters.map((cluster, idx) => {
             const size = getHexagonSize(cluster.screen_count);
             const typeColor = getTypeColor(cluster.type);
-            const isSelected = selectedCluster?.cluster_id === cluster.cluster_id;
+            const isSelected = selectedCluster?.id === cluster.id;
 
             return (
               <div
-                key={cluster.cluster_id}
+                key={cluster.id}
                 onClick={() => setSelectedCluster(cluster)}
                 style={{
                   width: `${size}px`,
@@ -163,7 +163,7 @@ export function HexagonalStackView() {
                           color: typeColor,
                         }}
                       >
-                        {getCutNumber(cluster.cluster_id)}
+                        {getCutNumber(cluster.id)}
                       </div>
 
                       {/* Type Badge */}
@@ -281,7 +281,7 @@ export function HexagonalStackView() {
       >
         <ClusterDetailPanel
           cluster={selectedCluster}
-          dependencyInfo={selectedCluster ? getDependencyInfo(selectedCluster.cluster_id) : null}
+          dependencyInfo={selectedCluster ? getDependencyInfo(selectedCluster.id) : null}
         />
       </div>
     </div>

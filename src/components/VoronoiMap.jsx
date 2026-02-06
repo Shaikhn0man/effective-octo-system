@@ -38,19 +38,18 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
     const height = dimensions.height;
 
     // Filter out clusters without IDs just in case
-    const validClusters = clusters.filter(c => c.cluster_id);
+    const validClusters = clusters.filter(c => c.id);
 
-    // 40% Programs, 35% Flows, 25% Screens
+    // Size based purely on Program Count as requested
     const calculateScore = (c) => {
-      const programCount = c.program_count || 0;
-      const flowCount = c.flow_count || 0;
-      const screenCount = c.screen_count || 0;
-      return Math.max(1, (programCount * 0.40) + (flowCount * 0.35) + (screenCount * 0.25));
+      // Access nested stats object
+      const programCount = c.stats?.program_count || 0;
+      return Math.max(1, programCount);
     };
 
     // Filter and sort clusters by size (descending) for spiral layout
     const scoredClusters = clusters
-      .filter(c => c.cluster_id)
+      .filter(c => c.id)
       .map(c => ({ ...c, score: calculateScore(c) }))
       .sort((a, b) => b.score - a.score);
 
@@ -71,7 +70,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
       else if (c.score >= 3) sizeCategory = 'MD';
 
       return {
-        id: c.cluster_id,
+        id: c.id,
         x: Math.max(70, Math.min(width - 70, x)), // Keep within bounds
         y: Math.max(70, Math.min(height - 70, y)),
         cluster: c,
@@ -85,8 +84,9 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collide', d3.forceCollide().radius(d => {
         // Calculate radius with more aggressive scaling for visual impact
-        // Formula: radius = Math.max(70, 25 + (complexityScore^0.65 × 28))
-        const radius = Math.max(70, 25 + (Math.pow(d.score, 0.65) * 28));
+        // Formula: radius = Math.max(70, 25 + (Math.sqrt(score) * 40))
+        // Using sqrt to scale area linearly with program count
+        const radius = Math.max(70, 25 + (Math.sqrt(d.score) * 40));
         const minRadius = 50;
         return Math.max(radius, minRadius);
       }).strength(0.8)) // Slightly reduced strength for smoother packing
@@ -106,6 +106,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
     const polygonData = sites.map((s, i) => ({
       path: voronoi.renderCell(i),
+      polygon: voronoi.cellPolygon(i),
       center: s,
       cluster: s.cluster,
       sizeCategory: s.sizeCategory
@@ -115,16 +116,19 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
     // This ensures percentage reflects actual cluster complexity
     const radiusMap = new Map();
     sites.forEach(s => {
-      const radius = Math.max(70, 25 + (Math.pow(s.score, 0.65) * 28));
+      const radius = Math.max(70, 25 + (Math.sqrt(s.score) * 40));
       radiusMap.set(s.id, radius);
     });
 
-    const totalRadiusArea = Array.from(radiusMap.values()).reduce((sum, r) => sum + (Math.PI * r * r), 0);
+    const totalProgramCount = scoredClusters.reduce((sum, c) => sum + (c.score || 0), 0);
 
     const polygonsWithPercentage = polygonData.map(p => {
-      const radius = radiusMap.get(p.cluster.cluster_id);
-      const circleArea = Math.PI * radius * radius;
-      const percentage = ((circleArea / totalRadiusArea) * 100).toFixed(1);
+      const progCount = p.cluster.stats?.program_count || 0;
+      const percentage = totalProgramCount > 0 
+        ? ((progCount / totalProgramCount) * 100).toFixed(1) 
+        : "0.0";
+
+      const radius = radiusMap.get(p.cluster.id) || 70;
 
       return {
         ...p,
@@ -137,14 +141,14 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
   }, [clusters, dimensions]);
 
   // Get dependencies for selected cluster
-  const selectedCluster = clusters.find(c => c.cluster_id === selectedId);
+  const selectedCluster = clusters.find(c => c.id === selectedId);
 
   // Compute both outgoing and incoming dependencies
   const { outgoingDeps, incomingDeps, allDependencyIds } = useMemo(() => {
     if (!selectedId) return { outgoingDeps: [], incomingDeps: [], allDependencyIds: new Set() };
 
     // OUTGOING: This cluster reads from others (Depends On)
-    const selectedClusterData = clusters.find(c => c.cluster_id === selectedId);
+    const selectedClusterData = clusters.find(c => c.id === selectedId);
     const outgoing = (selectedClusterData?.dependencies?.reads_from_cuts || []).map(str => {
       const match = str.match(/^(.*?) \(Table: (.*?)\)$/);
       if (match) return { cluster_id: match[1], table: match[2] };
@@ -154,7 +158,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
     // INCOMING: Other clusters read from this one (Depended By)
     const incoming = [];
     clusters.forEach(c => {
-      if (c.cluster_id === selectedId) return;
+      if (c.id === selectedId) return;
 
       const reads = c.dependencies?.reads_from_cuts || [];
       reads.forEach(readStr => {
@@ -164,7 +168,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
         if (targetId === selectedId) {
           incoming.push({
-            cluster_id: c.cluster_id,
+            cluster_id: c.id,
             table: targetTable
           });
         }
@@ -183,28 +187,15 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
   // Get short name for display (truncated to 3 words)
   const getShortName = (clusterId) => {
-    // Extract meaningful part from cluster ID
-    const parts = clusterId.split('_');
-    if (parts.length >= 3) {
-      const fullName = parts.slice(2).join(' ').replace(/_/g, ' ').split('-')[0];
-      const words = fullName.split(' ').filter(w => w.length > 0);
-
-      // Truncate to 3 words and add ellipsis if needed
-      if (words.length > 3) {
-        return words.slice(0, 3).join(' ').toUpperCase() + '...';
-      }
-      return fullName.toUpperCase();
-    }
-    return clusterId.slice(0, 12);
+    const cluster = clusters.find(c => c.id === clusterId);
+    if (!cluster) return '';
+    // Use the first few words of the topic or a shortened version
+    return cluster.topic.length > 20 ? cluster.topic.substring(0, 20) + '...' : cluster.topic;
   };
 
   // Get full name for tooltip
   const getFullName = (clusterId) => {
-    const parts = clusterId.split('_');
-    if (parts.length >= 3) {
-      return parts.slice(2).join(' ').replace(/_/g, ' ').split('-')[0];
-    }
-    return clusterId;
+    const cluster = clusters.find(c => c.id === clusterId);
   };
 
   const handleBackgroundClick = (e) => {
@@ -259,10 +250,10 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
         {/* Render polygons */}
         {polygons.map((p) => {
-          const isSelected = selectedId === p.cluster.cluster_id;
-          const isDependency = dependencyIds.has(p.cluster.cluster_id);
+          const isSelected = selectedId === p.cluster.id;
+          const isDependency = dependencyIds.has(p.cluster.id);
           const isDimmed = selectedId && !isSelected && !isDependency;
-          const isApproved = approvedIds.has(p.cluster.cluster_id);
+          const isApproved = approvedIds.has(p.cluster.id);
           const colors = TYPE_COLORS[p.cluster.type] || TYPE_COLORS.READ_ONLY_CUT;
 
           // Apply size filter
@@ -273,7 +264,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
           if (!shouldShow) {
             return (
-              <g key={p.cluster.cluster_id} opacity="0.1">
+              <g key={p.cluster.id} opacity="0.1">
                 <path d={p.path} fill={colors.main} fillOpacity="0.02" stroke="none" />
               </g>
             );
@@ -281,7 +272,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
           return (
             <g
-              key={p.cluster.cluster_id}
+              key={p.cluster.id}
               onClick={(e) => {
                 e.stopPropagation();
                 onSelect(p.cluster);
@@ -415,9 +406,9 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                       cursor: 'pointer',
                     }}
                   >
-                    {getShortName(p.cluster.cluster_id)}
+                    {getShortName(p.cluster.id)}
                     {/* Tooltip with full name */}
-                    <title>{getFullName(p.cluster.cluster_id)}</title>
+                    <title>{getFullName(p.cluster.id)}</title>
                   </text>
                 </g>
               </g>
@@ -427,13 +418,13 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
         {/* Render dependency paths for selected cluster */}
         {selectedId && polygons.map((p) => {
-          if (p.cluster.cluster_id !== selectedId) return null;
+          if (p.cluster.id !== selectedId) return null;
 
           return (
-            <g key={`deps-${p.cluster.cluster_id}`} style={{ pointerEvents: 'none' }}>
+            <g key={`deps-${p.cluster.id}`} style={{ pointerEvents: 'none' }}>
               {/* OUTGOING DEPENDENCIES (Red - This cluster reads from others) */}
               {outgoingDeps.map((dep) => {
-                const targetPolygon = polygons.find(target => target.cluster.cluster_id === dep.cluster_id);
+                const targetPolygon = polygons.find(target => target.cluster.id === dep.cluster_id);
                 if (!targetPolygon) return null;
 
                 const x1 = p.center.x;
@@ -446,7 +437,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 const pathStr = `M${x1},${y1} A${dr},${dr} 0 0,1 ${x2},${y2}`;
 
                 return (
-                  <g key={`outgoing-${p.cluster.cluster_id}-${dep.cluster_id}`}>
+                  <g key={`outgoing-${p.cluster.id}-${dep.cluster_id}`}>
                     {/* Main path */}
                     <path
                       d={pathStr}
