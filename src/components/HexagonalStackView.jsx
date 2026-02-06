@@ -58,10 +58,10 @@ export function HexagonalStackView() {
       >
         {/* Info Header */}
         <div style={{ padding: "16px", borderBottom: "1px solid #ddd", background: "white" }}>
-          <h3 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: "600" }}>
+          <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "700" }}>
             📐 Hexagonal Stack View
           </h3>
-          <p style={{ margin: "0", fontSize: "11px", color: "#666" }}>
+          <p style={{ margin: "0", fontSize: "12px", color: "#666" }}>
             Clusters arranged by cut order. Size indicates number of screens (larger = more screens)
           </p>
         </div>
@@ -158,8 +158,8 @@ export function HexagonalStackView() {
                       {/* Cut Number */}
                       <div
                         style={{
-                          fontSize: size > 120 ? "20px" : "14px",
-                          fontWeight: "800",
+                          fontSize: size > 120 ? "24px" : "16px",
+                          fontWeight: "700",
                           color: typeColor,
                         }}
                       >
@@ -174,8 +174,8 @@ export function HexagonalStackView() {
                             color: "white",
                             padding: "2px 6px",
                             borderRadius: "3px",
-                            fontSize: "8px",
-                            fontWeight: "bold",
+                            fontSize: "10px",
+                            fontWeight: "700",
                           }}
                         >
                           {cluster.type === "CLEAN_CUT" ? "CLEAN" : "READ"}
@@ -185,8 +185,8 @@ export function HexagonalStackView() {
                       {/* Screen Count */}
                       <div
                         style={{
-                          fontSize: size > 120 ? "16px" : "12px",
-                          fontWeight: "bold",
+                          fontSize: size > 120 ? "18px" : "14px",
+                          fontWeight: "700",
                           color: "#2196f3",
                         }}
                       >
@@ -194,18 +194,16 @@ export function HexagonalStackView() {
                       </div>
 
                       {/* Additional Metrics - only for larger hexagons */}
-                      {size > 130 && (
-                        <div
-                          style={{
-                            fontSize: "8px",
-                            color: "#666",
-                            lineHeight: "1.2",
-                          }}
-                        >
-                          <div>🔄 {cluster.flow_count}</div>
-                          <div>💾 {cluster.table_count}</div>
-                        </div>
-                      )}
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "#666",
+                          lineHeight: "1.2",
+                        }}
+                      >
+                        <div>🔄 {cluster.flow_count}</div>
+                        <div>💾 {cluster.table_count}</div>
+                      </div>
                     </div>
                   </div>
 
@@ -240,7 +238,7 @@ export function HexagonalStackView() {
             padding: "12px",
             borderTop: "1px solid #ddd",
             background: "white",
-            fontSize: "11px",
+            fontSize: "12px",
             color: "#666",
             display: "flex",
             justifyContent: "center",

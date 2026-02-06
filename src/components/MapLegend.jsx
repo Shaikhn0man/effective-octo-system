@@ -151,11 +151,11 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
         {/* Area Size info */}
         <div style={{ marginBottom: '16px' }}>
           <div style={{
-            fontSize: '11px',
-            color: '#475569',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            lineHeight: '1.5',
+            fontSize: "12px",
+            color: "#475569",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+            lineHeight: "1.5",
           }}>
             <strong>SM:</strong> Small territories (Low complexity)<br />
             <strong>MD:</strong> Medium territories (Moderate complexity)<br />
@@ -182,12 +182,12 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
               <span style={{
                 background: '#3b82f6',
                 color: 'white',
-                fontSize: '11px',
+                fontSize: '12px',
                 fontWeight: '800',
                 padding: '3px 6px',
                 borderRadius: '4px',
               }}>S</span>
-              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase' }}>Screen Flow</span>
+              <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Screen Flow</span>
             </div>
             <div style={{
               display: 'flex',
@@ -197,12 +197,12 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
               <span style={{
                 background: '#f97316',
                 color: 'white',
-                fontSize: '11px',
+                fontSize: '12px',
                 fontWeight: '800',
                 padding: '3px 6px',
                 borderRadius: '4px',
               }}>B</span>
-              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase' }}>Batch Flow</span>
+              <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Batch Flow</span>
             </div>
           </div>
         </div>
@@ -248,7 +248,7 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
                   fontWeight: '600',
                 }}>{type.label}</div>
                 <div style={{
-                  fontSize: '11px',
+                  fontSize: '12px',
                   color: '#64748b',
                 }}>{type.desc}</div>
               </div>

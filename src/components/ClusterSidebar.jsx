@@ -657,8 +657,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                             toggleTablesExpand(subCut.id);
                           }}
                           style={{
-                            fontSize: '8px',
-                            color: '#3b82f6',
+                            fontSize: '11px',
                             fontWeight: '700',
                             background: 'transparent',
                             border: 'none',
@@ -731,7 +730,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                                 }}
                               >
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                  <span style={{ fontFamily: 'var(--font-family)', fontSize: '13px' }}>{table.name}</span>
+                                  <span style={{ fontFamily: 'var(--font-family)', fontSize: '14px' }}>{table.name}</span>
                                   {table.tags && table.tags.length > 0 && (
                                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                                       {table.tags.map((tag, tagIdx) => (
@@ -821,7 +820,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                                 }}
                               >
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                  <span style={{ fontFamily: 'var(--font-family)', fontSize: '13px' }}>{table.name}</span>
+                                  <span style={{ fontFamily: 'var(--font-family)', fontSize: '14px' }}>{table.name}</span>
                                   {table.tags && table.tags.length > 0 && (
                                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                                       {table.tags.map((tag, tagIdx) => (
@@ -961,7 +960,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                               toggleFlowExpand(subCut.id);
                             }}
                             style={{
-                              fontSize: '8px',
+                              fontSize: '11px',
                               color: '#f97316',
                               fontWeight: '700',
                               background: 'rgba(249, 115, 22, 0.05)',
@@ -1144,7 +1143,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                 flex: 1,
                 padding: '8px 12px',
                 borderRadius: '8px',
-                fontSize: '9px',
+                fontSize: '12px',
                 fontWeight: '700',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
@@ -1317,7 +1316,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                       padding: '12px 16px',
                       borderRadius: '12px',
                       border: '1px solid rgba(59, 130, 246, 0.1)',
-                      fontSize: '11px',
+                      fontSize: '12px',
                       color: '#94a3b8',
                       lineHeight: '1.5',
                     }}>
@@ -1633,7 +1632,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                                   {config.label}
                                 </div>
                                 <div style={{
-                                  fontSize: '11px',
+                                  fontSize: '12px',
                                   color: '#94a3b8',
                                   lineHeight: '1.3',
                                 }}>
@@ -1673,7 +1672,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                       padding: '40px 20px',
                       textAlign: 'center',
                       color: '#64748b',
-                      fontSize: '11px',
+                      fontSize: '12px',
                     }}>
                       <div style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.5 }}>🔍</div>
                       <div style={{ fontWeight: '600', marginBottom: '4px' }}>No methods found</div>
@@ -1760,7 +1759,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                                 {method.programPath}
                               </div>
                               <div style={{
-                                fontSize: '9px',
+                                fontSize: '12px',
                                 color: colors.text,
                                 fontWeight: '600',
                                 overflow: 'hidden',
@@ -1775,7 +1774,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                           {/* Tags */}
                           {method.tags && (
                             <div style={{
-                              fontSize: '8px',
+                              fontSize: '10px',
                               color: '#94a3b8',
                               lineHeight: '1.4',
                               marginBottom: '10px',
@@ -1796,7 +1795,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                               padding: '4px 8px',
                               background: 'rgba(255,255,255,0.05)',
                               borderRadius: '4px',
-                              fontSize: '8px',
+                              fontSize: '10px',
                               fontWeight: '600',
                               color: complexityColors[method.complexity] || '#94a3b8',
                             }}>
@@ -1806,7 +1805,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                               padding: '4px 8px',
                               background: 'rgba(255,255,255,0.05)',
                               borderRadius: '4px',
-                              fontSize: '8px',
+                              fontSize: '10px',
                               fontWeight: '600',
                               color: criticalityColors[method.criticality] || '#94a3b8',
                             }}>
@@ -1816,7 +1815,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                               padding: '4px 8px',
                               background: 'rgba(255,255,255,0.03)',
                               borderRadius: '4px',
-                              fontSize: '9px',
+                              fontSize: '10px',
                               fontWeight: '500',
                               color: '#64748b',
                               overflow: 'hidden',

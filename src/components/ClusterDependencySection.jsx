@@ -4,9 +4,9 @@ export function ClusterDependencySection({ depends_on, depended_by }) {
       <h4
         style={{
           margin: "0 0 12px 0",
-          fontSize: "12px",
+          fontSize: "14px",
           color: "#666",
-          fontWeight: "bold",
+          fontWeight: "700",
           textTransform: "uppercase",
           letterSpacing: "0.5px",
         }}
@@ -18,8 +18,8 @@ export function ClusterDependencySection({ depends_on, depended_by }) {
       <div style={{ marginBottom: "16px" }}>
         <div
           style={{
-            fontSize: "11px",
-            fontWeight: "bold",
+            fontSize: "12px",
+            fontWeight: "700",
             color: "#d32f2f",
             marginBottom: "8px",
             display: "flex",
@@ -40,14 +40,14 @@ export function ClusterDependencySection({ depends_on, depended_by }) {
                   borderRadius: "6px",
                   padding: "10px",
                   marginBottom: "6px",
-                  fontSize: "11px",
+                  fontSize: "12px",
                 }}
               >
                 <div style={{ fontWeight: "bold", color: "#c62828" }}>
                   {dep.cluster_id}
                 </div>
-                <div style={{ color: "#666", fontSize: "10px", marginTop: "4px" }}>
-                  Table: <span style={{ fontFamily: "monospace" }}>{dep.table}</span>
+                <div style={{ color: "#666", fontSize: "11px", marginTop: "4px" }}>
+                  Table: <span style={{ fontFamily: "var(--font-family)", fontWeight: "600" }}>{dep.table}</span>
                 </div>
               </div>
             ))}
@@ -71,8 +71,8 @@ export function ClusterDependencySection({ depends_on, depended_by }) {
       <div>
         <div
           style={{
-            fontSize: "11px",
-            fontWeight: "bold",
+            fontSize: "12px",
+            fontWeight: "700",
             color: "#388e3c",
             marginBottom: "8px",
             display: "flex",
@@ -98,7 +98,7 @@ export function ClusterDependencySection({ depends_on, depended_by }) {
                 <div style={{ fontWeight: "bold", color: "#2e7d32", fontSize: "11px" }}>
                   {cluster.cluster_id}
                 </div>
-                <div style={{ fontSize: "10px", color: "#666", marginTop: "4px" }}>
+                <div style={{ fontSize: "11px", color: "#666", marginTop: "4px" }}>
                   Type: <span style={{ fontWeight: "600" }}>{cluster.type}</span> | Flows:{" "}
                   {cluster.flow_count} | Screens: {cluster.screen_count}
                 </div>

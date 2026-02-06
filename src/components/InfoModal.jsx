@@ -229,12 +229,12 @@ CARD XREF  (Balance, Status)`}
                   padding: '12px',
                   background: 'rgba(255,255,255,0.02)',
                   borderRadius: '8px',
-                  fontSize: '13px',
+                  fontSize: '12px',
                 }}>
-                  <div style={{ color: '#3b82f6', fontWeight: '700', marginBottom: '4px', fontFamily: 'monospace' }}>
+                  <div style={{ color: '#3b82f6', fontWeight: '700', marginBottom: '4px', fontFamily: 'var(--font-family)' }}>
                     {file.file}
                   </div>
-                  <div style={{ color: '#64748b', fontSize: '12px' }}>
+                  <div style={{ color: '#64748b', fontSize: '10px', fontWeight: '600' }}>
                     {file.type} ({file.size}B)
                   </div>
                 </div>
@@ -266,7 +266,7 @@ CARD XREF  (Balance, Status)`}
                   padding: '12px 16px',
                   background: 'rgba(139, 92, 246, 0.1)',
                   borderRadius: '8px',
-                  fontSize: '13px',
+                  fontSize: '14px',
                   color: '#e2e8f0',
                   fontWeight: '600',
                   textAlign: 'center',

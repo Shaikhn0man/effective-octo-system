@@ -354,9 +354,9 @@ function DatabaseMap({ data, cutId }) {
               borderRadius: '8px',
               border: '1px solid rgba(239, 68, 68, 0.2)'
             }}>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: '#f1f5f9', marginBottom: '8px' }}>&lt;{t.name}&gt;</div>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: '#f1f5f9', marginBottom: '8px' }}>&lt;{t.name}&gt;</div>
               <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: '700' }}>◄══ WRITE ══</span> {t.writes}
+                <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: '700' }}>◄══ WRITE ══</span> {t.writes}
               </div>
               {t.reads && (
                 <div style={{ fontSize: '12px', color: '#64748b' }}>
@@ -390,9 +390,9 @@ function DatabaseMap({ data, cutId }) {
               borderRadius: '8px',
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: '#f1f5f9', marginBottom: '4px' }}>{`{${t.name}}`}</div>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: '#f1f5f9', marginBottom: '4px' }}>{`{${t.name}}`}</div>
               <div style={{ fontSize: '12px', color: '#64748b' }}>
-                <span style={{ fontSize: '11px', color: '#22c55e', fontWeight: '700' }}>──► READ ──►</span> {t.reads}
+                <span style={{ fontSize: '12px', color: '#22c55e', fontWeight: '700' }}>──► READ ──►</span> {t.reads}
               </div>
             </div>
           ))}
@@ -426,8 +426,8 @@ function ASCIIChart({ data, cutId }) {
         padding: '32px',
         borderRadius: '24px',
         border: '1px solid rgba(255,255,255,0.1)',
-        fontFamily: 'monospace',
-        fontSize: '12px',
+        fontFamily: 'var(--font-family)',
+        fontSize: '14px',
         lineHeight: '1.4',
         color: '#e2e8f0',
         overflow: 'auto'
@@ -600,8 +600,8 @@ export function CutExplorer({ clusterId, onClose }) {
             padding: '10px 20px',
             borderRadius: '12px',
             cursor: 'pointer',
-            fontSize: '13px',
-            fontWeight: '600',
+            fontSize: '14px',
+            fontWeight: '700',
             transition: 'all 0.2s ease'
           }}
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
@@ -627,8 +627,8 @@ export function CutExplorer({ clusterId, onClose }) {
                 border: 'none',
                 color: activeTab === tab.id ? '#3b82f6' : '#94a3b8',
                 padding: '16px 24px',
-                fontSize: '13px',
-                fontWeight: '600',
+                fontSize: '14px',
+                fontWeight: '700',
                 cursor: 'pointer',
                 borderBottom: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
                 transition: 'all 0.2s ease',
