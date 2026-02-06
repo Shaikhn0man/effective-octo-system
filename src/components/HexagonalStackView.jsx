@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { clusterData } from "../data/clusterData";
+import { clusterData } from "../data/clusterData.jsx";
 import { clusterSpecificDependencyData } from "../data/clusterDependencyData";
 import { ClusterDetailPanel } from "./ClusterDetailPanel";
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { clusterData } from "../data/clusterData";
+import { clusterData } from "../data/clusterData.jsx";
 import { clusterDependencyMapData, clusterSpecificDependencyData } from "../data/clusterDependencyData";
 import { ClusterSidebar } from "./ClusterSidebar";
 import { CutExplorer } from "./CutExplorer";
