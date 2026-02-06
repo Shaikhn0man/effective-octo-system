@@ -917,14 +917,36 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                 letterSpacing: '1px',
                 marginBottom: '12px',
               }}>Business Summary</h3>
-              <p style={{
-                fontSize: '12px',
-                color: '#cbd5e1',
-                lineHeight: '1.7',
-                margin: 0,
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
               }}>
-                {cluster.description}
-              </p>
+                {(() => {
+                  // Convert description to bullet points
+                  const description = cluster.description || '';
+                  const sentences = description.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                  
+                  return sentences.map((sentence, index) => (
+                    <div key={index} style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '8px',
+                      fontSize: '12px',
+                      color: '#cbd5e1',
+                      lineHeight: '1.6',
+                    }}>
+                      <span style={{
+                        color: '#3b82f6',
+                        fontSize: '8px',
+                        marginTop: '6px',
+                        flexShrink: 0,
+                      }}>●</span>
+                      <span>{sentence.trim()}</span>
+                    </div>
+                  ));
+                })()}
+              </div>
             </section>
 
             {/* Topic description */}

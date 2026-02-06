@@ -95,34 +95,37 @@ function App() {
           </div>
         </div>
 
-        {/* Info Button */}
+        {/* Info Button - Subtle design */}
         <button
           onClick={() => setIsInfoOpen(true)}
           style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            border: '1px solid rgba(255,255,255,0.1)',
-            background: 'rgba(255,255,255,0.05)',
-            color: '#f8fafc', // Brighter color (Slate-50)
-            cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: '8px',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#94a3b8',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: '500',
             transition: 'all 0.2s ease',
+            flexShrink: 0,
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-            e.currentTarget.style.color = '#3b82f6';
-            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+            e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+            e.currentTarget.style.color = '#e2e8f0';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.color = '#f8fafc';
             e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+            e.currentTarget.style.color = '#94a3b8';
           }}
         >
-          <Info size={20} strokeWidth={2.5} />
+          <Info size={16} strokeWidth={2} />
+          <span>About</span>
         </button>
       </div>
 
