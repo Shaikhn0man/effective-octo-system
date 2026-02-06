@@ -13,8 +13,8 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
           textAlign: "center",
         }}
       >
-        <div style={{ 
-          fontSize: "64px", 
+        <div style={{
+          fontSize: "64px",
           marginBottom: "16px",
           opacity: 0.3,
         }}>
@@ -48,30 +48,30 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
   const typeStyles = getTypeStyles(cluster.type);
 
   const metrics = [
-    { 
-      label: "Flows", 
-      value: cluster.flow_count, 
+    {
+      label: "Flows",
+      value: cluster.flow_count,
       icon: "⟳",
       color: "#10b981",
       bg: "rgba(16, 185, 129, 0.1)",
     },
-    { 
-      label: "Screens", 
-      value: cluster.screen_count, 
+    {
+      label: "Screens",
+      value: cluster.screen_count,
       icon: "◫",
       color: "#3b82f6",
       bg: "rgba(59, 130, 246, 0.1)",
     },
-    { 
-      label: "Programs", 
-      value: cluster.program_count, 
+    {
+      label: "Programs",
+      value: cluster.program_count,
       icon: "◈",
       color: "#8b5cf6",
       bg: "rgba(139, 92, 246, 0.1)",
     },
-    { 
-      label: "Tables", 
-      value: cluster.table_count, 
+    {
+      label: "Tables",
+      value: cluster.table_count,
       icon: "▤",
       color: "#f59e0b",
       bg: "rgba(245, 158, 11, 0.1)",
@@ -81,22 +81,22 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
   return (
     <div style={{ padding: "24px", color: "#ffffff" }}>
       {/* Header */}
-      <div 
-        style={{ 
+      <div
+        style={{
           marginBottom: "24px",
           paddingBottom: "20px",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <div style={{ 
-          display: "flex", 
-          alignItems: "flex-start", 
+        <div style={{
+          display: "flex",
+          alignItems: "flex-start",
           justifyContent: "space-between",
           marginBottom: "12px",
         }}>
-          <h3 style={{ 
-            margin: 0, 
-            fontSize: "16px", 
+          <h3 style={{
+            margin: 0,
+            fontSize: "16px",
             fontWeight: "700",
             lineHeight: "1.3",
             maxWidth: "70%",
@@ -110,7 +110,7 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
               color: "#ffffff",
               padding: "4px 14px",
               borderRadius: "14px",
-              fontSize: "10px",
+              fontSize: "12px",
               fontWeight: "700",
               textTransform: "uppercase",
               letterSpacing: "0.5px",
@@ -120,11 +120,11 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
             {cluster.type.replace("_", " ")}
           </span>
         </div>
-        
+
         {/* Topic */}
-        <p style={{ 
-          margin: 0, 
-          fontSize: "13px", 
+        <p style={{
+          margin: 0,
+          fontSize: "14px",
           color: "rgba(255,255,255,0.5)",
           lineHeight: "1.5",
         }}>
@@ -134,9 +134,9 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
 
       {/* Metrics Grid */}
       <div style={{ marginBottom: "24px" }}>
-        <h4 style={{ 
-          margin: "0 0 14px 0", 
-          fontSize: "11px", 
+        <h4 style={{
+          margin: "0 0 14px 0",
+          fontSize: "12px",
           color: "rgba(255,255,255,0.4)",
           fontWeight: "600",
           textTransform: "uppercase",
@@ -144,9 +144,9 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
         }}>
           Metrics
         </h4>
-        <div style={{ 
-          display: "grid", 
-          gridTemplateColumns: "1fr 1fr", 
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
           gap: "12px",
         }}>
           {metrics.map((metric, idx) => (
@@ -171,9 +171,9 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
                 width: "3px",
                 background: metric.color,
               }} />
-              
-              <div style={{ 
-                fontSize: "10px", 
+
+              <div style={{
+                fontSize: "12px",
                 color: "rgba(255,255,255,0.4)",
                 marginBottom: "4px",
                 display: "flex",
@@ -183,9 +183,9 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
                 <span style={{ color: metric.color }}>{metric.icon}</span>
                 {metric.label}
               </div>
-              <div style={{ 
-                fontSize: "24px", 
-                fontWeight: "700", 
+              <div style={{
+                fontSize: "28px",
+                fontWeight: "700",
                 color: metric.color,
               }}>
                 {metric.value}
@@ -201,7 +201,7 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
           <h4
             style={{
               margin: "0 0 14px 0",
-              fontSize: "11px",
+              fontSize: "12px",
               color: "rgba(255,255,255,0.4)",
               fontWeight: "600",
               textTransform: "uppercase",
@@ -218,7 +218,7 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
           <div style={{ marginBottom: "16px" }}>
             <div
               style={{
-                fontSize: "11px",
+                fontSize: "12px",
                 fontWeight: "600",
                 color: "#ef4444",
                 marginBottom: "10px",
@@ -227,9 +227,9 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
                 gap: "6px",
               }}
             >
-              <span style={{ 
-                width: "18px", 
-                height: "18px", 
+              <span style={{
+                width: "18px",
+                height: "18px",
                 background: "rgba(239, 68, 68, 0.15)",
                 borderRadius: "4px",
                 display: "flex",
@@ -239,7 +239,7 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
               }}>↑</span>
               Depends On ({dependencyInfo.depends_on?.count || 0})
             </div>
-            
+
             {dependencyInfo.depends_on && dependencyInfo.depends_on.count > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {dependencyInfo.depends_on.clusters.map((dep, idx) => (
@@ -252,18 +252,18 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
                       padding: "12px",
                     }}
                   >
-                    <div style={{ 
-                      fontWeight: "600", 
+                    <div style={{
+                      fontWeight: "600",
                       color: "#fca5a5",
                       fontSize: "12px",
                       marginBottom: "4px",
                     }}>
                       {dep.cluster_id}
                     </div>
-                    <div style={{ 
-                      color: "rgba(255,255,255,0.4)", 
-                      fontSize: "10px",
-                      fontFamily: "monospace",
+                    <div style={{
+                      color: "rgba(255,255,255,0.4)",
+                      fontSize: "12px",
+                      fontFamily: "var(--font-family)",
                     }}>
                       Table: {dep.table}
                     </div>
@@ -290,7 +290,7 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
           <div>
             <div
               style={{
-                fontSize: "11px",
+                fontSize: "12px",
                 fontWeight: "600",
                 color: "#22c55e",
                 marginBottom: "10px",
@@ -299,9 +299,9 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
                 gap: "6px",
               }}
             >
-              <span style={{ 
-                width: "18px", 
-                height: "18px", 
+              <span style={{
+                width: "18px",
+                height: "18px",
                 background: "rgba(34, 197, 94, 0.15)",
                 borderRadius: "4px",
                 display: "flex",
@@ -311,7 +311,7 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
               }}>↓</span>
               Depended By ({dependencyInfo.depended_by?.count || 0})
             </div>
-            
+
             {dependencyInfo.depended_by && dependencyInfo.depended_by.count > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {dependencyInfo.depended_by.clusters.map((depCluster, idx) => (
@@ -324,19 +324,19 @@ export function ClusterDetailPanel({ cluster, dependencyInfo }) {
                       padding: "12px",
                     }}
                   >
-                    <div style={{ 
-                      fontWeight: "600", 
+                    <div style={{
+                      fontWeight: "600",
                       color: "#86efac",
                       fontSize: "12px",
                       marginBottom: "4px",
                     }}>
                       {depCluster.cluster_id}
                     </div>
-                    <div style={{ 
-                      fontSize: "10px", 
+                    <div style={{
+                      fontSize: "12px",
                       color: "rgba(255,255,255,0.4)",
                     }}>
-                      <span style={{ 
+                      <span style={{
                         background: "rgba(255,255,255,0.1)",
                         padding: "2px 6px",
                         borderRadius: "4px",
