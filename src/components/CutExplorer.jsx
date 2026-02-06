@@ -465,64 +465,11 @@ function getBusinessSummary(cutId, data) {
 }
 
 function getASCIIChart(cutId, data) {
-  // This would contain the full ASCII charts from the markdown file
-  // For brevity, showing a simplified version
-  const charts = {
-    1: `================================================================================
-TYPE: CLEAN_CUT (Interactive/Online)
-FLOWS: 14 Screen-based flows
-TABLES: 11 (8 Master/Write-Heavy, 3 Reference/Read-Heavy)
-================================================================================
+  if (data?.asciiChart) {
+    return data.asciiChart;
+  }
 
-SCREEN FLOW SEQUENCE:
-┌────────────────────────────────────────────────────────────────────────┐
-│  [CCRDLIA] → [COTRN0A] → [CTRTUPA] → [CACTVWA] → [COBIL0A] → [CTRTLIA]│
-│      ↓                                                                  │
-│  [CCRDUPA] → [CORPT0A] → [COMEN1A] → [COSGN0A] → [COTRN2A] → [CACTUPA]│
-│      ↓                                                                  │
-│  [COTRN1A] → [CCRDSLA]                                                 │
-└────────────────────────────────────────────────────────────────────────┘
-                              │
-                              │ READ/WRITE Operations
-                              ↓
-┌────────────────────────────────────────────────────────────────────────┐
-│                    DATABASE TABLES                                      │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  MASTER TABLES (Write-Heavy):                                          │
-│    <ACCOUNT-RECORD>        ◄══ WRITE ══ All Screens                    │
-│                            ──► READ  ──► All Screens                   │
-│                                                                         │
-│    <CARD-RECORD>           ◄══ WRITE ══ CCRDUPA                        │
-│                            ──► READ  ──► CCRDLIA, CCRDSLA, CACTVWA     │
-│                                                                         │
-│  REFERENCE TABLES (Read-Heavy):                                        │
-│    {CARD-XREF-RECORD}      ──► READ  ──► CCRDLIA, CCRDSLA              │
-│    {SEC-USER-DATA}         ──► READ  ──► COSGN0A (from Cut 2)          │
-│                                                                         │
-└────────────────────────────────────────────────────────────────────────┘
-
-DEPENDENCIES:
-  ◄── Reads from: Cut_2 (SEC-USER-DATA)`,
-    2: `================================================================================
-TYPE: CLEAN_CUT (Interactive/Online)
-FLOWS: 7 Screen-based flows
-TABLES: 5 (1 Master/Write-Heavy, 4 Reference/Read-Heavy)
-================================================================================
-
-SCREEN FLOW SEQUENCE:
-┌────────────────────────────────────────────────────────────────────────┐
-│  [COADM1A] → [COUSR2A] → [COPAU1A] → [COSGN0A] → [COUSR0A]            │
-│      ↓                                                                  │
-│  [COUSR3A] → [COPAU0A]                                                 │
-└────────────────────────────────────────────────────────────────────────┘
-
-DEPENDENCIES:
-  ◄── Reads from: Cut_1 (ACCOUNT-RECORD, CUSTOMER-RECORD)
-  ──► Provides to: Cut_1 (SEC-USER-DATA)`
-  };
-
-  return charts[cutId] || `================================================================================
+  return `================================================================================
 TYPE: ${data.type}
 FLOWS: ${data.stats.flows} flows
 TABLES: ${data.stats.tables} tables

@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { cutExplorerData } from '../data/cutExplorerData';
 
 const TYPE_COLORS = {
   CLEAN_CUT: {
@@ -280,7 +281,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
 
     return (
       <div style={{
-        padding: '16px 20px',
+        padding: '10px 16px',
         background: 'rgba(15, 23, 42, 0.95)',
         backdropFilter: 'blur(20px)',
         borderTop: '1px solid rgba(255,255,255,0.08)',
@@ -291,15 +292,15 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '12px',
-          marginBottom: '16px',
+          gap: '8px',
+          marginBottom: '10px',
         }}>
           {stats.map((stat, idx) => (
             <div key={idx} style={{
               background: 'rgba(255, 255, 255, 0.02)',
               border: '1px solid rgba(255,255,255,0.06)',
               borderRadius: '10px',
-              padding: '12px 14px',
+              padding: '8px 10px',
               position: 'relative',
               overflow: 'hidden',
             }}>
@@ -465,7 +466,6 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
     { id: 'overview', label: 'Overview' },
     { id: 'subcuts', label: 'Subcuts' },
     { id: 'programs', label: 'Programs' },
-    { id: 'metrics', label: 'Metrics' },
     { id: 'dependencies', label: 'Dependencies' },
   ];
 
@@ -492,7 +492,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
     };
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {subCuts.map((subCut, index) => {
           const isExpanded = expandedId === subCut.id;
           const flowsExpanded = expandedFlows[subCut.id];
@@ -509,7 +509,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
               style={{
                 background: 'rgba(255,255,255,0.02)',
                 border: '1px solid rgba(255,255,255,0.05)',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 overflow: 'hidden',
                 transition: 'all 0.2s ease',
                 cursor: 'pointer',
@@ -527,99 +527,115 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
               <div
                 onClick={() => setExpandedId(isExpanded ? null : subCut.id)}
                 style={{
-                  padding: '14px 16px',
+                  padding: '10px 12px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '12px',
+                  gap: '10px',
+                  position: 'relative',
                 }}
               >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    color: subCut.type === 'CLEAN_SUBCUT' ? '#22c55e' : '#e2e8f0',
-                    letterSpacing: '-0.3px',
-                    marginBottom: '4px',
-                  }}>
-                    {subCut.id}
+                {/* Type Indicator Border */}
+                <div style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: '3px',
+                  background: subCut.type === 'CLEAN_SUBCUT' 
+                    ? 'linear-gradient(180deg, #22c55e 0%, #16a34a 100%)' 
+                    : 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)',
+                  borderRadius: '12px 0 0 12px',
+                }}/>
+
+                {/* Main Content */}
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {/* Topic (Primary) + ID Badge */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      color: '#e2e8f0',
+                      lineHeight: '1.3',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                    }}>
+                      {subCut.topic}
+                    </div>
+                    <div style={{
+                      fontSize: '7px',
+                      fontWeight: '700',
+                      color: subCut.type === 'CLEAN_SUBCUT' ? '#22c55e' : '#f59e0b',
+                      background: subCut.type === 'CLEAN_SUBCUT' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {subCut.id.replace('SubCut_', '')}
+                    </div>
                   </div>
+
+                  {/* Metrics Row */}
                   <div style={{
-                    fontSize: '12px',
-                    color: '#94a3b8',
-                    lineHeight: '1.4',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    gap: '6px',
+                    alignItems: 'center',
                   }}>
-                    {subCut.topic}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      fontSize: '9px',
+                      fontWeight: '600',
+                      color: '#f97316',
+                    }}>
+                      <span style={{ fontSize: '10px' }}>⟳</span>
+                      <span>{flowCount}</span>
+                    </div>
+                    <span style={{ color: '#334155', fontSize: '8px' }}>•</span>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      fontSize: '9px',
+                      fontWeight: '600',
+                      color: '#3b82f6',
+                    }}>
+                      <span style={{ fontSize: '10px' }}>◫</span>
+                      <span>{screenCount}</span>
+                    </div>
+                    <span style={{ color: '#334155', fontSize: '8px' }}>•</span>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      fontSize: '9px',
+                      fontWeight: '600',
+                      color: '#22c55e',
+                    }}>
+                      <span style={{ fontSize: '10px' }}>▤</span>
+                      <span>{totalTables}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Metrics Pills */}
+                {/* Expand Icon */}
                 <div style={{
                   display: 'flex',
-                  gap: '8px',
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '20px',
+                  height: '20px',
                   flexShrink: 0,
+                  transition: 'transform 0.2s ease',
+                  transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                 }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '4px 8px',
-                    background: 'rgba(249, 115, 22, 0.1)',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    color: '#f97316',
-                  }}>
-                    <span>⟳</span>
-                    <span>{flowCount}</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '4px 8px',
-                    background: 'rgba(59, 130, 246, 0.1)',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    color: '#3b82f6',
-                  }}>
-                    <span>◫</span>
-                    <span>{screenCount}</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '4px 8px',
-                    background: 'rgba(34, 197, 94, 0.1)',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    color: '#22c55e',
-                  }}>
-                    <span>▤</span>
-                    <span>{totalTables}</span>
-                  </div>
-
-                  {/* Expand Icon */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '20px',
-                    height: '20px',
-                    transition: 'transform 0.2s ease',
-                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                  }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#64748b' }}>
-                      <path d="M19 14l-7-7-7 7" />
-                    </svg>
-                  </div>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: '#64748b' }}>
+                    <path d="M19 14l-7-7-7 7" />
+                  </svg>
                 </div>
               </div>
 
@@ -1010,7 +1026,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
     }}>
       {/* Header */}
       <div style={{
-        padding: '24px 28px 20px',
+        padding: '16px 20px 12px',
         borderBottom: '1px solid rgba(255,255,255,0.05)',
         background: 'rgba(255,255,255,0.01)',
         position: 'relative',
@@ -1077,12 +1093,12 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
 
         {/* Cluster name */}
         <h1 style={{
-          fontSize: '22px',
+          fontSize: '16px',
           fontWeight: '800',
           color: '#ffffff',
           textTransform: 'uppercase',
-          letterSpacing: '-1px',
-          marginBottom: '20px',
+          letterSpacing: '-0.5px',
+          marginBottom: '10px',
           lineHeight: '1.2',
         }}>
           {cluster.cluster_id.split('_').slice(2).join(' ').replace(/-/g, ' ')}
@@ -1093,22 +1109,22 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
           onClick={onOpenExplorer}
           style={{
             width: '100%',
-            padding: '14px',
+            padding: '8px',
             background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
             border: 'none',
-            borderRadius: '12px',
+            borderRadius: '8px',
             color: '#fff',
-            fontSize: '14px',
-            fontWeight: '700',
+            fontSize: '10px',
+            fontWeight: '900',
             textTransform: 'uppercase',
-            letterSpacing: '1.5px',
+            letterSpacing: '1px',
             cursor: 'pointer',
-            marginBottom: '20px',
+            marginBottom: '10px',
             boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '10px',
+            gap: '6px',
             transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}
           onMouseEnter={e => {
@@ -1120,11 +1136,40 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
             e.currentTarget.style.boxShadow = '0 4px 15px rgba(37, 99, 235, 0.4)';
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
           </svg>
           Deep Dive: Cut Explorer
         </button>
+
+        {/* Screen Flow Sequence Preview */}
+        {cutExplorerData[parseInt(cluster.cluster_id.match(/Cut_(\d+)_/)?.[1])]?.sequence && (
+          <div style={{ marginTop: '20px' }}>
+             <div style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+               SCREEN FLOW SEQUENCE
+             </div>
+             <div style={{ 
+               background: 'rgba(0,0,0,0.2)', 
+               borderRadius: '8px',
+               padding: '12px',
+               border: '1px solid rgba(255,255,255,0.05)',
+               fontSize: '11px',
+               fontFamily: 'monospace',
+               color: '#e2e8f0',
+               lineHeight: '1.6'
+             }}>
+               {cutExplorerData[parseInt(cluster.cluster_id.match(/Cut_(\d+)_/)?.[1])].sequence.map((row, i) => (
+                 <div key={i} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                   {row.map((node, j) => (
+                     <span key={j}>
+                       {node} {j < row.length - 1 ? '→' : ''}
+                     </span>
+                   ))}
+                 </div>
+               ))}
+             </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div style={{
@@ -1283,13 +1328,26 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <section>
               <h3 style={{
-                fontSize: '12px',
+                fontSize: '9px',
                 fontWeight: '700',
                 color: '#64748b',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
-                marginBottom: '16px',
-              }}>Functional Containment ({cluster.sub_cut_count} Subcuts)</h3>
+                marginBottom: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}>
+                Subcuts
+                <span style={{
+                  fontSize: '8px',
+                  fontWeight: '600',
+                  color: '#3b82f6',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                }}>{cluster.sub_cut_count}</span>
+              </h3>
               <SubcutHierarchy subCuts={cluster.sub_cuts} mainClusterId={cluster.cluster_id} />
             </section>
 
