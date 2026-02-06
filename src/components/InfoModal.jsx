@@ -153,12 +153,18 @@ export function InfoModal({ onClose }) {
             borderRadius: '16px',
             border: '1px solid rgba(255,255,255,0.05)',
             marginBottom: '24px',
-            overflow: 'hidden',
+            overflow: 'visible',
+            minHeight: '400px',
           }}>
              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '16px' }}>
               System Architecture
             </h3>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center',
+              width: '100%',
+              minHeight: '350px'
+            }}>
               <MermaidDiagram chart={chart} id="system-view" />
             </div>
           </div>

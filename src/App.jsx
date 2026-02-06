@@ -14,9 +14,10 @@ function App() {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   const tabs = [
-    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
+    { id: "cluster", label: "Cluster View", icon: <Network size={ 18 } /> },
     { id: "screen-flow", label: "Screen Flow", icon: <Workflow size={18} /> },
-    { id: "cluster", label: "Cluster View", icon: <Network size={18} /> },
+    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
+    
     // { id: "hexagonal", label: "Hexagonal Stack", icon: "📐" },
   ];
 
