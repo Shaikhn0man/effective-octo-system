@@ -473,6 +473,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
   const SubcutHierarchy = ({ subCuts, mainClusterId }) => {
     const [expandedId, setExpandedId] = useState(null);
     const [expandedFlows, setExpandedFlows] = useState({});
+    const [expandedTables, setExpandedTables] = useState({});
 
     if (!Array.isArray(subCuts)) return null;
 
@@ -483,11 +484,19 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
       }));
     };
 
+    const toggleTablesExpand = (subCutId) => {
+      setExpandedTables(prev => ({
+        ...prev,
+        [subCutId]: !prev[subCutId]
+      }));
+    };
+
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {subCuts.map((subCut, index) => {
           const isExpanded = expandedId === subCut.id;
           const flowsExpanded = expandedFlows[subCut.id];
+          const tablesExpanded = expandedTables[subCut.id];
           const masterTableCount = subCut.data_domain?.master_tables?.length || 0;
           const refTableCount = subCut.data_domain?.reference_tables?.length || 0;
           const totalTables = masterTableCount + refTableCount;
@@ -617,54 +626,262 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
               {/* Expanded Content */}
               {isExpanded && (
                 <div style={{
-                  padding: '12px 16px',
+                  padding: '16px',
                   borderTop: '1px solid rgba(255,255,255,0.05)',
-                  background: 'rgba(255,255,255,0.01)',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '12px',
+                  gap: '16px',
                 }}>
-                  {/* Data Domain Section */}
+                  {/* Data Domain Section with Tables */}
                   {(masterTableCount > 0 || refTableCount > 0) && (
                     <div>
                       <div style={{
-                        fontSize: '8px',
-                        fontWeight: '800',
-                        color: '#64748b',
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        marginBottom: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '12px',
                       }}>
-                        Data Domain
+                        <div style={{
+                          fontSize: '9px',
+                          fontWeight: '800',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                        }}>
+                          Data Domain ({totalTables} Tables)
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleTablesExpand(subCut.id);
+                          }}
+                          style={{
+                            fontSize: '8px',
+                            color: '#3b82f6',
+                            fontWeight: '700',
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            transition: 'color 0.2s ease',
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.color = '#60a5fa'}
+                          onMouseLeave={e => e.currentTarget.style.color = '#3b82f6'}
+                        >
+                          {tablesExpanded ? '▼ Collapse' : '▶ Expand All'}
+                        </button>
                       </div>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        {masterTableCount > 0 && (
+
+                      {/* Master Tables */}
+                      {masterTableCount > 0 && (
+                        <div style={{ marginBottom: '12px' }}>
                           <div style={{
-                            padding: '6px 10px',
-                            background: 'rgba(139, 92, 246, 0.1)',
-                            border: '1px solid rgba(139, 92, 246, 0.2)',
-                            borderRadius: '6px',
-                            fontSize: '9px',
+                            fontSize: '8px',
+                            fontWeight: '700',
                             color: '#c4b5fd',
-                            fontWeight: '600',
+                            marginBottom: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
                           }}>
-                            {masterTableCount} Master
+                            <span style={{
+                              width: '16px',
+                              height: '16px',
+                              background: 'rgba(139, 92, 246, 0.2)',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>◈</span>
+                            MASTER TABLES ({masterTableCount})
                           </div>
-                        )}
-                        {refTableCount > 0 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {subCut.data_domain.master_tables.map((table, idx) => (
+                              <a
+                                key={idx}
+                                href={table.reference_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                  padding: '10px 12px',
+                                  background: 'rgba(139, 92, 246, 0.08)',
+                                  border: '1px solid rgba(139, 92, 246, 0.2)',
+                                  borderRadius: '8px',
+                                  fontSize: '10px',
+                                  color: '#e9d5ff',
+                                  fontWeight: '600',
+                                  textDecoration: 'none',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  transition: 'all 0.2s ease',
+                                  cursor: 'pointer',
+                                }}
+                                onMouseEnter={e => {
+                                  e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)';
+                                  e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.4)';
+                                  e.currentTarget.style.transform = 'translateX(4px)';
+                                }}
+                                onMouseLeave={e => {
+                                  e.currentTarget.style.background = 'rgba(139, 92, 246, 0.08)';
+                                  e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.2)';
+                                  e.currentTarget.style.transform = 'translateX(0)';
+                                }}
+                              >
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                  <span style={{ fontFamily: 'monospace', fontSize: '10px' }}>{table.name}</span>
+                                  {table.tags && table.tags.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                      {table.tags.map((tag, tagIdx) => (
+                                        <span
+                                          key={tagIdx}
+                                          style={{
+                                            fontSize: '7px',
+                                            padding: '2px 6px',
+                                            background: 'rgba(139, 92, 246, 0.2)',
+                                            borderRadius: '4px',
+                                            color: '#c4b5fd',
+                                            fontWeight: '700',
+                                          }}
+                                        >
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, opacity: 0.6 }}>
+                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                  <polyline points="15 3 21 3 21 9"></polyline>
+                                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Reference Tables */}
+                      {refTableCount > 0 && (
+                        <div>
                           <div style={{
-                            padding: '6px 10px',
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            border: '1px solid rgba(59, 130, 246, 0.2)',
-                            borderRadius: '6px',
-                            fontSize: '9px',
+                            fontSize: '8px',
+                            fontWeight: '700',
                             color: '#93c5fd',
-                            fontWeight: '600',
+                            marginBottom: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
                           }}>
-                            {refTableCount} Reference
+                            <span style={{
+                              width: '16px',
+                              height: '16px',
+                              background: 'rgba(59, 130, 246, 0.2)',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>▤</span>
+                            REFERENCE TABLES ({refTableCount})
                           </div>
-                        )}
-                      </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {(tablesExpanded ? subCut.data_domain.reference_tables : subCut.data_domain.reference_tables.slice(0, 3)).map((table, idx) => (
+                              <a
+                                key={idx}
+                                href={table.reference_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                  padding: '10px 12px',
+                                  background: 'rgba(59, 130, 246, 0.08)',
+                                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                                  borderRadius: '8px',
+                                  fontSize: '10px',
+                                  color: '#bfdbfe',
+                                  fontWeight: '600',
+                                  textDecoration: 'none',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  transition: 'all 0.2s ease',
+                                  cursor: 'pointer',
+                                }}
+                                onMouseEnter={e => {
+                                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                                  e.currentTarget.style.transform = 'translateX(4px)';
+                                }}
+                                onMouseLeave={e => {
+                                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)';
+                                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+                                  e.currentTarget.style.transform = 'translateX(0)';
+                                }}
+                              >
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                  <span style={{ fontFamily: 'monospace', fontSize: '10px' }}>{table.name}</span>
+                                  {table.tags && table.tags.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                      {table.tags.map((tag, tagIdx) => (
+                                        <span
+                                          key={tagIdx}
+                                          style={{
+                                            fontSize: '7px',
+                                            padding: '2px 6px',
+                                            background: 'rgba(59, 130, 246, 0.2)',
+                                            borderRadius: '4px',
+                                            color: '#93c5fd',
+                                            fontWeight: '700',
+                                          }}
+                                        >
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, opacity: 0.6 }}>
+                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                  <polyline points="15 3 21 3 21 9"></polyline>
+                                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                              </a>
+                            ))}
+                            {!tablesExpanded && refTableCount > 3 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleTablesExpand(subCut.id);
+                                }}
+                                style={{
+                                  fontSize: '8px',
+                                  color: '#3b82f6',
+                                  fontWeight: '700',
+                                  background: 'rgba(59, 130, 246, 0.05)',
+                                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  padding: '8px 12px',
+                                  textAlign: 'center',
+                                  transition: 'all 0.2s ease',
+                                }}
+                                onMouseEnter={e => {
+                                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                                  e.currentTarget.style.color = '#60a5fa';
+                                }}
+                                onMouseLeave={e => {
+                                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+                                  e.currentTarget.style.color = '#3b82f6';
+                                }}
+                              >
+                                ▶ Show {refTableCount - 3} more tables
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -672,27 +889,70 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                   {subCut.flows && subCut.flows.length > 0 && (
                     <div>
                       <div style={{
-                        fontSize: '8px',
+                        fontSize: '9px',
                         fontWeight: '800',
                         color: '#64748b',
                         textTransform: 'uppercase',
                         letterSpacing: '1px',
-                        marginBottom: '8px',
+                        marginBottom: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
                       }}>
+                        <span style={{
+                          width: '16px',
+                          height: '16px',
+                          background: 'rgba(249, 115, 22, 0.2)',
+                          borderRadius: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#f97316',
+                        }}>⟳</span>
                         Flows ({subCut.flows.length})
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         {(flowsExpanded ? subCut.flows : subCut.flows.slice(0, 2)).map((flow, idx) => (
-                          <div key={idx} style={{
-                            padding: '8px 10px',
-                            background: 'rgba(249, 115, 22, 0.05)',
-                            borderRadius: '6px',
-                            fontSize: '9px',
-                            color: '#fed7aa',
-                            lineHeight: '1.3',
-                          }}>
-                            {flow.topic}
-                          </div>
+                          <a
+                            key={idx}
+                            href={flow.reference_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              padding: '10px 12px',
+                              background: 'rgba(249, 115, 22, 0.08)',
+                              border: '1px solid rgba(249, 115, 22, 0.2)',
+                              borderRadius: '8px',
+                              fontSize: '10px',
+                              color: '#fed7aa',
+                              lineHeight: '1.4',
+                              textDecoration: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: '8px',
+                              transition: 'all 0.2s ease',
+                              cursor: 'pointer',
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = 'rgba(249, 115, 22, 0.15)';
+                              e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.4)';
+                              e.currentTarget.style.transform = 'translateX(4px)';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'rgba(249, 115, 22, 0.08)';
+                              e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.2)';
+                              e.currentTarget.style.transform = 'translateX(0)';
+                            }}
+                          >
+                            <span style={{ flex: 1 }}>{flow.topic}</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, opacity: 0.6 }}>
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                              <polyline points="15 3 21 3 21 9"></polyline>
+                              <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                          </a>
                         ))}
                         {subCut.flows.length > 2 && (
                           <button
@@ -702,19 +962,26 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                             }}
                             style={{
                               fontSize: '8px',
-                              color: '#3b82f6',
+                              color: '#f97316',
                               fontWeight: '700',
-                              background: 'transparent',
-                              border: 'none',
+                              background: 'rgba(249, 115, 22, 0.05)',
+                              border: '1px solid rgba(249, 115, 22, 0.2)',
+                              borderRadius: '6px',
                               cursor: 'pointer',
-                              padding: '6px 10px',
-                              textAlign: 'left',
-                              transition: 'color 0.2s ease',
+                              padding: '8px 12px',
+                              textAlign: 'center',
+                              transition: 'all 0.2s ease',
                             }}
-                            onMouseEnter={e => e.currentTarget.style.color = '#60a5fa'}
-                            onMouseLeave={e => e.currentTarget.style.color = '#3b82f6'}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = 'rgba(249, 115, 22, 0.1)';
+                              e.currentTarget.style.color = '#fb923c';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'rgba(249, 115, 22, 0.05)';
+                              e.currentTarget.style.color = '#f97316';
+                            }}
                           >
-                            {flowsExpanded ? `▼ Show less` : `▶ +${subCut.flows.length - 2} more flows`}
+                            {flowsExpanded ? `▼ Show less` : `▶ Show ${subCut.flows.length - 2} more flows`}
                           </button>
                         )}
                       </div>
