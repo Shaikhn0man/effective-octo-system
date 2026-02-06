@@ -15,7 +15,7 @@ const TYPE_COLORS = {
   },
 };
 
-export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, dependencyMap, approvedIds = new Set() }) {
+export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, dependencyMap, approvedIds = new Set(), sizeFilter = 'ALL', typeFilter = 'ALL' }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
@@ -111,7 +111,29 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
       sizeCategory: s.sizeCategory
     }));
 
-    return { polygons: polygonData, sites };
+    // Calculate total area and percentages based on circle radius (not Voronoi cell)
+    // This ensures percentage reflects actual cluster complexity
+    const radiusMap = new Map();
+    sites.forEach(s => {
+      const radius = Math.max(70, 25 + (Math.pow(s.score, 0.65) * 28));
+      radiusMap.set(s.id, radius);
+    });
+
+    const totalRadiusArea = Array.from(radiusMap.values()).reduce((sum, r) => sum + (Math.PI * r * r), 0);
+    
+    const polygonsWithPercentage = polygonData.map(p => {
+      const radius = radiusMap.get(p.cluster.cluster_id);
+      const circleArea = Math.PI * radius * radius;
+      const percentage = ((circleArea / totalRadiusArea) * 100).toFixed(1);
+      
+      return {
+        ...p,
+        percentage: percentage,
+        radius: radius
+      };
+    });
+
+    return { polygons: polygonsWithPercentage, sites };
   }, [clusters, dimensions]);
 
   // Get dependencies for selected cluster
@@ -243,6 +265,20 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
           const isApproved = approvedIds.has(p.cluster.cluster_id);
           const colors = TYPE_COLORS[p.cluster.type] || TYPE_COLORS.READ_ONLY_CUT;
 
+          // Apply size filter
+          let shouldShow = true;
+          if (sizeFilter === 'SMALL') shouldShow = p.sizeCategory === 'SM';
+          else if (sizeFilter === 'MEDIUM') shouldShow = p.sizeCategory === 'MD';
+          else if (sizeFilter === 'LARGE') shouldShow = p.sizeCategory === 'LG';
+
+          if (!shouldShow) {
+            return (
+              <g key={p.cluster.cluster_id} opacity="0.1">
+                <path d={p.path} fill={colors.main} fillOpacity="0.02" stroke="none" />
+              </g>
+            );
+          }
+
           return (
             <g
               key={p.cluster.cluster_id}
@@ -252,22 +288,38 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
               }}
               style={{ cursor: 'pointer' }}
             >
-              {/* Main polygon */}
-              <path
-                d={p.path}
-                fill={colors.main}
-                fillOpacity={isApproved ? 0.4 : (isSelected ? 0.4 : isDependency ? 0.3 : isDimmed ? 0.02 : 0.15)}
-                stroke={isApproved ? colors.main : (colors.main)}
-                strokeWidth={isApproved ? 3 : (isSelected ? 4 : isDependency ? 2 : 1)}
-                strokeOpacity={isApproved ? 0.9 : (isSelected ? 0.8 : isDimmed ? 0.05 : 0.4)}
-                filter={isApproved ? 'url(#glow)' : ''}
-                style={{
-                  transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  animation: isApproved ? 'approvedPulse 3s ease-in-out infinite' : 'none'
-                }}
-              />
-              {/* Topographic texture */}
-              <path d={p.path} fill="url(#topo)" style={{ pointerEvents: 'none', opacity: 0.2 }} />
+              {/* Main polygon with dynamic scaling based on type filter */}
+              {(() => {
+                // When filtering by type, scale clusters proportionally to their area occupancy
+                let scale = 1;
+                if (typeFilter !== 'ALL') {
+                  const matchingClusters = polygons.filter(poly => poly.cluster.type === typeFilter);
+                  const totalPercentage = matchingClusters.reduce((sum, poly) => sum + parseFloat(poly.percentage), 0);
+                  const clusterPercentage = parseFloat(p.percentage);
+                  // Scale between 0.7 and 1.3 based on percentage within filtered group
+                  scale = 0.7 + (clusterPercentage / totalPercentage) * 0.6;
+                }
+
+                return (
+                  <g transform={`translate(${p.center.x}, ${p.center.y}) scale(${scale}) translate(${-p.center.x}, ${-p.center.y})`}>
+                    <path
+                      d={p.path}
+                      fill={colors.main}
+                      fillOpacity={isApproved ? 0.4 : (isSelected ? 0.4 : isDependency ? 0.3 : isDimmed ? 0.02 : 0.15)}
+                      stroke={isApproved ? colors.main : (colors.main)}
+                      strokeWidth={isApproved ? 3 : (isSelected ? 4 : isDependency ? 2 : 1)}
+                      strokeOpacity={isApproved ? 0.9 : (isSelected ? 0.8 : isDimmed ? 0.05 : 0.4)}
+                      filter={isApproved ? 'url(#glow)' : ''}
+                      style={{
+                        transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        animation: isApproved ? 'approvedPulse 3s ease-in-out infinite' : 'none'
+                      }}
+                    />
+                    {/* Topographic texture */}
+                    <path d={p.path} fill="url(#topo)" style={{ pointerEvents: 'none', opacity: 0.2 }} />
+                  </g>
+                );
+              })()}
 
               {/* Center point and labels */}
               <g
@@ -301,15 +353,27 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                   {p.cluster.cut_seq_no}
                 </text>
 
+                {/* Percentage Occupancy - positioned below badges */}
+                <text
+                  textAnchor="middle"
+                  y={50}
+                  fontSize="14"
+                  fontWeight="600"
+                  fill={isSelected ? '#fff' : 'rgba(255,255,255,0.5)'}
+                  style={{
+                    pointerEvents: 'none',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                    opacity: isSelected ? 1 : 0.6
+                  }}
+                >
+                  {p.percentage}%
+                </text>
+
                 {/* Flow type indicators (S/B badges) + Size Indicator */}
                 {/* Separate opacity control to keep badges visible even when dimmed */}
                 <g transform="translate(0, 26)" style={{ opacity: isDimmed ? 0.6 : 1 }}>
                   <g display="flex" style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                    {/* Size Badge */}
-                    <g transform="translate(-24, 0)">
-                       <rect x="-10" y="-8" width="20" height="16" rx="4" fill="#1e293b" fillOpacity="0.8" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-                       <text textAnchor="middle" dy="4" fontSize="9" fontWeight="bold" fill="#94a3b8">{p.sizeCategory}</text>
-                    </g>
+                   
 
                     {/* S/B Badges - Adjust positions dynamically */}
                     {p.cluster.screen_count > 0 && p.cluster.flow_count > 0 ? (

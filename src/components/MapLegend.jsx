@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
-export function MapLegend() {
+export function MapLegend({ onSizeFilterChange = () => {} }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [sizeFilter, setSizeFilter] = useState('ALL');
 
   return (
     <div 
@@ -76,13 +77,13 @@ export function MapLegend() {
         overflow: 'hidden',
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       }}>
-        {/* Area Size info */}
+        {/* Area Size Filter */}
         <div style={{ marginBottom: '16px', marginTop: '4px' }}>
           <div style={{
             fontSize: '9px',
             fontWeight: '700',
             color: '#94a3b8',
-            marginBottom: '6px',
+            marginBottom: '10px',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
@@ -93,15 +94,72 @@ export function MapLegend() {
               background: 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3))',
               borderRadius: '3px',
             }} />
-            Area Size
+            Territory Size
           </div>
+          <div style={{
+            display: 'flex',
+            gap: '6px',
+            flexWrap: 'wrap',
+          }}>
+            {[
+              { value: 'ALL', label: 'All', color: '#64748b' },
+              { value: 'SMALL', label: 'Small', color: '#3b82f6' },
+              { value: 'MEDIUM', label: 'Medium', color: '#f59e0b' },
+              { value: 'LARGE', label: 'Large', color: '#22c55e' },
+            ].map(filter => {
+              const isActive = sizeFilter === filter.value;
+              return (
+                <button
+                  key={filter.value}
+                  onClick={() => {
+                    setSizeFilter(filter.value);
+                    onSizeFilterChange(filter.value);
+                  }}
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: '8px',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    border: `1px solid ${isActive ? filter.color : 'rgba(255,255,255,0.1)'}`,
+                    background: isActive ? `${filter.color}20` : 'transparent',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    color: isActive ? filter.color : '#64748b',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.borderColor = `${filter.color}60`;
+                      e.currentTarget.style.background = `${filter.color}10`;
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  {filter.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Area Size info */}
+        <div style={{ marginBottom: '16px' }}>
           <div style={{
             fontSize: '8px',
             color: '#475569',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
+            lineHeight: '1.5',
           }}>
-            Territory coverage
+            <strong>SM:</strong> Small territories (Low complexity)<br/>
+            <strong>MD:</strong> Medium territories (Moderate complexity)<br/>
+            <strong>LG:</strong> Large territories (High complexity)
           </div>
         </div>
 

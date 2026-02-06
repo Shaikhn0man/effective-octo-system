@@ -232,6 +232,7 @@ const DependencyVisualizer = ({ dependsOn, dependedBy, currentClusterId }) => {
 
 export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, setFilterType, filterButtons, clusterData, onOpenExplorer }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [techDebtFilter, setTechDebtFilter] = useState('ALL');
 
   // Compute Dependencies from clusterData
   const computedDependencies = useMemo(() => {
@@ -463,25 +464,267 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'subcuts', label: 'Subcuts' },
+    { id: 'programs', label: 'Programs' },
     { id: 'metrics', label: 'Metrics' },
     { id: 'dependencies', label: 'Dependencies' },
   ];
 
-  // Mini Hierarchy View for Subcuts Tab (Circle Pack)
+  // Enhanced Subcuts Visualization
   const SubcutHierarchy = ({ subCuts, mainClusterId }) => {
-    if (!Array.isArray(subCuts)) return null; // Ensure subCuts is an array
+    const [expandedId, setExpandedId] = useState(null);
+    const [expandedFlows, setExpandedFlows] = useState({});
+
+    if (!Array.isArray(subCuts)) return null;
+
+    const toggleFlowExpand = (subCutId) => {
+      setExpandedFlows(prev => ({
+        ...prev,
+        [subCutId]: !prev[subCutId]
+      }));
+    };
 
     return (
-      <div>
-        {subCuts.map((subCut, index) => (
-          <div key={`${mainClusterId}-${subCut.id}-${index}`} style={{ marginBottom: '10px' }}>
-            <h4>{subCut.topic}</h4>
-            <p>Type: {subCut.type}</p>
-            <p>Flow Count: {subCut.stats?.flow_count || 0}</p>
-            <p>Batch Flows: {subCut.stats?.batch_flows || 0}</p>
-            <p>Screen Flows: {subCut.stats?.screen_flows || 0}</p>
-          </div>
-        ))}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {subCuts.map((subCut, index) => {
+          const isExpanded = expandedId === subCut.id;
+          const flowsExpanded = expandedFlows[subCut.id];
+          const masterTableCount = subCut.data_domain?.master_tables?.length || 0;
+          const refTableCount = subCut.data_domain?.reference_tables?.length || 0;
+          const totalTables = masterTableCount + refTableCount;
+          const flowCount = subCut.stats?.flow_count || 0;
+          const screenCount = subCut.stats?.screen_flows || 0;
+
+          return (
+            <div
+              key={`${mainClusterId}-${subCut.id}-${index}`}
+              style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.05)',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                transition: 'all 0.2s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+              }}
+            >
+              {/* Header */}
+              <div
+                onClick={() => setExpandedId(isExpanded ? null : subCut.id)}
+                style={{
+                  padding: '14px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '800',
+                    color: subCut.type === 'CLEAN_SUBCUT' ? '#22c55e' : '#e2e8f0',
+                    letterSpacing: '-0.3px',
+                    marginBottom: '4px',
+                  }}>
+                    {subCut.id}
+                  </div>
+                  <div style={{
+                    fontSize: '10px',
+                    color: '#94a3b8',
+                    lineHeight: '1.4',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {subCut.topic}
+                  </div>
+                </div>
+
+                {/* Metrics Pills */}
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  alignItems: 'center',
+                  flexShrink: 0,
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '4px 8px',
+                    background: 'rgba(249, 115, 22, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '9px',
+                    fontWeight: '700',
+                    color: '#f97316',
+                  }}>
+                    <span>⟳</span>
+                    <span>{flowCount}</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '4px 8px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '9px',
+                    fontWeight: '700',
+                    color: '#3b82f6',
+                  }}>
+                    <span>◫</span>
+                    <span>{screenCount}</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '4px 8px',
+                    background: 'rgba(34, 197, 94, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '9px',
+                    fontWeight: '700',
+                    color: '#22c55e',
+                  }}>
+                    <span>▤</span>
+                    <span>{totalTables}</span>
+                  </div>
+
+                  {/* Expand Icon */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '20px',
+                    height: '20px',
+                    transition: 'transform 0.2s ease',
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#64748b' }}>
+                      <path d="M19 14l-7-7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expanded Content */}
+              {isExpanded && (
+                <div style={{
+                  padding: '12px 16px',
+                  borderTop: '1px solid rgba(255,255,255,0.05)',
+                  background: 'rgba(255,255,255,0.01)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}>
+                  {/* Data Domain Section */}
+                  {(masterTableCount > 0 || refTableCount > 0) && (
+                    <div>
+                      <div style={{
+                        fontSize: '8px',
+                        fontWeight: '800',
+                        color: '#64748b',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        marginBottom: '8px',
+                      }}>
+                        Data Domain
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {masterTableCount > 0 && (
+                          <div style={{
+                            padding: '6px 10px',
+                            background: 'rgba(139, 92, 246, 0.1)',
+                            border: '1px solid rgba(139, 92, 246, 0.2)',
+                            borderRadius: '6px',
+                            fontSize: '9px',
+                            color: '#c4b5fd',
+                            fontWeight: '600',
+                          }}>
+                            {masterTableCount} Master
+                          </div>
+                        )}
+                        {refTableCount > 0 && (
+                          <div style={{
+                            padding: '6px 10px',
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            borderRadius: '6px',
+                            fontSize: '9px',
+                            color: '#93c5fd',
+                            fontWeight: '600',
+                          }}>
+                            {refTableCount} Reference
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Flows Preview */}
+                  {subCut.flows && subCut.flows.length > 0 && (
+                    <div>
+                      <div style={{
+                        fontSize: '8px',
+                        fontWeight: '800',
+                        color: '#64748b',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        marginBottom: '8px',
+                      }}>
+                        Flows ({subCut.flows.length})
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {(flowsExpanded ? subCut.flows : subCut.flows.slice(0, 2)).map((flow, idx) => (
+                          <div key={idx} style={{
+                            padding: '8px 10px',
+                            background: 'rgba(249, 115, 22, 0.05)',
+                            borderRadius: '6px',
+                            fontSize: '9px',
+                            color: '#fed7aa',
+                            lineHeight: '1.3',
+                          }}>
+                            {flow.topic}
+                          </div>
+                        ))}
+                        {subCut.flows.length > 2 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFlowExpand(subCut.id);
+                            }}
+                            style={{
+                              fontSize: '8px',
+                              color: '#3b82f6',
+                              fontWeight: '700',
+                              background: 'transparent',
+                              border: 'none',
+                              cursor: 'pointer',
+                              padding: '6px 10px',
+                              textAlign: 'left',
+                              transition: 'color 0.2s ease',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.color = '#60a5fa'}
+                            onMouseLeave={e => e.currentTarget.style.color = '#3b82f6'}
+                          >
+                            {flowsExpanded ? `▼ Show less` : `▶ +${subCut.flows.length - 2} more flows`}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -659,6 +902,53 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
       }}>
         {activeTab === 'overview' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Business Summary */}
+            <section style={{
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)',
+              padding: '20px',
+              borderRadius: '16px',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+            }}>
+              <h3 style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#3b82f6',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '12px',
+              }}>Business Summary</h3>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+              }}>
+                {(() => {
+                  // Convert description to bullet points
+                  const description = cluster.description || '';
+                  const sentences = description.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                  
+                  return sentences.map((sentence, index) => (
+                    <div key={index} style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '8px',
+                      fontSize: '12px',
+                      color: '#cbd5e1',
+                      lineHeight: '1.6',
+                    }}>
+                      <span style={{
+                        color: '#3b82f6',
+                        fontSize: '8px',
+                        marginTop: '6px',
+                        flexShrink: 0,
+                      }}>●</span>
+                      <span>{sentence.trim()}</span>
+                    </div>
+                  ));
+                })()}
+              </div>
+            </section>
+
             {/* Topic description */}
             <section style={{
               background: 'rgba(255,255,255,0.02)',
@@ -733,54 +1023,8 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
                 marginBottom: '16px',
-              }}>Functional Containment (Circle Pack)</h3>
+              }}>Functional Containment ({cluster.sub_cut_count} Subcuts)</h3>
               <SubcutHierarchy subCuts={cluster.sub_cuts} mainClusterId={cluster.cluster_id} />
-            </section>
-
-            <section>
-              <h3 style={{
-                fontSize: '10px',
-                fontWeight: '700',
-                color: '#64748b',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '12px',
-              }}>Subcut Entities ({cluster.sub_cut_count})</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {cluster.sub_cuts?.map(sc => (
-                  <div key={sc.sub_cut_id} style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    border: '1px solid rgba(255,255,255,0.05)',
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{
-                        fontSize: '11px',
-                        fontWeight: '800',
-                        color: sc.sub_cut_type === 'CLEAN_SUBCUT' ? '#22c55e' : '#e2e8f0',
-                        letterSpacing: '-0.3px',
-                      }}>
-                        {sc.sub_cut_id}
-                      </span>
-                      <span style={{
-                        fontSize: '9px',
-                        fontWeight: '700',
-                        color: '#64748b',
-                        fontFamily: 'monospace',
-                      }}>SEQ.{sc.sub_cut_seq_no}</span>
-                    </div>
-                    <p style={{
-                      fontSize: '10px',
-                      color: '#64748b',
-                      lineHeight: '1.4',
-                      margin: 0,
-                    }}>
-                      {sc.sub_cut_topic}
-                    </p>
-                  </div>
-                ))}
-              </div>
             </section>
 
             {cluster.dependencies?.reads_from_cuts?.length > 0 && (
@@ -877,6 +1121,452 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {activeTab === 'programs' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Tech Debt Filter */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+            }}>
+              <div style={{
+                fontSize: '8px',
+                fontWeight: '800',
+                color: '#64748b',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+              }}>
+                Filter by Tech Debt
+              </div>
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '6px',
+              }}>
+                {['ALL', 'DEAD_CODE_LIKELY', 'DUPLICATED_LOGIC', 'COMPLEX_CONTROL_FLOW', 'SHARED_STATE', 'MISSING_ERROR_HANDLING'].map(debt => {
+                  const isActive = techDebtFilter === debt;
+                  return (
+                    <button
+                      key={debt}
+                      onClick={() => setTechDebtFilter(debt)}
+                      style={{
+                        padding: '6px 10px',
+                        fontSize: '8px',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        color: isActive ? '#ffffff' : '#64748b',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={e => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                        }
+                      }}
+                    >
+                      {debt === 'ALL' ? 'All' : debt.replace(/_/g, ' ')}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Programs Display */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+            }}>
+              {(() => {
+                // Extract all methods from programs in flows
+                const allMethods = [];
+                const techDebtCounts = {
+                  'DEAD_CODE_LIKELY': 0,
+                  'DUPLICATED_LOGIC': 0,
+                  'COMPLEX_CONTROL_FLOW': 0,
+                  'SHARED_STATE': 0,
+                  'MISSING_ERROR_HANDLING': 0,
+                };
+
+                if (cluster.sub_cuts && Array.isArray(cluster.sub_cuts)) {
+                  cluster.sub_cuts.forEach(subCut => {
+                    if (subCut.flows && Array.isArray(subCut.flows)) {
+                      subCut.flows.forEach(flow => {
+                        if (flow.programs && Array.isArray(flow.programs)) {
+                          flow.programs.forEach(program => {
+                            if (program.methods && Array.isArray(program.methods)) {
+                              program.methods.forEach(method => {
+                                const techDebt = method.method_metadata?.tech_debt;
+                                if (techDebt && techDebtCounts.hasOwnProperty(techDebt)) {
+                                  techDebtCounts[techDebt]++;
+                                }
+                                
+                                if (techDebtFilter === 'ALL' || techDebt === techDebtFilter) {
+                                  allMethods.push({
+                                    programPath: program.path,
+                                    methodName: method.name,
+                                    techDebt: techDebt,
+                                    complexity: method.method_metadata?.complexity,
+                                    criticality: method.method_metadata?.business_criticality,
+                                    tags: method.method_metadata?.classification_tags,
+                                    flowTopic: flow.topic,
+                                    subCutId: subCut.id
+                                  });
+                                }
+                              });
+                            }
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
+
+                // Show tech debt overview when ALL is selected
+                if (techDebtFilter === 'ALL') {
+                  const techDebtConfig = {
+                    'DEAD_CODE_LIKELY': { 
+                      color: '#ef4444', 
+                      label: 'Dead Code', 
+                      icon: (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#ef4444' }}>
+                          <path d="M3 6h18M8 6v12M16 6v12M4 18h16M6 9h12M6 12h12M6 15h12" />
+                        </svg>
+                      ),
+                      desc: 'Unused or unreachable code' 
+                    },
+                    'DUPLICATED_LOGIC': { 
+                      color: '#f97316', 
+                      label: 'Duplicated Logic', 
+                      icon: (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#f97316' }}>
+                          <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3m8-18h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3m-8-4h8m-8-4h8" />
+                        </svg>
+                      ),
+                      desc: 'Repeated code patterns' 
+                    },
+                    'COMPLEX_CONTROL_FLOW': { 
+                      color: '#a855f7', 
+                      label: 'Complex Flow', 
+                      icon: (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#a855f7' }}>
+                          <path d="M12 3v6m0 6v6M3 12h6m6 0h6M7 7l4.24 4.24M12.76 12.76L17 17M17 7l-4.24 4.24M7 17l4.24-4.24" />
+                        </svg>
+                      ),
+                      desc: 'Hard to follow logic' 
+                    },
+                    'SHARED_STATE': { 
+                      color: '#3b82f6', 
+                      label: 'Shared State', 
+                      icon: (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#3b82f6' }}>
+                          <circle cx="6" cy="6" r="2" />
+                          <circle cx="18" cy="6" r="2" />
+                          <circle cx="12" cy="18" r="2" />
+                          <path d="M8 8l4 8M16 8l-4 8M6 8v4M18 8v4" />
+                        </svg>
+                      ),
+                      desc: 'Global variable usage' 
+                    },
+                    'MISSING_ERROR_HANDLING': { 
+                      color: '#f59e0b', 
+                      label: 'Error Handling', 
+                      icon: (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: '#f59e0b' }}>
+                          <path d="M12 2L2 20h20L12 2zm0 5v5m0 4v2" />
+                        </svg>
+                      ),
+                      desc: 'Missing error checks' 
+                    },
+                  };
+
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div style={{
+                        fontSize: '10px',
+                        fontWeight: '800',
+                        color: '#e2e8f0',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        marginBottom: '8px',
+                      }}>
+                        Tech Debt Overview ({allMethods.length} methods total)
+                      </div>
+                      
+                      {Object.entries(techDebtConfig).map(([key, config]) => {
+                        const count = techDebtCounts[key];
+                        const percentage = allMethods.length > 0 ? Math.round((count / allMethods.length) * 100) : 0;
+                        
+                        return (
+                          <div
+                            key={key}
+                            onClick={() => setTechDebtFilter(key)}
+                            style={{
+                              padding: '16px 18px',
+                              background: `linear-gradient(135deg, ${config.color}15 0%, ${config.color}08 100%)`,
+                              border: `1px solid ${config.color}30`,
+                              borderRadius: '12px',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              position: 'relative',
+                              overflow: 'hidden',
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = `linear-gradient(135deg, ${config.color}25 0%, ${config.color}15 100%)`;
+                              e.currentTarget.style.borderColor = `${config.color}50`;
+                              e.currentTarget.style.transform = 'translateX(4px)';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = `linear-gradient(135deg, ${config.color}15 0%, ${config.color}08 100%)`;
+                              e.currentTarget.style.borderColor = `${config.color}30`;
+                              e.currentTarget.style.transform = 'translateX(0)';
+                            }}
+                          >
+                            {/* Progress bar background */}
+                            <div style={{
+                              position: 'absolute',
+                              left: 0,
+                              top: 0,
+                              height: '100%',
+                              width: `${percentage}%`,
+                              background: `${config.color}10`,
+                              transition: 'width 0.8s ease',
+                            }} />
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', zIndex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px' }}>
+                                {config.icon}
+                              </div>
+                              <div>
+                                <div style={{
+                                  fontSize: '11px',
+                                  fontWeight: '800',
+                                  color: config.color,
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.5px',
+                                  marginBottom: '2px',
+                                }}>
+                                  {config.label}
+                                </div>
+                                <div style={{
+                                  fontSize: '9px',
+                                  color: '#94a3b8',
+                                  lineHeight: '1.3',
+                                }}>
+                                  {config.desc}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 1 }}>
+                              <div style={{
+                                fontSize: '8px',
+                                color: '#64748b',
+                                fontWeight: '600',
+                              }}>
+                                {percentage}%
+                              </div>
+                              <div style={{
+                                fontSize: '20px',
+                                fontWeight: '900',
+                                color: config.color,
+                                fontFamily: 'monospace',
+                              }}>
+                                {count}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                }
+
+                // Show filtered methods
+                if (allMethods.length === 0) {
+                  return (
+                    <div style={{
+                      padding: '40px 20px',
+                      textAlign: 'center',
+                      color: '#64748b',
+                      fontSize: '11px',
+                    }}>
+                      <div style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.5 }}>🔍</div>
+                      <div style={{ fontWeight: '600', marginBottom: '4px' }}>No methods found</div>
+                      <div>Try selecting a different tech debt filter</div>
+                    </div>
+                  );
+                }
+
+                const techDebtColors = {
+                  'DEAD_CODE_LIKELY': { bg: 'rgba(239, 68, 68, 0.08)', border: '#ef444430', text: '#fca5a5' },
+                  'DUPLICATED_LOGIC': { bg: 'rgba(249, 115, 22, 0.08)', border: '#f9731630', text: '#fed7aa' },
+                  'COMPLEX_CONTROL_FLOW': { bg: 'rgba(168, 85, 247, 0.08)', border: '#a855f730', text: '#e9d5ff' },
+                  'SHARED_STATE': { bg: 'rgba(59, 130, 246, 0.08)', border: '#3b82f630', text: '#93c5fd' },
+                  'MISSING_ERROR_HANDLING': { bg: 'rgba(245, 158, 11, 0.08)', border: '#f59e0b30', text: '#fcd34d' },
+                };
+
+                const complexityColors = {
+                  'LOW': '#22c55e',
+                  'MEDIUM': '#f59e0b',
+                  'HIGH': '#ef4444',
+                };
+
+                const criticalityColors = {
+                  'CORE': '#ef4444',
+                  'SUPPORT': '#3b82f6',
+                  'UTILITY': '#22c55e',
+                  'DEAD': '#64748b',
+                };
+
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{
+                      fontSize: '10px',
+                      fontWeight: '800',
+                      color: '#e2e8f0',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      marginBottom: '8px',
+                    }}>
+                      {techDebtFilter.replace(/_/g, ' ')} Methods ({allMethods.length})
+                    </div>
+                    
+                    {allMethods.map((method, idx) => {
+                      const colors = techDebtColors[method.techDebt] || { bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.1)', text: '#94a3b8' };
+                      
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            background: colors.bg,
+                            border: `1px solid ${colors.border}`,
+                            borderRadius: '12px',
+                            padding: '14px 16px',
+                            transition: 'all 0.2s ease',
+                            cursor: 'pointer',
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = colors.bg.replace('0.08', '0.12');
+                            e.currentTarget.style.transform = 'translateX(2px)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = colors.bg;
+                            e.currentTarget.style.transform = 'translateX(0)';
+                          }}
+                        >
+                          {/* Header */}
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                            marginBottom: '10px',
+                          }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{
+                                fontSize: '10px',
+                                fontWeight: '800',
+                                color: '#e2e8f0',
+                                letterSpacing: '-0.3px',
+                                marginBottom: '3px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}>
+                                {method.programPath}
+                              </div>
+                              <div style={{
+                                fontSize: '9px',
+                                color: colors.text,
+                                fontWeight: '600',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}>
+                                {method.methodName}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Tags */}
+                          {method.tags && (
+                            <div style={{
+                              fontSize: '8px',
+                              color: '#94a3b8',
+                              lineHeight: '1.4',
+                              marginBottom: '10px',
+                              fontStyle: 'italic',
+                            }}>
+                              {method.tags}
+                            </div>
+                          )}
+
+                          {/* Metadata badges */}
+                          <div style={{
+                            display: 'flex',
+                            gap: '6px',
+                            flexWrap: 'wrap',
+                            alignItems: 'center',
+                          }}>
+                            <div style={{
+                              padding: '4px 8px',
+                              background: 'rgba(255,255,255,0.05)',
+                              borderRadius: '4px',
+                              fontSize: '8px',
+                              fontWeight: '600',
+                              color: complexityColors[method.complexity] || '#94a3b8',
+                            }}>
+                              {method.complexity}
+                            </div>
+                            <div style={{
+                              padding: '4px 8px',
+                              background: 'rgba(255,255,255,0.05)',
+                              borderRadius: '4px',
+                              fontSize: '8px',
+                              fontWeight: '600',
+                              color: criticalityColors[method.criticality] || '#94a3b8',
+                            }}>
+                              {method.criticality}
+                            </div>
+                            <div style={{
+                              padding: '4px 8px',
+                              background: 'rgba(255,255,255,0.03)',
+                              borderRadius: '4px',
+                              fontSize: '7px',
+                              fontWeight: '500',
+                              color: '#64748b',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              maxWidth: '120px',
+                            }}>
+                              {method.flowTopic}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         )}
 

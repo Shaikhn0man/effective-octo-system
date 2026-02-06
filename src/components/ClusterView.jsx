@@ -9,6 +9,7 @@ import { VoronoiMap } from "./VoronoiMap";
 export function ClusterView() {
   const [selectedClusterId, setSelectedClusterId] = useState(null);
   const [filterType, setFilterType] = useState("ALL");
+  const [sizeFilter, setSizeFilter] = useState("ALL");
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
 
   const filteredClusters = useMemo(() => (
@@ -145,12 +146,14 @@ export function ClusterView() {
           onDeselect={handleClose}
           selectedId={selectedClusterId}
           dependencyMap={clusterDependencyMapData.dependency_map}
+          sizeFilter={sizeFilter}
+          typeFilter={filterType}
         />
 
         {/* Map Legend (Floating) */}
-        <MapLegend />
+        <MapLegend onSizeFilterChange={setSizeFilter} />
 
-        {/* Friction Alert */}
+        {/* Friction Alert
         <div style={{
           position: "absolute",
           top: "90px",
@@ -193,7 +196,7 @@ export function ClusterView() {
               margin: "4px 0 0 0",
             }}>Resolve Auth & Settlements Priority</p>
           </div>
-        </div>
+        </div> */}
       </main>
 
       {/* Detail Sidebar */}
