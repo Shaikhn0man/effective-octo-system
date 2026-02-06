@@ -52,14 +52,15 @@ export function Dashboard() {
         }}>
           <h2 style={{
             fontSize: '18px',
-            fontWeight: '800',
+            fontWeight: '700',
             color: '#fff',
             marginBottom: '4px',
             textTransform: 'uppercase',
             letterSpacing: '1px',
           }}>Review & Approve</h2>
           <p style={{
-            fontSize: '11px',
+            fontSize: '12px',
+            fontWeight: '500',
             color: '#64748b',
             textTransform: 'uppercase',
             letterSpacing: '1px',
@@ -75,10 +76,10 @@ export function Dashboard() {
               border: '1px solid rgba(59, 130, 246, 0.3)',
               background: isAllApproved ? '#3b82f6' : 'rgba(59, 130, 246, 0.1)',
               color: isAllApproved ? '#fff' : '#3b82f6',
-              fontSize: '10px',
-              fontWeight: '800',
+              fontSize: '12px',
+              fontWeight: '700',
               textTransform: 'uppercase',
-              letterSpacing: '2px',
+              letterSpacing: '1.5px',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
             }}
@@ -114,8 +115,8 @@ export function Dashboard() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                   <div style={{
-                    fontSize: '11px',
-                    fontWeight: '800',
+                    fontSize: '14px',
+                    fontWeight: '600',
                     color: '#e2e8f0',
                     letterSpacing: '-0.2px',
                     maxWidth: '180px',
@@ -123,10 +124,10 @@ export function Dashboard() {
                     {c.cluster_id.split('_').slice(2).join(' ').replace(/-/g, ' ')}
                   </div>
                   <div style={{
-                    fontSize: '9px',
-                    fontWeight: '900',
+                    fontSize: '14px',
+                    fontWeight: '700',
                     color: '#64748b',
-                    fontFamily: 'monospace',
+                    fontFamily: 'var(--font-family)',
                   }}>SEQ.{c.cut_seq_no}</div>
                 </div>
 
@@ -143,8 +144,8 @@ export function Dashboard() {
                       border: 'none',
                       background: isApproved ? '#22c55e' : 'rgba(255,255,255,0.05)',
                       color: isApproved ? '#fff' : '#94a3b8',
-                      fontSize: '9px',
-                      fontWeight: '800',
+                      fontSize: '12px',
+                      fontWeight: '700',
                       textTransform: 'uppercase',
                       cursor: 'pointer',
                       display: 'flex',
@@ -166,8 +167,8 @@ export function Dashboard() {
                       border: '1px solid rgba(255,255,255,0.1)',
                       background: 'transparent',
                       color: '#64748b',
-                      fontSize: '9px',
-                      fontWeight: '800',
+                      fontSize: '12px',
+                      fontWeight: '700',
                       textTransform: 'uppercase',
                       cursor: 'pointer',
                     }}
@@ -208,12 +209,12 @@ export function Dashboard() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
-            <span style={{ fontSize: '10px', color: '#fff', fontWeight: '700', textTransform: 'uppercase' }}>{approvedIds.size} Approved</span>
+            <span style={{ fontSize: '12px', color: '#fff', fontWeight: '600', textTransform: 'uppercase' }}>{approvedIds.size} Approved</span>
           </div>
           <div style={{ width: '1px', height: '12px', background: 'rgba(255,255,255,0.2)' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#64748b' }} />
-            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' }}>{clusters.length - approvedIds.size} Pending</span>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase' }}>{clusters.length - approvedIds.size} Pending</span>
           </div>
         </div>
       </div>

@@ -1,11 +1,28 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-family);
   line-height: 1.5;
   font-weight: 400;
 
+  /* Global Typography Scale */
+  --font-size-h1: 24px;
+  --font-size-h2: 18px;
+  --font-size-h3: 16px;
+  --font-size-body: 14px;
+  --font-size-small: 12px;
+  --font-size-tiny: 10px;
+  --font-size-number: 14px;
+
+  /* Global Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #020617; /* Darker slate background */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

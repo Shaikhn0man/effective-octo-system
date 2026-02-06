@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
-export function MapLegend({ onSizeFilterChange = () => {} }) {
+export function MapLegend({ onSizeFilterChange = () => { } }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [sizeFilter, setSizeFilter] = useState('ALL');
 
   return (
-    <div 
+    <div
       style={{
         position: 'absolute',
         bottom: '28px',
@@ -28,11 +28,11 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
     >
       {/* Header / Pill Content */}
       <h4 style={{
-        fontSize: '10px',
-        fontWeight: '800',
+        fontSize: '14px',
+        fontWeight: '700',
         color: isExpanded ? '#64748b' : '#3b82f6',
         textTransform: 'uppercase',
-        letterSpacing: '1.5px',
+        letterSpacing: '1px',
         marginBottom: isExpanded ? '16px' : '0',
         display: 'flex',
         alignItems: 'center',
@@ -42,12 +42,12 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
         transition: 'color 0.3s ease',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '12px' }}>{isExpanded ? '◇' : '🗺️'}</span>
+          <span style={{ fontSize: '14px' }}>{isExpanded ? '◇' : '🗺️'}</span>
           <span>{isExpanded ? 'Cartographic Legend' : 'Map Legend'}</span>
         </div>
-        
+
         {isExpanded && (
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setIsExpanded(false);
@@ -80,7 +80,7 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
         {/* Area Size Filter */}
         <div style={{ marginBottom: '16px', marginTop: '4px' }}>
           <div style={{
-            fontSize: '9px',
+            fontSize: '12px',
             fontWeight: '700',
             color: '#94a3b8',
             marginBottom: '10px',
@@ -117,7 +117,7 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
                   }}
                   style={{
                     padding: '6px 10px',
-                    fontSize: '8px',
+                    fontSize: '12px',
                     fontWeight: '700',
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
@@ -151,14 +151,14 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
         {/* Area Size info */}
         <div style={{ marginBottom: '16px' }}>
           <div style={{
-            fontSize: '8px',
+            fontSize: '11px',
             color: '#475569',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
             lineHeight: '1.5',
           }}>
-            <strong>SM:</strong> Small territories (Low complexity)<br/>
-            <strong>MD:</strong> Medium territories (Moderate complexity)<br/>
+            <strong>SM:</strong> Small territories (Low complexity)<br />
+            <strong>MD:</strong> Medium territories (Moderate complexity)<br />
             <strong>LG:</strong> Large territories (High complexity)
           </div>
         </div>
@@ -166,7 +166,7 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
         {/* Flow Types */}
         <div style={{ marginBottom: '20px' }}>
           <div style={{
-            fontSize: '9px',
+            fontSize: '12px',
             fontWeight: '700',
             color: '#94a3b8',
             marginBottom: '10px',
@@ -182,12 +182,12 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
               <span style={{
                 background: '#3b82f6',
                 color: 'white',
-                fontSize: '8px',
+                fontSize: '11px',
                 fontWeight: '800',
                 padding: '3px 6px',
                 borderRadius: '4px',
               }}>S</span>
-              <span style={{ fontSize: '8px', color: '#64748b', textTransform: 'uppercase' }}>Screen Flow</span>
+              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase' }}>Screen Flow</span>
             </div>
             <div style={{
               display: 'flex',
@@ -197,12 +197,12 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
               <span style={{
                 background: '#f97316',
                 color: 'white',
-                fontSize: '8px',
+                fontSize: '11px',
                 fontWeight: '800',
                 padding: '3px 6px',
                 borderRadius: '4px',
               }}>B</span>
-              <span style={{ fontSize: '8px', color: '#64748b', textTransform: 'uppercase' }}>Batch Flow</span>
+              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase' }}>Batch Flow</span>
             </div>
           </div>
         </div>
@@ -216,7 +216,7 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
 
         {/* Cut Types */}
         <div style={{
-          fontSize: '9px',
+          fontSize: '12px',
           fontWeight: '700',
           color: '#94a3b8',
           marginBottom: '12px',
@@ -243,12 +243,12 @@ export function MapLegend({ onSizeFilterChange = () => {} }) {
               }} />
               <div>
                 <div style={{
-                  fontSize: '10px',
+                  fontSize: '12px',
                   color: '#e2e8f0',
                   fontWeight: '600',
                 }}>{type.label}</div>
                 <div style={{
-                  fontSize: '8px',
+                  fontSize: '11px',
                   color: '#64748b',
                 }}>{type.desc}</div>
               </div>

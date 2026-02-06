@@ -129,7 +129,7 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
         <h4
           style={{
             margin: "0 0 8px 0",
-            fontSize: "11px",
+            fontSize: "14px",
             fontWeight: "700",
             color: "#ffffff",
             textAlign: "center",
@@ -149,7 +149,7 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
             color: "#ffffff",
             padding: "3px 10px",
             borderRadius: "12px",
-            fontSize: "8px",
+            fontSize: "11px",
             fontWeight: "700",
             textTransform: "uppercase",
             letterSpacing: "0.5px",
@@ -184,7 +184,7 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
             >
               <div
                 style={{
-                  fontSize: "10px",
+                  fontSize: "12px",
                   color: colors.accent,
                   marginBottom: "1px",
                   fontWeight: "bold",
@@ -194,7 +194,7 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
               </div>
               <div
                 style={{
-                  fontSize: "12px",
+                  fontSize: "16px",
                   fontWeight: "700",
                   color: "#ffffff",
                 }}
@@ -236,7 +236,7 @@ export function HoneycombCard({ cluster, isSelected, onClick, rowIndex, colIndex
             color: "#fff",
             padding: "8px 12px",
             borderRadius: "6px",
-            fontSize: "10px", // Small text for tooltip
+            fontSize: "12px",
             whiteSpace: "nowrap",
             zIndex: 1000,
             pointerEvents: "none",

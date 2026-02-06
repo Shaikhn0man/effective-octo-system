@@ -25,17 +25,17 @@ export function ClusterCard({ cluster, isSelected, onClick }) {
           marginBottom: "8px",
         }}
       >
-        <h4 style={{ margin: "0", fontSize: "13px", fontWeight: "600" }}>
+        <h4 style={{ margin: "0", fontSize: "14px", fontWeight: "700" }}>
           {cluster.cluster_id}
         </h4>
         <span
           style={{
             background: getTypeColor(cluster.type),
             color: "white",
-            padding: "3px 8px",
+            padding: "4px 10px",
             borderRadius: "4px",
-            fontSize: "10px",
-            fontWeight: "bold",
+            fontSize: "12px",
+            fontWeight: "700",
           }}
         >
           {cluster.type}
@@ -44,10 +44,10 @@ export function ClusterCard({ cluster, isSelected, onClick }) {
 
       <p
         style={{
-          margin: "6px 0",
-          fontSize: "11px",
+          margin: "8px 0",
+          fontSize: "13px",
           color: "#666",
-          lineHeight: "1.3",
+          lineHeight: "1.4",
         }}
       >
         {cluster.topic}
@@ -57,22 +57,22 @@ export function ClusterCard({ cluster, isSelected, onClick }) {
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: "6px",
-          fontSize: "11px",
-          marginTop: "8px",
+          gap: "8px",
+          fontSize: "14px",
+          marginTop: "12px",
         }}
       >
-        <div style={{ background: "#f5f5f5", padding: "4px 6px", borderRadius: "4px" }}>
-          <strong>Flows:</strong> {cluster.flow_count}
+        <div style={{ background: "#f5f5f5", padding: "6px 10px", borderRadius: "4px" }}>
+          <strong style={{ fontSize: "12px", color: "#64748b" }}>FLOWS:</strong> <span style={{ fontSize: "16px", fontWeight: "700" }}>{cluster.flow_count}</span>
         </div>
-        <div style={{ background: "#f5f5f5", padding: "4px 6px", borderRadius: "4px" }}>
-          <strong>Screens:</strong> {cluster.screen_count}
+        <div style={{ background: "#f5f5f5", padding: "6px 10px", borderRadius: "4px" }}>
+          <strong style={{ fontSize: "12px", color: "#64748b" }}>SCREENS:</strong> <span style={{ fontSize: "16px", fontWeight: "700" }}>{cluster.screen_count}</span>
         </div>
-        <div style={{ background: "#f5f5f5", padding: "4px 6px", borderRadius: "4px" }}>
-          <strong>Programs:</strong> {cluster.program_count}
+        <div style={{ background: "#f5f5f5", padding: "6px 10px", borderRadius: "4px" }}>
+          <strong style={{ fontSize: "12px", color: "#64748b" }}>PROGRAMS:</strong> <span style={{ fontSize: "16px", fontWeight: "700" }}>{cluster.program_count}</span>
         </div>
-        <div style={{ background: "#f5f5f5", padding: "4px 6px", borderRadius: "4px" }}>
-          <strong>Tables:</strong> {cluster.table_count}
+        <div style={{ background: "#f5f5f5", padding: "6px 10px", borderRadius: "4px" }}>
+          <strong style={{ fontSize: "12px", color: "#64748b" }}>TABLES:</strong> <span style={{ fontSize: "16px", fontWeight: "700" }}>{cluster.table_count}</span>
         </div>
       </div>
     </div>

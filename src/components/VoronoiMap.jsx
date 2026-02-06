@@ -61,7 +61,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
       const radiusScale = Math.min(width, height) * 0.04; // Adjust spacing factor
       const angle = i * 2.4; // Golden angle approx (radians)
       const r = radiusScale * Math.sqrt(i) * 6; // Spread factor
-      
+
       const x = width / 2 + r * Math.cos(angle);
       const y = height / 2 + r * Math.sin(angle);
 
@@ -87,7 +87,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
         // Calculate radius with more aggressive scaling for visual impact
         // Formula: radius = Math.max(70, 25 + (complexityScore^0.65 × 28))
         const radius = Math.max(70, 25 + (Math.pow(d.score, 0.65) * 28));
-        const minRadius = 50; 
+        const minRadius = 50;
         return Math.max(radius, minRadius);
       }).strength(0.8)) // Slightly reduced strength for smoother packing
       .force('x', d3.forceX(width / 2).strength(0.1)) // Gentle pull to center
@@ -120,12 +120,12 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
     });
 
     const totalRadiusArea = Array.from(radiusMap.values()).reduce((sum, r) => sum + (Math.PI * r * r), 0);
-    
+
     const polygonsWithPercentage = polygonData.map(p => {
       const radius = radiusMap.get(p.cluster.cluster_id);
       const circleArea = Math.PI * radius * radius;
       const percentage = ((circleArea / totalRadiusArea) * 100).toFixed(1);
-      
+
       return {
         ...p,
         percentage: percentage,
@@ -342,7 +342,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 <text
                   textAnchor="middle"
                   y={-10}
-                  fontSize="14"
+                  fontSize="16"
                   fontWeight="bold"
                   fill={isSelected ? '#fff' : 'rgba(255,255,255,0.9)'}
                   style={{
@@ -357,7 +357,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 <text
                   textAnchor="middle"
                   y={50}
-                  fontSize="14"
+                  fontSize="16"
                   fontWeight="600"
                   fill={isSelected ? '#fff' : 'rgba(255,255,255,0.5)'}
                   style={{
@@ -373,7 +373,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 {/* Separate opacity control to keep badges visible even when dimmed */}
                 <g transform="translate(0, 26)" style={{ opacity: isDimmed ? 0.6 : 1 }}>
                   <g display="flex" style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                   
+
 
                     {/* S/B Badges - Adjust positions dynamically */}
                     {p.cluster.screen_count > 0 && p.cluster.flow_count > 0 ? (
@@ -405,9 +405,9 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                 <g transform="translate(0, -32)">
                   <text
                     textAnchor="middle"
-                    fontSize={isSelected ? 18 : 12}
-                    fontWeight="900"
-                    fill={isSelected ? 'white' : '#64748b'}
+                    fontSize={isSelected ? 20 : 14}
+                    fontWeight="700"
+                    fill={isSelected ? 'white' : '#cbd5e1'}
                     style={{
                       textTransform: 'uppercase',
                       letterSpacing: isSelected ? '1px' : '0.5px',
@@ -471,7 +471,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                       <text
                         textAnchor="middle"
                         dy="5"
-                        fontSize="8"
+                        fontSize="12"
                         fontWeight="bold"
                         fill="#ef4444"
                         style={{ textTransform: 'uppercase', letterSpacing: '1px' }}

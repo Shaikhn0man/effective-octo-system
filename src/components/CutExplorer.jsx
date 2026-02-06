@@ -67,8 +67,8 @@ function SystemOverview({ data, cutId }) {
       }}>
         {Object.entries(data.stats).map(([key, val]) => (
           <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <span style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>{key}</span>
-            <span style={{ fontSize: '24px', fontWeight: '900', color: '#fff' }}>{val}</span>
+            <span style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>{key}</span>
+            <span style={{ fontSize: '24px', fontWeight: '700', color: '#fff' }}>{val}</span>
           </div>
         ))}
       </section>
@@ -100,17 +100,17 @@ function SystemOverview({ data, cutId }) {
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           <div style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
-            <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px' }}>TYPE</div>
+            <div style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>TYPE</div>
             <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>{data.type.replace('_', ' ')}</div>
           </div>
           <div style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
-            <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px' }}>TIER</div>
+            <div style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>TIER</div>
             <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>
               {cutId <= 2 ? 'Online Interactive' : 'Batch Processing'}
             </div>
           </div>
           <div style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
-            <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px' }}>OPERATIONS</div>
+            <div style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>OPERATIONS</div>
             <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>
               {cutId <= 2 ? 'read + write' : 'read-only'}
             </div>
@@ -141,59 +141,59 @@ function FlowDiagram({ data, cutId }) {
             {cutId <= 2 ? 'Screen Flow Sequence' : 'Batch Process Flow'}
           </h2>
         </div>
-        
+
         {data.sequence && Array.isArray(data.sequence) && data.sequence.length > 0 ? (
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-             {data.sequence.map((row, i) => (
-               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                 {row.map((node, j) => (
-                   <div key={j} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                     <div style={{
-                       background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%)',
-                       border: '2px solid rgba(59, 130, 246, 0.3)',
-                       padding: '14px 20px',
-                       borderRadius: '12px',
-                       fontSize: '13px',
-                       fontWeight: '700',
-                       color: '#e2e8f0',
-                       fontFamily: 'monospace',
-                       boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)',
-                       display: 'flex',
-                       alignItems: 'center',
-                       gap: '10px',
-                       transition: 'all 0.2s ease',
-                       cursor: 'default'
-                     }}
-                     onMouseEnter={e => {
-                       e.currentTarget.style.transform = 'translateY(-2px)';
-                       e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.25)';
-                     }}
-                     onMouseLeave={e => {
-                       e.currentTarget.style.transform = 'translateY(0)';
-                       e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.15)';
-                     }}>
-                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                         <rect x="2" y="7" width="20" height="10" rx="2" ry="2"></rect>
-                       </svg>
-                       {node}
-                     </div>
-                     {j < row.length - 1 && (
-                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                         <line x1="5" y1="12" x2="19" y2="12"></line>
-                         <polyline points="12 5 19 12 12 19"></polyline>
-                       </svg>
-                     )}
-                   </div>
-                 ))}
-               </div>
-             ))}
-           </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {data.sequence.map((row, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                {row.map((node, j) => (
+                  <div key={j} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%)',
+                      border: '2px solid rgba(59, 130, 246, 0.3)',
+                      padding: '14px 20px',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#e2e8f0',
+                      fontFamily: 'var(--font-family)',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      transition: 'all 0.2s ease',
+                      cursor: 'default'
+                    }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.25)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.15)';
+                      }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="2" y="7" width="20" height="10" rx="2" ry="2"></rect>
+                      </svg>
+                      {node}
+                    </div>
+                    {j < row.length - 1 && (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         ) : data.batchFlow && Array.isArray(data.batchFlow) ? (
-          <div style={{ 
-            background: 'rgba(0,0,0,0.2)', 
-            padding: '24px', 
-            borderRadius: '12px', 
-            fontFamily: 'monospace', 
+          <div style={{
+            background: 'rgba(0,0,0,0.2)',
+            padding: '24px',
+            borderRadius: '12px',
+            fontFamily: 'monospace',
             color: '#22c55e',
             borderLeft: '4px solid #22c55e'
           }}>
@@ -209,7 +209,7 @@ function FlowDiagram({ data, cutId }) {
         ) : (
           <div style={{ color: '#64748b', fontStyle: 'italic' }}>No sequence or batch flow data available.</div>
         )}
-        
+
         {/* Visual background element */}
         <div style={{
           position: 'absolute',
@@ -245,16 +245,16 @@ function FlowDiagram({ data, cutId }) {
                 transition: 'all 0.2s ease',
                 cursor: 'default'
               }}
-              onMouseEnter={e => {
-                 e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                 e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-                 e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={e => {
-                 e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                 e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
-                 e.currentTarget.style.transform = 'translateY(0)';
-              }}>
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="7" width="20" height="10" rx="2" ry="2"></rect>
@@ -265,9 +265,9 @@ function FlowDiagram({ data, cutId }) {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {int.reads && int.reads.length > 0 && (
-                    <div style={{ 
-                      background: 'rgba(34, 197, 94, 0.05)', 
-                      padding: '12px', 
+                    <div style={{
+                      background: 'rgba(34, 197, 94, 0.05)',
+                      padding: '12px',
                       borderRadius: '8px',
                       border: '1px solid rgba(34, 197, 94, 0.2)'
                     }}>
@@ -277,26 +277,26 @@ function FlowDiagram({ data, cutId }) {
                           <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
                           <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
                         </svg>
-                        <span style={{ fontSize: '10px', fontWeight: '900', color: '#22c55e', textTransform: 'uppercase', letterSpacing: '1px' }}>Read Operations</span>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#22c55e', textTransform: 'uppercase', letterSpacing: '1px' }}>Read Operations</span>
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                         {int.reads.map(r => (
-                          <span key={r} style={{ 
-                            fontSize: '10px', 
+                          <span key={r} style={{
+                            fontSize: '12px',
                             color: '#94a3b8',
                             background: 'rgba(34, 197, 94, 0.1)',
                             padding: '4px 8px',
                             borderRadius: '4px',
-                            fontFamily: 'monospace'
+                            fontFamily: 'var(--font-family)'
                           }}>{r}</span>
                         ))}
                       </div>
                     </div>
                   )}
                   {int.writes && int.writes.length > 0 && (
-                    <div style={{ 
-                      background: 'rgba(239, 68, 68, 0.05)', 
-                      padding: '12px', 
+                    <div style={{
+                      background: 'rgba(239, 68, 68, 0.05)',
+                      padding: '12px',
                       borderRadius: '8px',
                       border: '1px solid rgba(239, 68, 68, 0.2)'
                     }}>
@@ -305,17 +305,17 @@ function FlowDiagram({ data, cutId }) {
                           <path d="M12 20h9"></path>
                           <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                         </svg>
-                        <span style={{ fontSize: '10px', fontWeight: '900', color: '#ef4444', textTransform: 'uppercase', letterSpacing: '1px' }}>Write Operations</span>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#ef4444', textTransform: 'uppercase', letterSpacing: '1px' }}>Write Operations</span>
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                         {int.writes.map(w => (
-                          <span key={w} style={{ 
-                            fontSize: '10px', 
+                          <span key={w} style={{
+                            fontSize: '12px',
                             color: '#94a3b8',
                             background: 'rgba(239, 68, 68, 0.1)',
                             padding: '4px 8px',
                             borderRadius: '4px',
-                            fontFamily: 'monospace'
+                            fontFamily: 'var(--font-family)'
                           }}>{w}</span>
                         ))}
                       </div>
@@ -336,18 +336,18 @@ function DatabaseMap({ data, cutId }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Master Tables */}
       <section style={{
-          background: 'rgba(15, 23, 42, 0.5)',
-          padding: '24px',
-          borderRadius: '24px',
-          border: '1px solid rgba(255,255,255,0.05)'
+        background: 'rgba(15, 23, 42, 0.5)',
+        padding: '24px',
+        borderRadius: '24px',
+        border: '1px solid rgba(255,255,255,0.05)'
       }}>
         <h3 style={{ fontSize: '12px', fontWeight: '800', color: '#ef4444', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '20px' }}>
           Master Tables (Write Operations)
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {data.tables.master?.map(t => (
-            <div key={t.name} style={{ 
-              borderBottom: '1px solid rgba(255,255,255,0.05)', 
+            <div key={t.name} style={{
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
               paddingBottom: '12px',
               background: 'rgba(239, 68, 68, 0.05)',
               padding: '16px',
@@ -355,35 +355,35 @@ function DatabaseMap({ data, cutId }) {
               border: '1px solid rgba(239, 68, 68, 0.2)'
             }}>
               <div style={{ fontSize: '13px', fontWeight: '700', color: '#f1f5f9', marginBottom: '8px' }}>&lt;{t.name}&gt;</div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '4px' }}>
-                <span style={{ color: '#ef4444' }}>◄══ WRITE ══</span> {t.writes}
+              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: '700' }}>◄══ WRITE ══</span> {t.writes}
               </div>
               {t.reads && (
-                <div style={{ fontSize: '10px', color: '#64748b' }}>
-                  <span style={{ color: '#22c55e' }}>──► READ ──►</span> {t.reads}
+                <div style={{ fontSize: '12px', color: '#64748b' }}>
+                  <span style={{ fontSize: '11px', color: '#22c55e', fontWeight: '700' }}>──► READ ──►</span> {t.reads}
                 </div>
               )}
             </div>
           ))}
-          {(!data.tables.master || data.tables.master.length === 0) && 
+          {(!data.tables.master || data.tables.master.length === 0) &&
             <div style={{ fontSize: '12px', color: '#475569', fontStyle: 'italic' }}>No Master Table Operations</div>}
         </div>
       </section>
 
       {/* Reference Tables */}
       <section style={{
-          background: 'rgba(15, 23, 42, 0.5)',
-          padding: '24px',
-          borderRadius: '24px',
-          border: '1px solid rgba(255,255,255,0.05)'
+        background: 'rgba(15, 23, 42, 0.5)',
+        padding: '24px',
+        borderRadius: '24px',
+        border: '1px solid rgba(255,255,255,0.05)'
       }}>
         <h3 style={{ fontSize: '12px', fontWeight: '800', color: '#22c55e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '20px' }}>
           Reference Tables (Read Operations)
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {data.tables.reference?.map(t => (
-            <div key={t.name} style={{ 
-              borderBottom: '1px solid rgba(255,255,255,0.05)', 
+            <div key={t.name} style={{
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
               paddingBottom: '12px',
               background: 'rgba(34, 197, 94, 0.05)',
               padding: '16px',
@@ -391,8 +391,8 @@ function DatabaseMap({ data, cutId }) {
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
               <div style={{ fontSize: '13px', fontWeight: '700', color: '#f1f5f9', marginBottom: '4px' }}>{`{${t.name}}`}</div>
-              <div style={{ fontSize: '10px', color: '#64748b' }}>
-                <span style={{ color: '#22c55e' }}>──► READ ──►</span> {t.reads}
+              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                <span style={{ fontSize: '11px', color: '#22c55e', fontWeight: '700' }}>──► READ ──►</span> {t.reads}
               </div>
             </div>
           ))}
@@ -407,11 +407,11 @@ function DatabaseMap({ data, cutId }) {
           padding: '20px',
           borderRadius: '16px',
         }}>
-           <div style={{ fontSize: '11px', fontWeight: '900', color: '#3b82f6', textTransform: 'uppercase', marginBottom: '8px' }}>Cross-Cut Dependencies</div>
-           <div style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.5' }}>
-             {data.dependencies.readsFrom && <div>← Reads from: {data.dependencies.readsFrom}</div>}
-             {data.dependencies.providesTo && <div>→ Provides to: {data.dependencies.providesTo}</div>}
-           </div>
+          <div style={{ fontSize: '12px', fontWeight: '700', color: '#3b82f6', textTransform: 'uppercase', marginBottom: '8px' }}>Cross-Cut Dependencies</div>
+          <div style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.5' }}>
+            {data.dependencies.readsFrom && <div>← Reads from: {data.dependencies.readsFrom}</div>}
+            {data.dependencies.providesTo && <div>→ Provides to: {data.dependencies.providesTo}</div>}
+          </div>
         </div>
       )}
     </div>
@@ -435,9 +435,9 @@ function ASCIIChart({ data, cutId }) {
         <div style={{ marginBottom: '24px', color: '#3b82f6', fontSize: '14px', fontWeight: '800' }}>
           ASCII SYSTEM FLOW CHART - CUT {cutId}
         </div>
-        
+
         <div style={{ whiteSpace: 'pre-wrap' }}>
-{getASCIIChart(cutId, data)}
+          {getASCIIChart(cutId, data)}
         </div>
       </section>
     </div>
@@ -521,7 +521,7 @@ DEPENDENCIES:
   ◄── Reads from: Cut_1 (ACCOUNT-RECORD, CUSTOMER-RECORD)
   ──► Provides to: Cut_1 (SEC-USER-DATA)`
   };
-  
+
   return charts[cutId] || `================================================================================
 TYPE: ${data.type}
 FLOWS: ${data.stats.flows} flows
@@ -530,12 +530,12 @@ TABLES: ${data.stats.tables} tables
 
 ${data.batchFlow ? 'BATCH PROCESS: ' + data.batchFlow.join(' → ') : 'INTERACTIVE SCREENS'}
 
-${data.dependencies ? 
-  `DEPENDENCIES:
+${data.dependencies ?
+      `DEPENDENCIES:
   ${data.dependencies.readsFrom ? '◄── Reads from: ' + data.dependencies.readsFrom : ''}
-  ${data.dependencies.providesTo ? '──► Provides to: ' + data.dependencies.providesTo : ''}` : 
-  'No cross-cut dependencies'
-}`;
+  ${data.dependencies.providesTo ? '──► Provides to: ' + data.dependencies.providesTo : ''}` :
+      'No cross-cut dependencies'
+    }`;
 }
 
 export function CutExplorer({ clusterId, onClose }) {
@@ -578,8 +578,8 @@ export function CutExplorer({ clusterId, onClose }) {
           <div style={{
             background: data.type === 'CLEAN_CUT' ? '#22c55e' : '#f59e0b',
             color: '#fff',
-            fontSize: '11px',
-            fontWeight: '900',
+            fontSize: '12px',
+            fontWeight: '700',
             padding: '4px 12px',
             borderRadius: '20px',
             textTransform: 'uppercase',
@@ -591,7 +591,7 @@ export function CutExplorer({ clusterId, onClose }) {
             {data.name}
           </h1>
         </div>
-        <button 
+        <button
           onClick={onClose}
           style={{
             background: 'rgba(255,255,255,0.05)',

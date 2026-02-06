@@ -25,7 +25,7 @@ export function InfoModal({ onClose }) {
         flexDirection: 'column',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
       }} onClick={e => e.stopPropagation()}>
-        
+
         {/* Header */}
         <div style={{
           padding: '24px 32px',
@@ -53,7 +53,7 @@ export function InfoModal({ onClose }) {
               }}>Birds Eye view</p>
             </div>
           </div>
-          
+
           <button
             onClick={onClose}
             style={{
@@ -101,8 +101,8 @@ export function InfoModal({ onClose }) {
               CardDemo - Mainframe Credit Card Management System
             </h3>
             <p style={{ fontSize: '14px', color: '#e2e8f0', lineHeight: '1.6' }}>
-              A comprehensive mainframe credit card management system designed to simulate real-world banking operations. 
-              Serves as a reference application for mainframe modernization, migration testing, and technology evaluation 
+              A comprehensive mainframe credit card management system designed to simulate real-world banking operations.
+              Serves as a reference application for mainframe modernization, migration testing, and technology evaluation
               on AWS and partner platforms.
             </p>
           </div>
@@ -130,18 +130,18 @@ export function InfoModal({ onClose }) {
                 border: '1px solid rgba(255,255,255,0.05)',
                 transition: 'all 0.2s ease',
               }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = domain.color + '40';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-              }}>
-                <div style={{ 
-                  width: '8px', 
-                  height: '8px', 
-                  borderRadius: '50%', 
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = domain.color + '40';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                }}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
                   background: domain.color,
                   marginBottom: '12px'
                 }} />
@@ -166,7 +166,7 @@ export function InfoModal({ onClose }) {
               <h4 style={{ color: '#22c55e', fontSize: '14px', fontWeight: '700', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Technical Features
               </h4>
-              <ul style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.8', paddingLeft: '20px', margin: 0 }}>
+              <ul style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.8', paddingLeft: '20px', margin: 0 }}>
                 <li>CICS Transaction Processing</li>
                 <li>JCL Batch Processing</li>
                 <li>VSAM KSDS with Alternate Indexes</li>
@@ -174,7 +174,7 @@ export function InfoModal({ onClose }) {
                 <li>COMP & COMP-3 numeric formats</li>
               </ul>
             </div>
-            
+
             <div style={{
               padding: '24px',
               background: 'rgba(59, 130, 246, 0.05)',
@@ -184,7 +184,7 @@ export function InfoModal({ onClose }) {
               <h4 style={{ color: '#3b82f6', fontSize: '14px', fontWeight: '700', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Security Model
               </h4>
-              <ul style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.8', paddingLeft: '20px', margin: 0 }}>
+              <ul style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.8', paddingLeft: '20px', margin: 0 }}>
                 <li>User ID & password validation</li>
                 <li>Role-based access control</li>
                 <li>RACF integration</li>
@@ -205,14 +205,14 @@ export function InfoModal({ onClose }) {
             <h4 style={{ color: '#f59e0b', fontSize: '14px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Core Data Model
             </h4>
-            <div style={{ 
-              fontFamily: 'monospace', 
-              fontSize: '11px', 
-              color: '#94a3b8', 
+            <div style={{
+              fontFamily: 'var(--font-family)',
+              fontSize: '14px',
+              color: '#94a3b8',
               lineHeight: '1.6',
               whiteSpace: 'pre'
             }}>
-{`CUSTOMER → ACCOUNT → CREDIT CARD → TRANSACTION
+              {`CUSTOMER → ACCOUNT → CREDIT CARD → TRANSACTION
    ↓           ↓
 CARD XREF  (Balance, Status)`}
             </div>
@@ -229,12 +229,12 @@ CARD XREF  (Balance, Status)`}
                   padding: '12px',
                   background: 'rgba(255,255,255,0.02)',
                   borderRadius: '8px',
-                  fontSize: '11px',
+                  fontSize: '13px',
                 }}>
                   <div style={{ color: '#3b82f6', fontWeight: '700', marginBottom: '4px', fontFamily: 'monospace' }}>
                     {file.file}
                   </div>
-                  <div style={{ color: '#64748b', fontSize: '10px' }}>
+                  <div style={{ color: '#64748b', fontSize: '12px' }}>
                     {file.type} ({file.size}B)
                   </div>
                 </div>
@@ -266,7 +266,7 @@ CARD XREF  (Balance, Status)`}
                   padding: '12px 16px',
                   background: 'rgba(139, 92, 246, 0.1)',
                   borderRadius: '8px',
-                  fontSize: '12px',
+                  fontSize: '13px',
                   color: '#e2e8f0',
                   fontWeight: '600',
                   textAlign: 'center',
