@@ -10,13 +10,30 @@ export function ClusterView() {
   const [selectedClusterId, setSelectedClusterId] = useState(null);
   const [filterType, setFilterType] = useState("ALL");
   const [sizeFilter, setSizeFilter] = useState("ALL");
+  const [flowFilter, setFlowFilter] = useState("ALL");
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
 
-  const filteredClusters = useMemo(() => (
-    filterType === "ALL"
-      ? [...clusterData.clusters]
-      : clusterData.clusters.filter((c) => c.type === filterType)
-  ).sort((a, b) => a.cut_seq_no - b.cut_seq_no), [filterType]);
+  const filteredClusters = useMemo(() => {
+    let result = [...clusterData.clusters];
+    
+    // Modernization Readiness Filter
+    if (filterType !== "ALL") {
+      result = result.filter((c) => c.type === filterType);
+    }
+    
+    // Flow Type Filter
+    if (flowFilter === "SCREEN") {
+      result = result.filter((c) => (c.stats?.screen_flows || 0) > 0);
+    } else if (flowFilter === "BATCH") {
+      result = result.filter((c) => (c.stats?.batch_flows || 0) > 0);
+    }
+    
+    return result.sort((a, b) => a.cut_seq_no - b.cut_seq_no);
+  }, [filterType, flowFilter]);
+
+
+  // ... rest of the component
+  // Update MapLegend usage around line 155
 
   // Get dependency info for selected cluster
   const getDependencyInfo = (clusterId) => {
@@ -151,7 +168,13 @@ export function ClusterView() {
         />
 
         {/* Map Legend (Floating) */}
-        <MapLegend onSizeFilterChange={setSizeFilter} />
+        <MapLegend 
+          onSizeFilterChange={setSizeFilter} 
+          typeFilter={filterType}
+          onTypeFilterChange={setFilterType}
+          flowFilter={flowFilter}
+          onFlowFilterChange={setFlowFilter}
+        />
 
         {/* Friction Alert
         <div style={{

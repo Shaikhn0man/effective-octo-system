@@ -1,6 +1,12 @@
 import { useState } from 'react';
 
-export function MapLegend({ onSizeFilterChange = () => { } }) {
+export function MapLegend({ 
+  onSizeFilterChange = () => { }, 
+  typeFilter = "ALL", 
+  onTypeFilterChange = () => { },
+  flowFilter = "ALL",
+  onFlowFilterChange = () => { }
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [sizeFilter, setSizeFilter] = useState('ALL');
 
@@ -15,7 +21,7 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
         borderRadius: isExpanded ? '16px' : '20px',
         padding: isExpanded ? '24px' : '10px 16px',
         border: '1px solid rgba(255,255,255,0.08)',
-        width: isExpanded ? '260px' : 'auto',
+        width: isExpanded ? '260px' : '260px',
         zIndex: 15,
         pointerEvents: 'auto',
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -62,7 +68,7 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              hoverColor: '#fff',
+              outline: 'none',
             }}
           >
             ×
@@ -72,7 +78,7 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
 
       {/* Expanded Content */}
       <div style={{
-        maxHeight: isExpanded ? '500px' : '0',
+        maxHeight: isExpanded ? '800px' : '0',
         opacity: isExpanded ? 1 : 0,
         overflow: 'hidden',
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -104,7 +110,6 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
             {[
               { value: 'ALL', label: 'All', color: '#64748b' },
               { value: 'SMALL', label: 'Small', color: '#3b82f6' },
-              { value: 'MEDIUM', label: 'Medium', color: '#f59e0b' },
               { value: 'LARGE', label: 'Large', color: '#22c55e' },
             ].map(filter => {
               const isActive = sizeFilter === filter.value;
@@ -121,12 +126,13 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
                     fontWeight: '700',
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
-                    border: `1px solid ${isActive ? filter.color : 'rgba(255,255,255,0.1)'}`,
+                    border: isActive ? `1px solid ${filter.color}` : '1px solid rgba(255,255,255,0.1)',
                     background: isActive ? `${filter.color}20` : 'transparent',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     color: isActive ? filter.color : '#64748b',
                     transition: 'all 0.2s ease',
+                    outline: 'none',
                   }}
                   onMouseEnter={e => {
                     if (!isActive) {
@@ -157,9 +163,8 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
             letterSpacing: "0.5px",
             lineHeight: "1.5",
           }}>
-            <strong>SM:</strong> Small territories (Low complexity)<br />
-            <strong>MD:</strong> Medium territories (Moderate complexity)<br />
-            <strong>LG:</strong> Large territories (High complexity)
+            <strong>SM:</strong> Small territories<br />
+            <strong>LG:</strong> Large territories
           </div>
         </div>
 
@@ -173,37 +178,73 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
           }}>
             Flow Types
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}>
-              <span style={{
-                background: '#3b82f6',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: '800',
-                padding: '3px 6px',
-                borderRadius: '4px',
-              }}>S</span>
-              <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Screen Flow</span>
-            </div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}>
-              <span style={{
-                background: '#f97316',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: '800',
-                padding: '3px 6px',
-                borderRadius: '4px',
-              }}>B</span>
-              <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Batch Flow</span>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginLeft: '-8px', marginRight: '-8px' }}>
+            {[
+              { value: 'SCREEN', color: '#3b82f6', icon: 'S', label: 'Screen Flow' },
+              { value: 'BATCH', color: '#f97316', icon: 'B', label: 'Batch Flow' },
+            ].map(flow => {
+              const isActive = flowFilter === flow.value;
+              return (
+                <button
+                  key={flow.value}
+                  onClick={() => {
+                    const nextFilter = isActive ? "ALL" : flow.value;
+                    onFlowFilterChange(nextFilter);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '8px',
+                    background: isActive ? `${flow.color}15` : 'transparent',
+                    border: '1px solid transparent',
+                    borderColor: isActive ? `${flow.color}40` : 'transparent',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.2s ease',
+                    width: '100%',
+                    outline: 'none',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  <span style={{
+                    background: flow.color,
+                    color: 'white',
+                    fontSize: '11px',
+                    fontWeight: '800',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    width: '18px',
+                    textAlign: 'center',
+                    opacity: isActive ? 1 : 0.7,
+                  }}>{flow.icon}</span>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    color: isActive ? flow.color : '#e2e8f0', 
+                    fontWeight: '600',
+                    textTransform: 'uppercase',
+                    flex: 1
+                  }}>{flow.label}</span>
+                  {isActive && (
+                    <div style={{
+                      color: flow.color,
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                    }}>✓</div>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -223,37 +264,76 @@ export function MapLegend({ onSizeFilterChange = () => { } }) {
         }}>
           Modernization Readiness
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginLeft: '-8px', marginRight: '-8px' }}>
           {[
-            { color: '#22c55e', label: 'Clean Cut', desc: 'Isolated functionality' },
-            { color: '#f59e0b', label: 'Read Only', desc: 'Limited write operations' },
-          ].map(type => (
-            <div key={type.label} style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '10px',
-            }}>
-              <div style={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '3px',
-                background: type.color,
-                marginTop: '2px',
-                boxShadow: `0 0 8px ${type.color}40`,
-              }} />
-              <div>
+            { value: 'CLEAN_CUT', color: '#22c55e', label: 'Clean Cut', desc: 'Isolated functionality' },
+            { value: 'READ_ONLY_CUT', color: '#f59e0b', label: 'Read Only', desc: 'Limited write operations' },
+          ].map(type => {
+            const isActive = typeFilter === type.value;
+            return (
+              <button
+                key={type.label}
+                onClick={() => {
+                  const nextFilter = isActive ? "ALL" : type.value;
+                  onTypeFilterChange(nextFilter);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  padding: '8px',
+                  background: isActive ? `${type.color}15` : 'transparent',
+                  border: '1px solid transparent',
+                  borderColor: isActive ? `${type.color}40` : 'transparent',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.2s ease',
+                  width: '100%',
+                  outline: 'none',
+                }}
+                onMouseEnter={e => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
                 <div style={{
-                  fontSize: '12px',
-                  color: '#e2e8f0',
-                  fontWeight: '600',
-                }}>{type.label}</div>
-                <div style={{
-                  fontSize: '12px',
-                  color: '#64748b',
-                }}>{type.desc}</div>
-              </div>
-            </div>
-          ))}
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '3px',
+                  background: type.color,
+                  marginTop: '4px',
+                  boxShadow: `0 0 8px ${type.color}40`,
+                  flexShrink: 0,
+                  opacity: isActive ? 1 : 0.6,
+                }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    transition: 'color 0.2s ease',
+                  }}>{type.label}</div>
+                  <div style={{
+                    fontSize: '11px',
+                    color: '#64748b',
+                  }}>{type.desc}</div>
+                </div>
+                {isActive && (
+                  <div style={{
+                    color: type.color,
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                  }}>✓</div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

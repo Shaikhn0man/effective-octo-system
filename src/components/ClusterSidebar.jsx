@@ -274,8 +274,9 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
 
 
   const StatsFooter = () => {
+    const totalCuts = clusterData.total_clusters || clusterData.clusters?.length || 0;
     const stats = [
-      { label: 'TOTAL CUTS', value: `${clusterData.total_clusters} Clusters`, color: '#3b82f6', progress: 75 },
+      { label: 'TOTAL CUTS', value: `${totalCuts} Clusters`, color: '#3b82f6', progress: 75 },
       { label: 'COMPLEXITY', value: '4.2M LOC', color: '#f59e0b', progress: 85 },
     ];
 

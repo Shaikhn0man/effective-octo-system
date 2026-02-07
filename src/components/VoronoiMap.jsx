@@ -367,7 +367,7 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
 
 
                     {/* S/B Badges - Adjust positions dynamically */}
-                    {p.cluster.screen_count > 0 && p.cluster.flow_count > 0 ? (
+                    {p.cluster.stats?.screen_flows > 0 && p.cluster.stats?.batch_flows > 0 ? (
                       <>
                         <g transform="translate(0, 0)">
                           <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#3b82f6" fillOpacity="0.9" />
@@ -378,12 +378,12 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
                           <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">B</text>
                         </g>
                       </>
-                    ) : p.cluster.screen_count > 0 ? (
+                    ) : p.cluster.stats?.screen_flows > 0 ? (
                       <g transform="translate(14, 0)">
                         <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#3b82f6" fillOpacity="0.9" />
                         <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">S</text>
                       </g>
-                    ) : p.cluster.flow_count > 0 ? (
+                    ) : p.cluster.stats?.batch_flows > 0 ? (
                       <g transform="translate(14, 0)">
                         <rect x="-12" y="-10" width="24" height="20" rx="6" fill="#f97316" fillOpacity="0.9" />
                         <text textAnchor="middle" dy="5" fontSize="12" fontWeight="900" fill="white">B</text>
