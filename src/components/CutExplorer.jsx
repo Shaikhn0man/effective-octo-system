@@ -408,57 +408,249 @@ function FlowsTabHeader({
     </div>
   );
 }
+const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
+  if (!isOpen) return null;
+
+  // Clean up the ASCII string if it's formatted as a JSON string array
+  let lines = [];
+  try {
+    if (typeof asciiArt === 'string') {
+      if (asciiArt.startsWith('[') && asciiArt.endsWith(']')) {
+        // It's a string representation of a JSON array
+        // Some are double escaped or have weird formatting in the data
+        const cleaned = asciiArt.replace(/\\"/g, '"').replace(/\n/g, '');
+        lines = JSON.parse(cleaned);
+      } else {
+        lines = asciiArt.split('\\n');
+        if (lines.length === 1) {
+          lines = asciiArt.split('\n');
+        }
+      }
+    } else if (Array.isArray(asciiArt)) {
+      lines = asciiArt;
+    }
+  } catch (e) {
+    console.error("Error parsing ASCII art", e);
+    lines = [asciiArt];
+  }
+
+  return (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(2, 6, 23, 0.9)',
+      backdropFilter: 'blur(16px)',
+      zIndex: 10000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '40px',
+    }} onClick={onClose}>
+      <div style={{
+        background: '#020617',
+        border: '1px solid rgba(59, 130, 246, 0.4)',
+        borderRadius: '24px',
+        width: '100%',
+        maxWidth: '1300px',
+        maxHeight: '90vh',
+        boxShadow: '0 40px 100px -12px rgba(0, 0, 0, 1)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        position: 'relative'
+      }} onClick={e => e.stopPropagation()}>
+        
+        {/* Header */}
+        <div style={{
+          padding: '24px 32px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'rgba(59, 130, 246, 0.05)'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+              <div style={{ color: '#3b82f6', background: 'rgba(59, 130, 246, 0.1)', padding: '4px 12px', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '6px', fontSize: '10px', fontWeight: '900', letterSpacing: '1px' }}>
+                CICS UI PREVIEW
+              </div>
+              <h2 style={{ fontSize: '28px', fontWeight: '900', color: '#fff', margin: 0, letterSpacing: '-0.5px' }}>{nodeName}</h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8', fontWeight: '600' }}>{topic}</p>
+          </div>
+          
+          <button 
+            onClick={onClose}
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: 'none',
+              color: '#94a3b8',
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '28px',
+              transition: 'all 0.2s',
+              lineHeight: 1
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+              e.currentTarget.style.color = '#ef4444';
+              e.currentTarget.style.transform = 'rotate(90deg)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.color = '#94a3b8';
+              e.currentTarget.style.transform = 'rotate(0deg)';
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{
+          padding: '60px',
+          overflow: 'auto',
+          background: '#000',
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 100%)'
+        }}>
+          <pre style={{
+            fontFamily: "'Fira Code', 'Roboto Mono', monospace",
+            fontSize: '15px',
+            lineHeight: '1.45',
+            color: '#10b981', // Terminal green
+            margin: 0,
+            padding: '32px',
+            background: 'rgba(0, 0, 0, 0.6)',
+            borderRadius: '16px',
+            border: '2px solid rgba(16, 185, 129, 0.25)',
+            boxShadow: '0 20px 60px rgba(16, 185, 129, 0.15)',
+            textShadow: '0 0 8px rgba(16, 185, 129, 0.4)',
+            whiteSpace: 'pre',
+            minWidth: 'fit-content'
+          }}>
+            {lines.join('\n')}
+          </pre>
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          padding: '20px 32px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          background: 'rgba(2, 6, 23, 0.8)',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: '24px'
+        }}>
+          <div style={{ color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
+            Press <kbd style={{ background: '#334155', padding: '2px 6px', borderRadius: '4px', color: '#fff' }}>ESC</kbd> or click outside to dismiss
+          </div>
+          <button 
+            onClick={onClose}
+            style={{
+              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+              border: 'none',
+              color: '#fff',
+              padding: '12px 32px',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontWeight: '800',
+              transition: 'all 0.2s',
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            CLOSE PREVIEW
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const CustomDatabaseNode = ({ data }) => (
   <div style={{
     background: 'rgba(251, 191, 36, 0.08)',
-    border: '2px solid #fbbf24',
+    border: '3px solid #fbbf24',
     borderRadius: '16px',
     padding: '16px 20px',
-    width: '220px',
+    width: '240px',
     position: 'relative',
-    boxShadow: '0 8px 32px rgba(251, 191, 36, 0.2)',
-    backdropFilter: 'blur(8px)',
+    boxShadow: '0 12px 48px rgba(251, 191, 36, 0.15)',
+    backdropFilter: 'blur(12px)',
   }}>
     <Handle type="target" position={Position.Bottom} style={{ background: '#fbbf24', border: 'none', width: '10px', height: '10px' }} />
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
       <div style={{ color: '#fbbf24', display: 'flex', alignItems: 'center' }}>
         <DatabaseIcon />
       </div>
       <div style={{
           background: 'rgba(251, 191, 36, 0.2)',
-          color: '#854d0e',
+          color: '#fbbf24',
           fontSize: '10px',
           fontWeight: '900',
           padding: '2px 8px',
           borderRadius: '4px',
           textTransform: 'uppercase',
-          letterSpacing: '1px'
+          letterSpacing: '1px',
+          border: '1px solid rgba(251, 191, 36, 0.3)'
         }}>
           {data.type || 'MASTER'}
       </div>
     </div>
-    <div style={{ fontSize: '15px', fontWeight: '900', color: '#854d0e', letterSpacing: '0.5px' }}>{data.label}</div>
-    <div style={{ fontSize: '11px', color: '#854d0e', marginTop: '4px', fontWeight: '700' }}>{data.sublabel}</div>
+    <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
+    <div style={{ fontSize: '12px', color: '#fbbf24', marginTop: '6px', fontWeight: '700', opacity: 0.8 }}>{data.sublabel}</div>
   </div>
 );
 
 const CustomScreenNode = ({ data }) => (
-  <div style={{
-    background: 'rgba(30, 41, 59, 0.8)',
-    border: '3px solid #3b82f6',
-    borderRadius: '16px',
-    padding: '20px',
-    width: '240px',
-    boxShadow: '0 12px 48px rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(12px)',
-  }}>
+  <div 
+    onClick={() => data.onNodeClick && data.onNodeClick(data)}
+    style={{
+      background: 'rgba(30, 41, 59, 0.8)',
+      border: '3px solid #3b82f6',
+      borderRadius: '16px',
+      padding: '20px',
+      width: '240px',
+      boxShadow: '0 12px 48px rgba(0, 0, 0, 0.5)',
+      backdropFilter: 'blur(12px)',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+    }}
+    onMouseEnter={e => {
+      e.currentTarget.style.transform = 'translateY(-5px)';
+      e.currentTarget.style.borderColor = '#60a5fa';
+      e.currentTarget.style.boxShadow = '0 20px 60px rgba(59, 130, 246, 0.3)';
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.borderColor = '#3b82f6';
+      e.currentTarget.style.boxShadow = '0 12px 48px rgba(0, 0, 0, 0.5)';
+    }}
+  >
     <Handle type="source" position={Position.Top} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
     <Handle type="target" position={Position.Left} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
     <Handle type="source" position={Position.Right} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
     
-    <div style={{ color: '#60a5fa', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '10px' }}>
-      CICS SCREEN
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+      <div style={{ color: '#60a5fa', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>
+        CICS SCREEN
+      </div>
+      <div style={{ color: '#3b82f6', background: 'rgba(59, 130, 246, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '8px', fontWeight: '800' }}>
+        VIEW UI
+      </div>
     </div>
     <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
     <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
@@ -466,21 +658,41 @@ const CustomScreenNode = ({ data }) => (
 );
 
 const CustomBatchNode = ({ data }) => (
-  <div style={{
-    background: 'rgba(124, 45, 18, 0.3)',
-    border: '3px solid #ea580c',
-    borderRadius: '16px',
-    padding: '20px',
-    width: '240px',
-    boxShadow: '0 12px 48px rgba(234, 88, 12, 0.2)',
-    backdropFilter: 'blur(12px)',
-  }}>
+  <div 
+    onClick={() => data.onNodeClick && data.onNodeClick(data)}
+    style={{
+      background: 'rgba(124, 45, 18, 0.3)',
+      border: '3px solid #ea580c',
+      borderRadius: '16px',
+      padding: '20px',
+      width: '240px',
+      boxShadow: '0 12px 48px rgba(234, 88, 12, 0.2)',
+      backdropFilter: 'blur(12px)',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+    }}
+    onMouseEnter={e => {
+      e.currentTarget.style.transform = 'translateY(-5px)';
+      e.currentTarget.style.borderColor = '#fb923c';
+      e.currentTarget.style.boxShadow = '0 20px 60px rgba(234, 88, 12, 0.3)';
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.borderColor = '#ea580c';
+      e.currentTarget.style.boxShadow = '0 12px 48px rgba(234, 88, 12, 0.2)';
+    }}
+  >
     <Handle type="source" position={Position.Top} style={{ background: '#ea580c', border: 'none', width: '10px', height: '10px' }} />
     <Handle type="target" position={Position.Left} style={{ background: '#ea580c', border: 'none', width: '10px', height: '10px' }} />
     <Handle type="source" position={Position.Right} style={{ background: '#ea580c', border: 'none', width: '10px', height: '10px' }} />
 
-    <div style={{ color: '#fb923c', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '10px' }}>
-      BATCH
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+      <div style={{ color: '#fb923c', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>
+        BATCH
+      </div>
+      <div style={{ color: '#ea580c', background: 'rgba(234, 88, 12, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '8px', fontWeight: '800' }}>
+        VIEW LOGIC
+      </div>
     </div>
     <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
     <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
@@ -493,10 +705,71 @@ const nodeTypes = {
   batch: CustomBatchNode,
 };
 
-const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen = false, onExitFullscreen }) => {
+const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen = false, onExitFullscreen, onEnterFullscreen, flows = [] }) => {
+  const [popupNode, setPopupNode] = useState(null);
+
   if (!systemView || !systemView.screens || !systemView.flow_connections) {
     return null;
   }
+
+  const handleNodeClick = (nodeData) => {
+    // Attempt to find ASCII art in multiple locations
+    let asciiArt = null;
+    let topic = nodeData.sublabel;
+
+    // 1. First, check flows prop
+    const findInFlows = (flowsList) => {
+      if (!flowsList) return null;
+      for (const f of flowsList) {
+        if (f.screens) {
+          const screen = f.screens.find(s => s.name === nodeData.label);
+          if (screen && screen.ascii_look_feel) {
+            return { ascii: screen.ascii_look_feel, topic: screen.topic };
+          }
+        }
+      }
+      return null;
+    };
+
+    let result = findInFlows(flows);
+
+    // 2. Fallback: Search in all clusters (including sub_cuts)
+    if (!result) {
+      const clusters = Array.isArray(clusterData.clusters) 
+        ? clusterData.clusters 
+        : Object.values(clusterData.clusters);
+
+      for (const cluster of clusters) {
+        // Check top-level flows
+        if (cluster.flows) {
+          result = findInFlows(cluster.flows);
+          if (result) break;
+        }
+        // Check sub_cuts flows
+        if (cluster.sub_cuts) {
+          for (const subCut of cluster.sub_cuts) {
+            if (subCut.flows) {
+              result = findInFlows(subCut.flows);
+              if (result) break;
+            }
+          }
+          if (result) break;
+        }
+      }
+    }
+
+    if (result) {
+      asciiArt = result.ascii;
+      topic = result.topic || topic;
+    }
+
+    // Always show popup (with or without ASCII art)
+    setPopupNode({ 
+      name: nodeData.label, 
+      asciiArt: asciiArt || 'No ASCII preview available for this screen.', 
+      topic 
+    });
+  };
 
   // Group data operations by screen name
   const dataOpsByScreen = {};
@@ -578,7 +851,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         nodes.push({
           id: `screen-${name}`,
           type: 'screen',
-          data: { label: name, sublabel: screen.topic },
+          data: { label: name, sublabel: screen.topic, onNodeClick: handleNodeClick },
           position: { x: idx * 300, y: 350 },
         });
       }
@@ -590,7 +863,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         nodes.push({
           id: `batch-${batch.name}`,
           type: 'batch',
-          data: { label: batch.name, sublabel: batch.topic },
+          data: { label: batch.name, sublabel: batch.topic, onNodeClick: handleNodeClick },
           position: { x: (finalOrderedScreenNames.length + idx) * 300, y: 350 },
         });
       });
@@ -827,7 +1100,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
 
           {!isFullscreen && (
             <button
-              onClick={onExitFullscreen}
+              onClick={onEnterFullscreen}
               style={{
                 background: 'rgba(59, 130, 246, 0.1)',
                 border: '1px solid rgba(59, 130, 246, 0.3)',
@@ -909,6 +1182,14 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
           <Controls />
         </ReactFlow>
       </div>
+
+      <ScreenPopup 
+        isOpen={!!popupNode}
+        onClose={() => setPopupNode(null)}
+        nodeName={popupNode?.name}
+        asciiArt={popupNode?.asciiArt}
+        topic={popupNode?.topic}
+      />
     </div>
   );
 };
@@ -918,6 +1199,20 @@ function FlowDiagram({ data, cutId, cutData }) {
   const [showDataOps, setShowDataOps] = useState(false);
   const [showTechDebt, setShowTechDebt] = useState(false);
   const [isFlowFullscreen, setIsFlowFullscreen] = useState(false);
+
+  // Flatten flows from all cutData sources (flows and sub_cuts)
+  const allFlows = useMemo(() => {
+    if (!cutData) return [];
+    let flows = cutData.flows || [];
+    if (cutData.sub_cuts) {
+      cutData.sub_cuts.forEach(sc => {
+        if (sc.flows) {
+            flows = [...flows, ...sc.flows];
+        }
+      });
+    }
+    return flows;
+  }, [cutData]);
 
   const debtColorMap = {
     "GOD_MODULE": { label: "GOD MODULE", bg: "rgba(239, 68, 68, 0.15)", color: "#ef4444", border: "rgba(239, 68, 68, 0.3)" },
@@ -1078,6 +1373,7 @@ function FlowDiagram({ data, cutId, cutData }) {
       {isFlowFullscreen ? (
         <SystemViewFlow 
           systemView={cutData?.system_view} 
+          flows={allFlows}
           showDataOps={showDataOps}
           setShowDataOps={setShowDataOps}
           isFullscreen={true}
@@ -1091,7 +1387,13 @@ function FlowDiagram({ data, cutId, cutData }) {
           >
             {/* Flow Sequence / System View */}
             {cutData?.system_view ? (
-              <SystemViewFlow systemView={cutData.system_view} showDataOps={showDataOps} setShowDataOps={setShowDataOps} />
+              <SystemViewFlow 
+                systemView={cutData.system_view} 
+                flows={allFlows}
+                showDataOps={showDataOps} 
+                setShowDataOps={setShowDataOps}
+                onEnterFullscreen={() => setIsFlowFullscreen(true)}
+              />
             ) : (
               <section
                 style={{
