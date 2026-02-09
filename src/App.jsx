@@ -10,7 +10,7 @@ import { InfoModal } from "./components/InfoModal";
 import { ScreenFlowView } from "./components/ScreenFlowView";
 
 function App() {
-  const [activeTab, setActiveTab] = useState("dashboard"); // Default to Dashboard for better first impression
+  const [activeTab, setActiveTab] = useState("cluster"); // Default to Cluster View
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   const tabs = [
