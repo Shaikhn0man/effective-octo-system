@@ -70,6 +70,11 @@ export function ClusterView() {
     }
   };
 
+  const handleClusterDoubleClick = (cluster) => {
+    setSelectedClusterId(cluster.id);
+    setIsExplorerOpen(true);
+  };
+
   const handleClose = () => {
     setSelectedClusterId(null);
   };
@@ -160,6 +165,7 @@ export function ClusterView() {
         <VoronoiMap
           clusters={filteredClusters}
           onSelect={handleClusterSelect}
+          onDoubleClick={handleClusterDoubleClick}
           onDeselect={handleClose}
           selectedId={selectedClusterId}
           dependencyMap={clusterDependencyMapData.dependency_map}

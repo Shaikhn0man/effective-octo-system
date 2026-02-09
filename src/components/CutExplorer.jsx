@@ -560,7 +560,7 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
               background: 'rgba(255, 255, 255, 0.03)',
               borderRadius: '16px',
               padding: '24px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(59, 130, 246, 0.15)',
               boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
               display: 'flex',
               flexDirection: 'column',
@@ -568,18 +568,20 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
               color: '#fff',
               position: 'relative',
               zIndex: 2,
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              transition: 'all 0.3s ease',
               backdropFilter: 'blur(4px)'
             }}
             onMouseEnter={e => {
               e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.3)';
-              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)';
+              e.currentTarget.style.boxShadow = '0 12px 30px rgba(59, 130, 246, 0.2)';
             }}
             onMouseLeave={e => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.15)';
               e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
             }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -638,12 +640,16 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           borderRadius: '24px',
           padding: '40px',
           color: '#fff',
-          border: '1px solid rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(59, 130, 246, 0.15)',
           display: 'flex',
           flexDirection: 'column',
           gap: '32px',
-          backdropFilter: 'blur(8px)'
-        }}>
+          backdropFilter: 'blur(8px)',
+          transition: 'border-color 0.3s ease'
+        }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'}
+        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.15)'}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ color: '#3b82f6' }}><OverviewIcon /></span>
             <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>IDENTITY & SCOPE</span>
@@ -668,8 +674,18 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.05)'
-              }}>
+                border: '1px solid rgba(59, 130, 246, 0.1)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.1)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+              }}
+              >
                 <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff' }}>{stat.value}</span>
                 <span style={{ fontSize: '9px', fontWeight: '800', color: '#64748b', letterSpacing: '0.5px' }}>{stat.label}</span>
               </div>
@@ -683,12 +699,16 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           borderRadius: '24px',
           padding: '40px',
           color: '#fff',
-          border: '1px solid rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(16, 185, 129, 0.15)',
           display: 'flex',
           flexDirection: 'column',
           gap: '32px',
-          backdropFilter: 'blur(8px)'
-        }}>
+          backdropFilter: 'blur(8px)',
+          transition: 'border-color 0.3s ease'
+        }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'}
+        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.15)'}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ color: '#10b981' }}><CodeIcon /></span>
             <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>PRINCIPAL SCREENS</span>
@@ -696,17 +716,23 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {data.interactions?.length > 0 ? data.interactions.map((item, i) => (
               <div key={i} style={{
-                background: 'rgba(255, 255, 255, 0.02)',
+                background: 'rgba(16, 185, 129, 0.03)',
                 borderRadius: '16px',
                 padding: '16px 24px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                transition: 'background 0.2s ease'
+                border: '1px solid rgba(16, 185, 129, 0.1)',
+                transition: 'all 0.2s ease'
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.03)';
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.1)';
+              }}
               >
                 <span style={{ fontSize: '13px', fontWeight: '800', color: '#10b981', letterSpacing: '0.5px' }}>{item.screen}</span>
                 <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '500' }}>

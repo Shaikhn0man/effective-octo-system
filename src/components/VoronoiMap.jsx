@@ -15,7 +15,7 @@ const TYPE_COLORS = {
   },
 };
 
-export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, dependencyMap, approvedIds = new Set(), sizeFilter = 'ALL', typeFilter = 'ALL' }) {
+export function VoronoiMap({ clusters, onSelect, onDeselect, onDoubleClick, selectedId, dependencyMap, approvedIds = new Set(), sizeFilter = 'ALL', typeFilter = 'ALL' }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
@@ -276,6 +276,10 @@ export function VoronoiMap({ clusters, onSelect, onDeselect, selectedId, depende
               onClick={(e) => {
                 e.stopPropagation();
                 onSelect(p.cluster);
+              }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                onDoubleClick && onDoubleClick(p.cluster);
               }}
               style={{ cursor: 'pointer' }}
             >
