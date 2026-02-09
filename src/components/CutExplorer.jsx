@@ -1,4 +1,14 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import ReactFlow, {
+  Background,
+  Controls,
+  Handle,
+  MarkerType,
+  Position,
+  useEdgesState,
+  useNodesState
+} from 'reactflow';
+import 'reactflow/dist/style.css';
 import { clusterData } from '../data/clusterData';
 import { cutExplorerData } from '../data/cutExplorerData';
 
@@ -467,6 +477,340 @@ function FlowsTabHeader({
   );
 }
 
+const CustomDatabaseNode = ({ data }) => (
+  <div style={{
+    background: 'rgba(251, 191, 36, 0.08)',
+    border: '2px solid #fbbf24',
+    borderRadius: '16px',
+    padding: '16px 20px',
+    width: '220px',
+    position: 'relative',
+    boxShadow: '0 8px 32px rgba(251, 191, 36, 0.2)',
+    backdropFilter: 'blur(8px)',
+  }}>
+    <Handle type="target" position={Position.Bottom} style={{ background: '#fbbf24', border: 'none', width: '10px', height: '10px' }} />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+      <div style={{ color: '#fbbf24', display: 'flex', alignItems: 'center' }}>
+        <DatabaseIcon />
+      </div>
+      <div style={{
+          background: 'rgba(251, 191, 36, 0.2)',
+          color: '#854d0e',
+          fontSize: '10px',
+          fontWeight: '900',
+          padding: '2px 8px',
+          borderRadius: '4px',
+          textTransform: 'uppercase',
+          letterSpacing: '1px'
+        }}>
+          {data.type || 'MASTER'}
+      </div>
+    </div>
+    <div style={{ fontSize: '15px', fontWeight: '900', color: '#854d0e', letterSpacing: '0.5px' }}>{data.label}</div>
+    <div style={{ fontSize: '11px', color: '#854d0e', marginTop: '4px', fontWeight: '700' }}>{data.sublabel}</div>
+  </div>
+);
+
+const CustomScreenNode = ({ data }) => (
+  <div style={{
+    background: 'rgba(30, 41, 59, 0.8)',
+    border: '3px solid #3b82f6',
+    borderRadius: '16px',
+    padding: '20px',
+    width: '240px',
+    boxShadow: '0 12px 48px rgba(0, 0, 0, 0.5)',
+    backdropFilter: 'blur(12px)',
+  }}>
+    <Handle type="source" position={Position.Top} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
+    <Handle type="target" position={Position.Left} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
+    <Handle type="source" position={Position.Right} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
+    
+    <div style={{ color: '#60a5fa', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '10px' }}>
+      CICS SCREEN
+    </div>
+    <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
+    <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
+  </div>
+);
+
+const CustomBatchNode = ({ data }) => (
+  <div style={{
+    background: 'rgba(124, 45, 18, 0.3)',
+    border: '3px solid #ea580c',
+    borderRadius: '16px',
+    padding: '20px',
+    width: '240px',
+    boxShadow: '0 12px 48px rgba(234, 88, 12, 0.2)',
+    backdropFilter: 'blur(12px)',
+  }}>
+    <Handle type="source" position={Position.Top} style={{ background: '#ea580c', border: 'none', width: '10px', height: '10px' }} />
+    <Handle type="target" position={Position.Left} style={{ background: '#ea580c', border: 'none', width: '10px', height: '10px' }} />
+    <Handle type="source" position={Position.Right} style={{ background: '#ea580c', border: 'none', width: '10px', height: '10px' }} />
+
+    <div style={{ color: '#fb923c', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '10px' }}>
+      BATCH
+    </div>
+    <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
+    <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
+  </div>
+);
+
+const nodeTypes = {
+  database: CustomDatabaseNode,
+  screen: CustomScreenNode,
+  batch: CustomBatchNode,
+};
+
+const SystemViewFlow = ({ systemView, showDataOps }) => {
+  if (!systemView || !systemView.screens || !systemView.flow_connections) {
+    return null;
+  }
+
+  // Group data operations by screen name
+  const dataOpsByScreen = {};
+  if (systemView.data_ops && systemView.data_ops.data_connections) {
+    systemView.data_ops.data_connections.forEach(conn => {
+      if (!dataOpsByScreen[conn.source]) {
+        dataOpsByScreen[conn.source] = {
+          tables: [],
+          connections: []
+        };
+      }
+      if (conn.target_type === 'DATABASE_TABLE') {
+        dataOpsByScreen[conn.source].tables.push(conn);
+      } else {
+        dataOpsByScreen[conn.source].connections.push(conn);
+      }
+    });
+  }
+
+  // Create a map for screen details
+  const screenMap = {};
+  systemView.screens.forEach(s => {
+    screenMap[s.name] = s;
+  });
+
+  // Create initial nodes and edges
+  const { initialNodes, initialEdges } = useMemo(() => {
+    const nodes = [];
+    const edges = [];
+
+    // 0. Determine Screen Order for Sequence
+    const orderedScreenNames = [];
+    const connections = systemView.flow_connections;
+    if (connections && connections.length > 0) {
+      const targets = new Set(connections.map(c => c.target));
+      const startConn = connections.find(c => !targets.has(c.source)) || connections[0];
+      let current = startConn.source;
+      orderedScreenNames.push(current);
+      
+      let safetyCounter = 0;
+      while (safetyCounter < systemView.screens.length * 2) {
+          const nextConn = connections.find(c => c.source === current);
+          if (nextConn && !orderedScreenNames.includes(nextConn.target)) {
+              current = nextConn.target;
+              orderedScreenNames.push(current);
+          } else {
+              break;
+          }
+          safetyCounter++;
+      }
+    }
+    
+    // Fallback for screens not in connections
+    const missingScreens = systemView.screens
+      .map(s => s.name)
+      .filter(name => !orderedScreenNames.includes(name));
+    const finalOrderedScreenNames = [...orderedScreenNames, ...missingScreens];
+
+    // 1. Process Database Tables (Top Layer) - Only if showDataOps is true
+    if (showDataOps && systemView.data_ops && systemView.data_ops.database_tables) {
+      systemView.data_ops.database_tables.forEach((table, idx) => {
+        nodes.push({
+          id: `table-${table.name}`,
+          type: 'database',
+          data: { label: table.name, sublabel: table.name, type: table.type || 'MASTER' },
+          position: { x: idx * 300, y: 0 },
+        });
+      });
+    }
+
+    // Map screen data for easy access
+    const screenMap = {};
+    systemView.screens.forEach(s => screenMap[s.name] = s);
+
+    // 2. Process Screens (Bottom Layer) in correct order
+    finalOrderedScreenNames.forEach((name, idx) => {
+      const screen = screenMap[name];
+      if (screen) {
+        nodes.push({
+          id: `screen-${name}`,
+          type: 'screen',
+          data: { label: name, sublabel: screen.topic },
+          position: { x: idx * 300, y: 350 },
+        });
+      }
+    });
+
+    // 3. Process Batch Processes (Bottom Layer, after screens)
+    if (systemView.batch_processes) {
+      systemView.batch_processes.forEach((batch, idx) => {
+        nodes.push({
+          id: `batch-${batch.name}`,
+          type: 'batch',
+          data: { label: batch.name, sublabel: batch.topic },
+          position: { x: (finalOrderedScreenNames.length + idx) * 300, y: 350 },
+        });
+      });
+    }
+
+    // 4. Horizontal Sequence Connections (Bottom Layer)
+    // Connect consecutive screens
+    for (let i = 0; i < finalOrderedScreenNames.length - 1; i++) {
+      edges.push({
+        id: `seq-screen-${i}`,
+        source: `screen-${finalOrderedScreenNames[i]}`,
+        target: `screen-${finalOrderedScreenNames[i+1]}`,
+        type: 'straight',
+        style: { stroke: '#3b82f6', strokeWidth: 3, opacity: 0.6 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+      });
+    }
+
+    // Connect last screen to first batch if both exist
+    if (finalOrderedScreenNames.length > 0 && systemView.batch_processes && systemView.batch_processes.length > 0) {
+      edges.push({
+        id: `seq-screen-batch`,
+        source: `screen-${finalOrderedScreenNames[finalOrderedScreenNames.length - 1]}`,
+        target: `batch-${systemView.batch_processes[0].name}`,
+        type: 'straight',
+        style: { stroke: '#3b82f6', strokeWidth: 3, opacity: 0.6 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+      });
+    }
+
+    // Connect consecutive batch processes
+    if (systemView.batch_processes && systemView.batch_processes.length > 1) {
+      for (let i = 0; i < systemView.batch_processes.length - 1; i++) {
+        edges.push({
+          id: `seq-batch-${i}`,
+          source: `batch-${systemView.batch_processes[i].name}`,
+          target: `batch-${systemView.batch_processes[i+1].name}`,
+          type: 'straight',
+          style: { stroke: '#ea580c', strokeWidth: 3, opacity: 0.6 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: '#ea580c' },
+        });
+      }
+    }
+
+    // 5. Process Data Connections (Edges) - Only if showDataOps is true
+    if (showDataOps && systemView.data_ops && systemView.data_ops.data_connections) {
+      systemView.data_ops.data_connections.forEach((conn, idx) => {
+        const sourceId = conn.source_type === 'BATCH' ? `batch-${conn.source}` : `screen-${conn.source}`;
+        const targetId = `table-${conn.target}`;
+
+        // Verify that target node exists (it might not if showDataOps was just toggled)
+        edges.push({
+          id: `data-edge-${idx}`,
+          source: sourceId,
+          target: targetId,
+          label: conn.operation,
+          animated: true,
+          type: 'default', // Curved default edge
+          style: { 
+            stroke: conn.operation === 'READ' ? '#22c55e' : conn.operation === 'WRITE' ? '#ef4444' : '#3b82f6',
+            strokeWidth: 2,
+            strokeDasharray: '5,5',
+          },
+          labelStyle: { fill: '#fff', fontSize: 10, fontWeight: 900 },
+          labelBgStyle: { fill: '#1e293b', fillOpacity: 0.8 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: conn.operation === 'READ' ? '#22c55e' : conn.operation === 'WRITE' ? '#ef4444' : '#3b82f6',
+          },
+        });
+      });
+    }
+
+    return { initialNodes: nodes, initialEdges: edges };
+  }, [systemView, showDataOps]);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Sync state when showDataOps changes (since nodes/edges are derived in useMemo)
+  useMemo(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
+
+  return (
+    <div style={{ 
+      height: '600px', 
+      width: '100%', 
+      background: '#020617', 
+      borderRadius: '24px', 
+      border: '1px solid rgba(59, 130, 246, 0.2)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Custom Header Overlay */}
+      <div style={{
+        position: 'absolute',
+        top: '24px',
+        left: '24px',
+        zIndex: 10,
+        pointerEvents: 'none'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <div style={{ width: '8px', height: '8px', background: '#3b82f6', borderRadius: '50%' }}></div>
+          <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#4e5c70ff', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>SYSTEM VIEW</h3>
+        </div>
+        <p style={{ fontSize: '10px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
+          HYBRID EXECUTION: CICS ONLINE & BATCH SYNC
+        </p>
+      </div>
+
+      {/* Legend Overlay */}
+      <div style={{
+        position: 'absolute',
+        top: '24px',
+        right: '24px',
+        zIndex: 10,
+        display: 'flex',
+        gap: '24px',
+        background: 'rgba(2, 6, 23, 0.6)',
+        padding: '12px 20px',
+        borderRadius: '12px',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(4px)'
+      }}>
+        {[
+          { label: 'ONLINE SCREEN', color: '#3b82f6' },
+          { label: 'BATCH PROCESS', color: '#ea580c' },
+          { label: 'DATABASE TABLE', color: '#fbbf24' }
+        ].map(item => (
+          <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '10px', height: '10px', background: item.color, borderRadius: '2px' }}></div>
+            <span style={{ fontSize: '9px', fontWeight: '900', color: '#e5ebf3ff', letterSpacing: '0.5px' }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        fitView
+      >
+        <Background color="#1e293b" gap={20} />
+      </ReactFlow>
+    </div>
+  );
+};
+
 function FlowDiagram({ data, cutId, cutData }) {
   const [activeTab, setActiveTab] = useState("executionTrace");
   const [showDataOps, setShowDataOps] = useState(false);
@@ -631,46 +975,49 @@ function FlowDiagram({ data, cutId, cutData }) {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "32px" }}
           >
-            {/* Flow Sequence */}
-            <section
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.02) 100%)",
-                padding: "32px",
-                borderRadius: "24px",
-                border: "1px solid rgba(59, 130, 246, 0.2)",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <div
+            {/* Flow Sequence / System View */}
+            {cutData?.system_view ? (
+              <SystemViewFlow systemView={cutData.system_view} showDataOps={showDataOps} />
+            ) : (
+              <section
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  marginBottom: "32px",
+                  background:
+                    "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.02) 100%)",
+                  padding: "32px",
+                  borderRadius: "24px",
+                  border: "1px solid rgba(59, 130, 246, 0.2)",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                <div style={{ color: "#3b82f6" }}>
-                  <NodeIcon />
-                </div>
-                <h2
+                <div
                   style={{
-                    fontSize: "14px",
-                    fontWeight: "800",
-                    color: "#3b82f6",
-                    textTransform: "uppercase",
-                    letterSpacing: "2px",
-                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginBottom: "32px",
                   }}
                 >
-                  {cutId <= 2 ? "Screen Flow Sequence" : "Batch Process Flow"}
-                </h2>
-              </div>
+                  <div style={{ color: "#3b82f6" }}>
+                    <NodeIcon />
+                  </div>
+                  <h2
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "800",
+                      color: "#3b82f6",
+                      textTransform: "uppercase",
+                      letterSpacing: "2px",
+                      margin: 0,
+                    }}
+                  >
+                    {cutId <= 2 ? "Screen Flow Sequence" : "Batch Process Flow"}
+                  </h2>
+                </div>
 
-              {data.sequence &&
-                Array.isArray(data.sequence) &&
-                data.sequence.length > 0 ? (
+                {data.sequence &&
+                  Array.isArray(data.sequence) &&
+                  data.sequence.length > 0 ? (
                 <div
                   style={{
                     display: "flex",
@@ -817,6 +1164,7 @@ function FlowDiagram({ data, cutId, cutData }) {
                 {cutId}
               </div>
             </section>
+          )}
 
             {/* Interactive Table Interactions */}
             {data.interactions && data.interactions.length > 0 && (
@@ -1775,7 +2123,7 @@ export function CutExplorer({ clusterId, onClose }) {
   const [activeTab, setActiveTab] = useState("overview");
   const cutId = parseInt(clusterId.match(/Cut_(\d+)_/)?.[1]);
   const data = cutExplorerData[cutId];
-  const cutData = clusterData.clusters.find(c => c.cut_seq_no === cutId);
+  const cutData = clusterData.clusters.find(c => c.id === clusterId);
 
   if (!data) return null;
 
