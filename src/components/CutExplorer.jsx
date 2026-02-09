@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -96,6 +96,42 @@ const NodeIcon = () => (
     <rect x="2" y="7" width="20" height="10" rx="2" ry="2"></rect>
     <line x1="12" y1="17" x2="12" y2="22"></line>
     <line x1="8" y1="22" x2="16" y2="22"></line>
+  </svg>
+);
+
+const DependenciesIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="18" cy="5" r="3"></circle>
+    <circle cx="6" cy="12" r="3"></circle>
+    <circle cx="18" cy="19" r="3"></circle>
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+  </svg>
+);
+
+const DataIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+    <line x1="3" y1="9" x2="21" y2="9"></line>
+    <line x1="9" y1="21" x2="9" y2="9"></line>
   </svg>
 );
 
@@ -409,6 +445,155 @@ function FlowsTabHeader({
     </div>
   );
 }
+const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(2, 6, 23, 0.6)',
+      backdropFilter: 'blur(8px)',
+      zIndex: 10000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '40px',
+    }} onClick={onClose}>
+      <div style={{
+        background: '#fff',
+        borderRadius: '24px',
+        width: '100%',
+        maxWidth: '900px',
+        maxHeight: '85vh',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        position: 'relative'
+      }} onClick={e => e.stopPropagation()}>
+        
+        {/* Header */}
+        <div style={{
+          padding: '24px 32px',
+          borderBottom: '1px solid #f1f5f9',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          background: '#fffdf5' // Slight off-white/yellow tint for header as in image? Image header looks white but maybe warm.
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
+              <div style={{ 
+                background: '#fcd34d', 
+                color: '#78350f', 
+                padding: '4px 12px', 
+                borderRadius: '9999px', // Pill shape
+                fontSize: '12px', 
+                fontWeight: '700',
+                textTransform: 'uppercase'
+              }}>
+                {tableName}
+              </div>
+              <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', margin: 0 }}>{tableName}</h2>
+              <div style={{ 
+                background: '#0f172a', 
+                color: '#fff', 
+                padding: '4px 10px', 
+                borderRadius: '6px', 
+                fontSize: '10px', 
+                fontWeight: '800',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                {tableType || 'MASTER'}
+              </div>
+            </div>
+            <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: '500' }}>
+               {tableData.business_context || "Database Table Information"}
+            </p>
+          </div>
+          
+          <button 
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              fontSize: '24px',
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'color 0.2s'
+            }}
+            onMouseEnter={e => e.target.style.color = '#0f172a'}
+            onMouseLeave={e => e.target.style.color = '#94a3b8'}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Content - Table */}
+        <div style={{
+          padding: '0',
+          overflow: 'auto',
+          flex: 1,
+          background: '#fff'
+        }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <thead style={{ position: 'sticky', top: 0, background: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+              <tr>
+                <th style={{ textAlign: 'left', padding: '16px 32px', color: '#94a3b8', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', fontSize: '10px' }}>Field Name</th>
+                <th style={{ textAlign: 'center', padding: '16px 24px', color: '#94a3b8', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', fontSize: '10px' }}>Usage</th>
+                <th style={{ textAlign: 'left', padding: '16px 24px', color: '#94a3b8', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', fontSize: '10px' }}>Type of Usage</th>
+                <th style={{ textAlign: 'left', padding: '16px 32px', color: '#94a3b8', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', fontSize: '10px' }}>Business Context</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.fields && tableData.fields.map((field, idx) => {
+                 let usageBg = '#f3f4f6';
+                 let usageColor = '#6b7280';
+                 const usage = (field.usage || 'NONE').toUpperCase();
+                 
+                 if (usage === 'HEAVY') { usageBg = '#fecaca'; usageColor = '#ef4444'; }
+                 else if (usage === 'MEDIUM') { usageBg = '#fef3c7'; usageColor = '#f59e0b'; }
+                 else if (usage === 'LOW') { usageBg = '#dcfce7'; usageColor = '#22c55e'; }
+                 
+                 return (
+                  <tr key={idx} style={{ borderBottom: '1px solid #f8fafc' }}>
+                    <td style={{ padding: '16px 32px', fontWeight: '700', color: '#334155', fontFamily: 'monospace' }}>{field.name}</td>
+                    <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                      <span style={{ 
+                        background: usageBg, 
+                        color: usageColor, 
+                        padding: '4px 10px', 
+                        borderRadius: '6px', 
+                        fontSize: '10px', 
+                        fontWeight: '800',
+                        letterSpacing: '0.5px'
+                      }}>
+                        {usage}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 24px', color: '#3b82f6', fontWeight: '600', fontFamily: 'monospace' }}>{field.type_of_usage}</td>
+                    <td style={{ padding: '16px 32px', color: '#64748b' }}>{field.business_context}</td>
+                  </tr>
+                 );
+              })}
+            </tbody>
+          </table>
+          
+          {(!tableData.fields || tableData.fields.length === 0) && (
+             <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No field data available for this table.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
   if (!isOpen) return null;
 
@@ -537,7 +722,8 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
             boxShadow: '0 20px 60px rgba(16, 185, 129, 0.15)',
             textShadow: '0 0 8px rgba(16, 185, 129, 0.4)',
             whiteSpace: 'pre',
-            minWidth: 'fit-content'
+            minWidth: 'fit-content',
+            minHeight: 'fit-content'
           }}>
             {lines.join('\n')}
           </pre>
@@ -729,6 +915,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   const [popupNode, setPopupNode] = useState(null);
   const [focusMode, setFocusMode] = useState(false);
   const [focusedNodeId, setFocusedNodeId] = useState(null);
+  const [popupDatabaseNode, setPopupDatabaseNode] = useState(null);
 
   if (!systemView || !systemView.screens || !systemView.flow_connections) {
     return null;
@@ -740,8 +927,24 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       return;
     }
 
-    // Only show ASCII popup for screen and batch nodes, not database tables
-    if (!nodeData.label || nodeId.startsWith('table-')) {
+    // Database node click handling
+    if (nodeId && nodeId.startsWith('table-')) {
+       const tableName = nodeData.label;
+       const tableData = (systemView.field_matrix && systemView.field_matrix[tableName]) || { 
+         business_context: "No field details available.", 
+         fields: [] 
+       };
+       
+       setPopupDatabaseNode({
+         name: tableName,
+         type: nodeData.type,
+         data: tableData
+       });
+       return;
+    }
+
+    // ASCII popup for other nodes
+    if (!nodeData.label) {
       return;
     }
 
@@ -982,16 +1185,17 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
   // Apply focus styling when focus mode is active
-  useMemo(() => {
+  // Apply focus styling when focus mode is active
+  useEffect(() => {
     if (!focusMode || !focusedNodeId) {
       // Reset all nodes and edges to normal opacity
       setNodes(prevNodes => prevNodes.map(node => ({
         ...node,
-        style: { ...node.style, opacity: 1 }
+        style: { ...node.style, opacity: 1, filter: 'none' }
       })));
       setEdges(prevEdges => prevEdges.map(edge => ({
         ...edge,
-        style: { ...edge.style, opacity: edge.style?.opacity || 1 }
+        style: { ...edge.style, opacity: edge.style?.opacity || 1, filter: 'none' }
       })));
       return;
     }
@@ -1015,7 +1219,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       style: {
         ...node.style,
         opacity: connectedNodeIds.has(node.id) ? 1 : 0.2,
-        filter: connectedNodeIds.has(node.id) ? 'none' : 'blur(1px)'
+        filter: connectedNodeIds.has(node.id) ? 'none' : 'blur(2px)'
       }
     })));
 
@@ -1024,7 +1228,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       style: {
         ...edge.style,
         opacity: connectedEdgeIds.has(edge.id) ? (edge.style?.opacity || 1) : 0.1,
-        filter: connectedEdgeIds.has(edge.id) ? 'none' : 'blur(1px)'
+        filter: connectedEdgeIds.has(edge.id) ? 'none' : 'blur(2px)'
       }
     })));
   }, [focusMode, focusedNodeId, initialEdges, setNodes, setEdges]);
@@ -1307,6 +1511,14 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         nodeName={popupNode?.name}
         asciiArt={popupNode?.asciiArt}
         topic={popupNode?.topic}
+      />
+      
+      <DatabasePopup 
+        isOpen={!!popupDatabaseNode} 
+        onClose={() => setPopupDatabaseNode(null)}
+        tableName={popupDatabaseNode?.name}
+        tableType={popupDatabaseNode?.type}
+        tableData={popupDatabaseNode?.data}
       />
     </div>
   );
@@ -2302,6 +2514,257 @@ function ASCIIChart({ data, cutId }) {
 }
 
 // Helper functions
+function DependenciesTab({ data }) {
+  if (!data || !data.dependencies) {
+     return <div style={{ color: '#94a3b8', textAlign: 'center', marginTop: '40px' }}>No dependencies data available.</div>;
+  }
+  
+  const { upstream_incoming, downstream_outgoing } = data.dependencies;
+  
+  const DependencyCard = ({ title, items }) => (
+    <div style={{
+       flex: 1,
+       background: 'rgba(30, 41, 59, 0.4)',
+       border: '1px solid rgba(255, 255, 255, 0.1)',
+       borderRadius: '24px',
+       padding: '32px',
+       backdropFilter: 'blur(10px)'
+    }}>
+      <h3 style={{
+          fontSize: '12px',
+          fontWeight: '800',
+          color: '#94a3b8',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          marginBottom: '24px'
+      }}>{title}</h3>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {(!items || items.length === 0) ? (
+            <div style={{ color: '#64748b', fontSize: '14px', fontStyle: 'italic' }}>No dependencies found.</div>
+        ) : (
+            items.map((item, idx) => (
+                <div key={idx} style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '12px',
+                    padding: '16px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    transition: 'all 0.2s ease',
+                    cursor: 'default'
+                }}
+                onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                    e.currentTarget.style.transform = 'translateX(4px)';
+                }}
+                onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                    e.currentTarget.style.transform = 'translateX(0)';
+                }}
+                >
+                    <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: title.includes('INCOMING') ? '#94a3b8' : '#6366f1',
+                        boxShadow: title.includes('INCOMING') ? '0 0 8px rgba(148, 163, 184, 0.4)' : '0 0 8px rgba(99, 102, 241, 0.4)'
+                    }} />
+                    <span style={{
+                        fontWeight: '700',
+                        color: '#f8fafc',
+                        fontSize: '14px',
+                        minWidth: '80px',
+                        fontFamily: 'monospace'
+                    }}>
+                        {item.cut_id ? `cut_${item.cut_id.replace(/^Cut_/, '').split('_')[0]}` : 'UNK'}
+                    </span>
+                     <span style={{
+                        color: '#cbd5e1',
+                        fontSize: '14px',
+                        flex: 1,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>
+                        {item.topic}
+                    </span>
+                </div>
+            ))
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'flex', gap: '32px', height: '100%', alignItems: 'flex-start' }}>
+        <DependencyCard title="UPSTREAM DEPENDENCIES (INCOMING)" items={upstream_incoming} />
+        <DependencyCard title="DOWNSTREAM DEPENDENCIES (OUTGOING)" items={downstream_outgoing} />
+    </div>
+  );
+}
+
+function DataTab({ data }) {
+  const [selectedEntity, setSelectedEntity] = useState(null);
+  const erdData = data?.system_view?.erd || data?.erd;
+
+  if (!erdData?.entities) {
+     return <div style={{ color: '#94a3b8', textAlign: 'center', marginTop: '40px' }}>No entity model available.</div>;
+  }
+  
+  const { entities, title, context, stats } = erdData;
+  const fieldMatrix = data?.system_view?.field_matrix || {};
+  
+  const getTypeColor = (type) => {
+      switch(type) {
+          case 'CORE_ENTITY': return '#6366f1'; // Indigo
+          case 'TRANSACTION': return '#f59e0b'; // Amber
+          case 'REFERENCE': return '#1a5ebdff'; // Slate
+          default: return '#1a5ebdff';
+      }
+  };
+
+  const handleEntityClick = (entity) => {
+      if (!entity.active_in_cut) return;
+
+      // Try to find rich data in field_matrix
+      let richData = fieldMatrix[entity.name];
+
+      // If not found, map the raw ERD fields to the expected format
+      if (!richData) {
+          richData = {
+              business_context: "Extended usage data not available.",
+              fields: entity.fields?.map(f => ({
+                  name: f.name,
+                  usage: "NONE",
+                  type_of_usage: f.type || "Unknown",
+                  business_context: "-"
+              })) || []
+          };
+      }
+
+      setSelectedEntity({
+          name: entity.name,
+          type: entity.type,
+          data: richData
+      });
+  };
+
+  return (
+    <div style={{ padding: '0 20px 40px' }}>
+       {/* Legend/Header */}
+       <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <h2 style={{ fontSize: '14px', fontWeight: '900', color: '#f8fafc', letterSpacing: '1px', marginBottom: '8px', textTransform: 'uppercase' }}>
+                {title || 'Global Entity Model'}
+            </h2>
+            <p style={{ fontSize: '11px', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', margin: 0 }}>
+                CONTEXT: {data.topic || context}
+            </p>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ width: '8px', height: '8px', background: '#6366f1', borderRadius: '2px' }} />
+                  <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
+                    CORE ENTITY {stats?.core_entities !== undefined && `(${stats.core_entities})`}
+                  </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ width: '8px', height: '8px', background: '#f59e0b', borderRadius: '2px' }} />
+                  <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
+                    TRANSACTION {stats?.transactions !== undefined && `(${stats.transactions})`}
+                  </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ width: '8px', height: '8px', background: '#1a5ebdff', borderRadius: '2px' }} />
+                  <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
+                    REFERENCE {stats?.references !== undefined && `(${stats.references})`}
+                  </span>
+              </div>
+          </div>
+       </div>
+
+       {/* Grid */}
+       <div style={{ 
+           display: 'grid', 
+           gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+           gap: '32px' 
+       }}>
+         {entities.map((entity, idx) => {
+             const isActive = entity.active_in_cut;
+             const color = getTypeColor(entity.type);
+             
+             return (
+                 <div key={idx} 
+                    onClick={() => handleEntityClick(entity)}
+                    style={{
+                     background: '#fff',
+                     borderRadius: '16px',
+                     overflow: 'hidden',
+                     opacity: isActive ? 1 : 0.5,
+                     filter: isActive ? 'none' : 'blur(1.5px) grayscale(100%)',
+                     transform: isActive ? 'scale(1)' : 'scale(0.98)',
+                     transition: 'all 0.3s ease',
+                     boxShadow: isActive ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none',
+                     cursor: isActive ? 'pointer' : 'default'
+                 }}>
+                    {/* Card Header */}
+                    <div style={{
+                        background: color,
+                        padding: '12px 20px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        <span style={{ color: '#fff', fontWeight: '800', fontSize: '13px', textTransform: 'uppercase' }}>{entity.name}</span>
+                        {isActive && (
+                            <span style={{ 
+                                background: 'rgba(255,255,255,0.2)', 
+                                color: '#fff', 
+                                fontSize: '9px', 
+                                fontWeight: '800', 
+                                padding: '2px 6px', 
+                                borderRadius: '4px' 
+                            }}>CUT</span>
+                        )}
+                    </div>
+                    
+                    {/* Card Body */}
+                    <div style={{ padding: '20px' }}>
+                        <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>{entity.display_name}</h4>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {entity.fields?.slice(0, 5).map((field, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
+                                    <div style={{ width: '4px', height: '4px', background: color, borderRadius: '50%' }} />
+                                    <span style={{ color: '#64748b', fontFamily: 'monospace' }}>{field.name}</span>
+                                </div>
+                            ))}
+                            {entity.fields?.length > 5 && (
+                                <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '4px', paddingLeft: '12px' }}>
+                                    + {entity.fields.length - 5} more fields...
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                 </div>
+             );
+         })}
+       </div>
+       
+       <DatabasePopup 
+        isOpen={!!selectedEntity} 
+        onClose={() => setSelectedEntity(null)}
+        tableName={selectedEntity?.name}
+        tableType={selectedEntity?.type}
+        tableData={selectedEntity?.data || {}}
+      />
+    </div>
+  );
+}
+
 function DeepDiveOverview({ data, cutId, clusterId }) {
   const cluster = clusterData.clusters.find(c => c.id === clusterId);
   const stats = cluster?.stats || data.stats;
@@ -2665,7 +3128,9 @@ export function CutExplorer({ clusterId, onClose }) {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: <OverviewIcon /> },
+    { id: 'dependencies', label: 'Dependencies', icon: <DependenciesIcon /> },
     { id: 'flow', label: 'Flows', icon: <FlowIcon /> },
+    { id: 'data', label: 'Data', icon: <DataIcon /> },
     { id: 'database', label: 'Database Map', icon: <DatabaseIcon /> },
     { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
   ];
@@ -2810,7 +3275,9 @@ export function CutExplorer({ clusterId, onClose }) {
         width: '100%'
       }}>
         {activeTab === 'overview' && <DeepDiveOverview data={data} cutId={cutId} clusterId={clusterId} />}
+        {activeTab === 'dependencies' && <DependenciesTab data={cutData} />}
         {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} cutData={cutData} />}
+        {activeTab === 'data' && <DataTab data={cutData} />}
         {activeTab === 'database' && <DatabaseMap data={data} cutId={cutId} />}
         {activeTab === 'ascii' && <ASCIIChart data={data} cutId={cutId} />}
       </div>
