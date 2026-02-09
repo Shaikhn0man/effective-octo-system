@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { cutExplorerData } from "../data/cutExplorerData";
-import { clusterData } from "../data/clusterData";
+import { useState } from 'react';
+import { clusterData } from '../data/clusterData';
+import { cutExplorerData } from '../data/cutExplorerData';
 
 // SVG Icons
 const OverviewIcon = () => (
@@ -1420,6 +1420,314 @@ function ASCIIChart({ data, cutId }) {
 }
 
 // Helper functions
+function DeepDiveOverview({ data, cutId, clusterId }) {
+  const cluster = clusterData.clusters.find(c => c.id === clusterId);
+  const stats = cluster?.stats || data.stats;
+  
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '40px',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      animation: 'fadeIn 0.5s ease-out'
+    }}>
+      {/* Discovery Map Section (Top) */}
+      <section style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px 0'
+      }}>
+        {/* Root Domain Node */}
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.8)',
+          borderRadius: '100px',
+          padding: '12px 32px',
+          border: '1px solid rgba(59, 130, 246, 0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+          zIndex: 2,
+          marginBottom: '40px',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            background: 'rgba(59, 130, 246, 0.1)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#3b82f6'
+          }}>
+            <NodeIcon />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '16px', fontWeight: '700', color: '#fff' }}>{data.name}</span>
+            <span style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>CORE DOMAIN</span>
+          </div>
+        </div>
+
+        {/* Radiating Sub-nodes with Pulsating Curved Connections */}
+        <div style={{ 
+          position: 'relative', 
+          width: '100%', 
+          display: 'flex', 
+          justifyContent: 'center',
+          gap: '24px',
+          paddingTop: '20px',
+          zIndex: 1
+        }}>
+          {/* SVG Overlay for curved pulsating lines - Fixed with numeric coordinates */}
+          <svg 
+            viewBox="0 0 1000 100"
+            preserveAspectRatio="none"
+            style={{
+              position: 'absolute',
+              top: '-60px',
+              left: 0,
+              width: '100%',
+              height: '100px',
+              zIndex: 0,
+              pointerEvents: 'none'
+            }}
+          >
+            <defs>
+              <linearGradient id="lineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2" />
+              </linearGradient>
+            </defs>
+            {cluster?.sub_cuts?.map((_, i) => {
+              const count = cluster.sub_cuts.length;
+              const spacing = 1000 / (count + 1);
+              const xPos = (i + 1) * spacing;
+              return (
+                <g key={i}>
+                  <path 
+                    d={`M 500 0 C 500 40, ${xPos} 20, ${xPos} 80`}
+                    stroke="rgba(59, 130, 246, 0.2)"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path 
+                    d={`M 500 0 C 500 40, ${xPos} 20, ${xPos} 80`}
+                    stroke="url(#lineGrad)"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeDasharray="15 35"
+                    style={{ animation: 'pulsateLines 4s infinite linear' }}
+                  />
+                </g>
+              );
+            })}
+          </svg>
+
+          {cluster?.sub_cuts?.map((sub, idx) => (
+            <div key={idx} style={{
+              flex: '1',
+              maxWidth: '260px',
+              background: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: '16px',
+              padding: '24px',
+              border: '1px solid rgba(59, 130, 246, 0.15)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              color: '#fff',
+              position: 'relative',
+              zIndex: 2,
+              transition: 'all 0.3s ease',
+              backdropFilter: 'blur(4px)'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)';
+              e.currentTarget.style.boxShadow = '0 12px 30px rgba(59, 130, 246, 0.2)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.15)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                  <CodeIcon />
+                </div>
+                <span style={{ fontSize: '13px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{sub.topic}</span>
+              </div>
+              <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.5' }}>
+                Management of business logic and data patterns for {sub.topic.toLowerCase()}.
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Entities Section (Middle) */}
+      <section style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '20px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+          <span style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '2px' }}>CORE DOMAIN ENTITIES</span>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
+          {[...(data.tables?.master || []), ...(data.tables?.reference || [])].map((table, i) => (
+            <div key={i} style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: '30px',
+              padding: '10px 24px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontSize: '12px',
+              fontWeight: '700',
+              color: '#fff',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <span style={{ color: '#3b82f6' }}><DatabaseIcon /></span>
+              {table.name.split('-').shift()}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Bottom Layout: Identity & Principal Screens (Two Columns) */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '32px',
+        marginTop: '20px'
+      }}>
+        {/* Identity & Scope Panel */}
+        <section style={{
+          background: 'rgba(15, 23, 42, 0.4)',
+          borderRadius: '24px',
+          padding: '40px',
+          color: '#fff',
+          border: '1px solid rgba(59, 130, 246, 0.15)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '32px',
+          backdropFilter: 'blur(8px)',
+          transition: 'border-color 0.3s ease'
+        }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'}
+        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.15)'}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ color: '#3b82f6' }}><OverviewIcon /></span>
+            <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>IDENTITY & SCOPE</span>
+          </div>
+          <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.7', fontWeight: '500' }}>
+            {cluster?.description || data.description || "Manages the complete lifecycle of system operations, providing an integrated platform for data processing and business logic execution."}
+          </p>
+
+          {/* Detailed Stats Horizontal Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginTop: 'auto' }}>
+            {[
+              { label: 'SCREENS', value: stats.screen_count || stats.flows || 0 },
+              { label: 'PROGRAMS', value: stats.program_count || 17 },
+              { label: 'TABLES', value: (data.tables?.master?.length || 0) + (data.tables?.reference?.length || 0) },
+              { label: 'DB CALLS', value: '511' }
+            ].map((stat, i) => (
+              <div key={i} style={{
+                background: 'rgba(255, 255, 255, 0.02)',
+                borderRadius: '16px',
+                padding: '24px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                border: '1px solid rgba(59, 130, 246, 0.1)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.1)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+              }}
+              >
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff' }}>{stat.value}</span>
+                <span style={{ fontSize: '9px', fontWeight: '800', color: '#64748b', letterSpacing: '0.5px' }}>{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Principal Screens Panel */}
+        <section style={{
+          background: 'rgba(15, 23, 42, 0.4)',
+          borderRadius: '24px',
+          padding: '40px',
+          color: '#fff',
+          border: '1px solid rgba(16, 185, 129, 0.15)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '32px',
+          backdropFilter: 'blur(8px)',
+          transition: 'border-color 0.3s ease'
+        }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'}
+        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.15)'}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ color: '#10b981' }}><CodeIcon /></span>
+            <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>PRINCIPAL SCREENS</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {data.interactions?.length > 0 ? data.interactions.map((item, i) => (
+              <div key={i} style={{
+                background: 'rgba(16, 185, 129, 0.03)',
+                borderRadius: '16px',
+                padding: '16px 24px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                border: '1px solid rgba(16, 185, 129, 0.1)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.03)';
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.1)';
+              }}
+              >
+                <span style={{ fontSize: '13px', fontWeight: '800', color: '#10b981', letterSpacing: '0.5px' }}>{item.screen}</span>
+                <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '500' }}>
+                  {item.screen === 'COSGN0A' ? 'User Login' : 
+                   item.screen === 'CCRDLIA' ? 'Card List' :
+                   item.screen === 'CCRDSLA' ? 'Card Detail' :
+                   item.screen === 'CCRDUPA' ? 'Card Update' : 'Screen Interface'}
+                </span>
+              </div>
+            )) : (
+              <div style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', padding: '40px' }}>
+                Batch Process - No Interactive Screens
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 function getBusinessSummary(cutId, data) {
   const summaries = {
     1: "Primary interactive system for credit card account management. Handles all customer-facing operations including account creation, card management, transaction processing, and billing. Serves as the main data entry point for the entire system with 14 integrated screens managing the complete customer lifecycle.",
@@ -1472,10 +1780,11 @@ export function CutExplorer({ clusterId, onClose }) {
   if (!data) return null;
 
   const tabs = [
-    { id: "overview", label: "System Overview", icon: <OverviewIcon /> },
-    { id: "flow", label: "Flow Diagram", icon: <FlowIcon /> },
-    { id: "database", label: "Database Map", icon: <DatabaseIcon /> },
-    { id: "ascii", label: "ASCII Chart", icon: <CodeIcon /> },
+    { id: 'overview', label: 'Deep Dive', icon: <OverviewIcon /> },
+    { id: 'legacy', label: 'System Overview', icon: <OverviewIcon /> },
+    { id: 'flow', label: 'Flow Diagram', icon: <FlowIcon /> },
+    { id: 'database', label: 'Database Map', icon: <DatabaseIcon /> },
+    { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
   ];
 
   return (
@@ -1609,28 +1918,29 @@ export function CutExplorer({ clusterId, onClose }) {
       </div>
 
       {/* Main Content */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "40px",
-          maxWidth: "1600px",
-          margin: "0 auto",
-          width: "100%",
-        }}
-      >
-        {activeTab === "overview" && (
-          <SystemOverview data={data} cutId={cutId} />
-        )}
-        {activeTab === "flow" && <FlowDiagram data={data} cutId={cutId} cutData={cutData} />}
-        {activeTab === "database" && <DatabaseMap data={data} cutId={cutId} />}
-        {activeTab === "ascii" && <ASCIIChart data={data} cutId={cutId} />}
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        padding: '40px',
+        maxWidth: '1600px',
+        margin: '0 auto',
+        width: '100%'
+      }}>
+        {activeTab === 'overview' && <DeepDiveOverview data={data} cutId={cutId} clusterId={clusterId} />}
+        {activeTab === 'legacy' && <SystemOverview data={data} cutId={cutId} />}
+        {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} />}
+        {activeTab === 'database' && <DatabaseMap data={data} cutId={cutId} />}
+        {activeTab === 'ascii' && <ASCIIChart data={data} cutId={cutId} />}
       </div>
 
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: scale(1.02); }
           to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes pulsateLines {
+          0% { stroke-dashoffset: 30; }
+          100% { stroke-dashoffset: 0; }
         }
       `}</style>
     </div>
