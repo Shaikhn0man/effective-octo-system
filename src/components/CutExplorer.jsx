@@ -6,7 +6,8 @@ import ReactFlow, {
   MarkerType,
   Position,
   useEdgesState,
-  useNodesState
+  useNodesState,
+  useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { clusterData } from '../data/clusterData';
@@ -581,7 +582,9 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
 };
 
 const CustomDatabaseNode = ({ data }) => (
-  <div style={{
+  <div 
+    onClick={() => data.onNodeClick && data.onNodeClick(data, data.nodeId)}
+    style={{
     background: 'rgba(251, 191, 36, 0.08)',
     border: '3px solid #fbbf24',
     borderRadius: '16px',
@@ -590,34 +593,51 @@ const CustomDatabaseNode = ({ data }) => (
     position: 'relative',
     boxShadow: '0 12px 48px rgba(251, 191, 36, 0.15)',
     backdropFilter: 'blur(12px)',
-  }}>
+    overflow: 'hidden',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  }}
+    onMouseEnter={e => {
+      e.currentTarget.style.transform = 'translateY(-5px)';
+      e.currentTarget.style.borderColor = '#fcd34d';
+      e.currentTarget.style.boxShadow = '0 20px 60px rgba(251, 191, 36, 0.3)';
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.borderColor = '#fbbf24';
+      e.currentTarget.style.boxShadow = '0 12px 48px rgba(251, 191, 36, 0.15)';
+    }}
+  >
     <Handle type="target" position={Position.Bottom} style={{ background: '#fbbf24', border: 'none', width: '10px', height: '10px' }} />
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-      <div style={{ color: '#fbbf24', display: 'flex', alignItems: 'center' }}>
+      <div style={{ color: 'black', display: 'flex', alignItems: 'center' }}>
         <DatabaseIcon />
       </div>
       <div style={{
           background: 'rgba(251, 191, 36, 0.2)',
-          color: '#fbbf24',
+          color: 'black',
           fontSize: '10px',
           fontWeight: '900',
           padding: '2px 8px',
           borderRadius: '4px',
           textTransform: 'uppercase',
           letterSpacing: '1px',
-          border: '1px solid rgba(251, 191, 36, 0.3)'
+          border: '1px solid rgba(251, 191, 36, 0.3)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
         }}>
           {data.type || 'MASTER'}
       </div>
     </div>
-    <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
-    <div style={{ fontSize: '12px', color: '#fbbf24', marginTop: '6px', fontWeight: '700', opacity: 0.8 }}>{data.sublabel}</div>
+    <div style={{ fontSize: '18px', fontWeight: '900', color: '#854d0e', letterSpacing: '0.5px', wordBreak: 'break-word', wordWrap: 'break-word', whiteSpace: 'normal', overflow: 'hidden' }}>{data.label}</div>
+    <div style={{ fontSize: '12px', color: '#854d0e', marginTop: '6px', fontWeight: '700', opacity: 0.8, wordBreak: 'break-word', wordWrap: 'break-word', whiteSpace: 'normal', overflow: 'hidden' }}>{data.sublabel}</div>
   </div>
 );
 
 const CustomScreenNode = ({ data }) => (
   <div 
-    onClick={() => data.onNodeClick && data.onNodeClick(data)}
+    onClick={() => data.onNodeClick && data.onNodeClick(data, data.nodeId)}
     style={{
       background: 'rgba(30, 41, 59, 0.8)',
       border: '3px solid #3b82f6',
@@ -659,7 +679,7 @@ const CustomScreenNode = ({ data }) => (
 
 const CustomBatchNode = ({ data }) => (
   <div 
-    onClick={() => data.onNodeClick && data.onNodeClick(data)}
+    onClick={() => data.onNodeClick && data.onNodeClick(data, data.nodeId)}
     style={{
       background: 'rgba(124, 45, 18, 0.3)',
       border: '3px solid #ea580c',
@@ -707,12 +727,24 @@ const nodeTypes = {
 
 const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen = false, onExitFullscreen, onEnterFullscreen, flows = [] }) => {
   const [popupNode, setPopupNode] = useState(null);
+  const [focusMode, setFocusMode] = useState(false);
+  const [focusedNodeId, setFocusedNodeId] = useState(null);
 
   if (!systemView || !systemView.screens || !systemView.flow_connections) {
     return null;
   }
 
-  const handleNodeClick = (nodeData) => {
+  const handleNodeClick = (nodeData, nodeId) => {
+    if (focusMode) {
+      setFocusedNodeId(nodeId);
+      return;
+    }
+
+    // Only show ASCII popup for screen and batch nodes, not database tables
+    if (!nodeData.label || nodeId.startsWith('table-')) {
+      return;
+    }
+
     // Attempt to find ASCII art in multiple locations
     let asciiArt = null;
     let topic = nodeData.sublabel;
@@ -834,7 +866,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         nodes.push({
           id: `table-${table.name}`,
           type: 'database',
-          data: { label: table.name, sublabel: table.name, type: table.type || 'MASTER' },
+          data: { label: table.name, sublabel: table.name, type: table.type || 'MASTER', onNodeClick: handleNodeClick, nodeId: `table-${table.name}` },
           position: { x: idx * 300, y: 0 },
         });
       });
@@ -851,7 +883,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         nodes.push({
           id: `screen-${name}`,
           type: 'screen',
-          data: { label: name, sublabel: screen.topic, onNodeClick: handleNodeClick },
+          data: { label: name, sublabel: screen.topic, onNodeClick: handleNodeClick, nodeId: `screen-${name}` },
           position: { x: idx * 300, y: 350 },
         });
       }
@@ -863,7 +895,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         nodes.push({
           id: `batch-${batch.name}`,
           type: 'batch',
-          data: { label: batch.name, sublabel: batch.topic, onNodeClick: handleNodeClick },
+          data: { label: batch.name, sublabel: batch.topic, onNodeClick: handleNodeClick, nodeId: `batch-${batch.name}` },
           position: { x: (finalOrderedScreenNames.length + idx) * 300, y: 350 },
         });
       });
@@ -948,6 +980,54 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
     setNodes(initialNodes);
     setEdges(initialEdges);
   }, [initialNodes, initialEdges, setNodes, setEdges]);
+
+  // Apply focus styling when focus mode is active
+  useMemo(() => {
+    if (!focusMode || !focusedNodeId) {
+      // Reset all nodes and edges to normal opacity
+      setNodes(prevNodes => prevNodes.map(node => ({
+        ...node,
+        style: { ...node.style, opacity: 1 }
+      })));
+      setEdges(prevEdges => prevEdges.map(edge => ({
+        ...edge,
+        style: { ...edge.style, opacity: edge.style?.opacity || 1 }
+      })));
+      return;
+    }
+
+    // Find all connected nodes
+    const connectedNodeIds = new Set([focusedNodeId]);
+    const connectedEdgeIds = new Set();
+
+    // Find edges connected to focused node
+    initialEdges.forEach(edge => {
+      if (edge.source === focusedNodeId || edge.target === focusedNodeId) {
+        connectedEdgeIds.add(edge.id);
+        connectedNodeIds.add(edge.source);
+        connectedNodeIds.add(edge.target);
+      }
+    });
+
+    // Apply focus styling
+    setNodes(prevNodes => prevNodes.map(node => ({
+      ...node,
+      style: {
+        ...node.style,
+        opacity: connectedNodeIds.has(node.id) ? 1 : 0.2,
+        filter: connectedNodeIds.has(node.id) ? 'none' : 'blur(1px)'
+      }
+    })));
+
+    setEdges(prevEdges => prevEdges.map(edge => ({
+      ...edge,
+      style: {
+        ...edge.style,
+        opacity: connectedEdgeIds.has(edge.id) ? (edge.style?.opacity || 1) : 0.1,
+        filter: connectedEdgeIds.has(edge.id) ? 'none' : 'blur(1px)'
+      }
+    })));
+  }, [focusMode, focusedNodeId, initialEdges, setNodes, setEdges]);
 
   const containerHeight = isFullscreen ? '100vh' : '600px';
   const containerStyle = isFullscreen ? {
@@ -1076,6 +1156,42 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
             </label>
           )}
 
+          {/* Focus Mode Toggle */}
+          <button
+            onClick={() => {
+              setFocusMode(!focusMode);
+              setFocusedNodeId(null);
+            }}
+            style={{
+              background: focusMode ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.03)',
+              border: focusMode ? '1px solid rgba(168, 85, 247, 0.5)' : '1px solid rgba(255,255,255,0.08)',
+              color: focusMode ? '#a855f7' : '#94a3b8',
+              padding: isFullscreen ? '8px 16px' : '6px 12px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: isFullscreen ? '11px' : '10px',
+              fontWeight: '700',
+              transition: 'all 0.2s ease',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={(e) => {
+              if (!focusMode) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!focusMode) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+              }
+            }}
+          >
+            {focusMode ? '✓ FOCUS' : 'FOCUS'}
+          </button>
+
           {/* Legend */}
           <div style={{
             display: 'flex',
@@ -1177,6 +1293,8 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           fitView
+          minZoom={0.1}
+          maxZoom={4}
         >
           <Background color="#1e293b" gap={20} />
           <Controls />
