@@ -1577,114 +1577,58 @@ function FlowDiagram({ data, cutId, cutData }) {
     `}</style>
   );
 
-  const highlightFlowData = (text, debtMap) => {
-    if (!text) return text;
-    return text.split("\n").map((line, i) => {
-      let content = line;
-      // 1. Implementation of "Tab Indentation" for the Hierarchy
-      content = content.replace(/^([│├└─\s]+)/, (match) => {
-        // Replace single spaces with wider chunks to create the "Tab" effect from your image
-        let wideIndent = match.replace(/ /g, '&nbsp;&nbsp;&nbsp;');
-        // stylize the actual tree markers (│, ├, └, ─)
-        return wideIndent.replace(/([│├└─])/g, '<span style="color: #3b82f6; opacity: 1; font-weight: 900; filter: drop-shadow(0 0 2px rgba(59, 130, 246, 0.4)); font-family: monospace; font-size: 18px; position: relative; top: 1px;">$1</span>');
-      });
-
-      // 2. Tech debt or error highlighting
-      if (showTechDebt && content.includes("#ON-ERROR")) {
-        content = content.replace("#ON-ERROR", '<span style="color: #ef4444; font-weight: 800; background: rgba(239, 68, 68, 0.1); padding: 2px 4px; border-radius: 4px;">#ON-ERROR</span>');
-      }
-
-      // 3. Highlight modules/programs and inject tech debt badges
-      content = content.replace(/([A-Z0-9-]+)\[(.*?)\]/g, (match, methodName, pgmName) => {
-        let replacement = `<span style="color: #fff; font-weight: 700; letter-spacing: 0.5px; margin-left: 12px;">${methodName}</span>`;
-        replacement += `<span style="color: #94a3b8; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; margin-left: 12px; border: 1px solid rgba(255,255,255,0.05);">[${pgmName}]</span>`;
-
-        // Root element special handling for GOD MODULE
-        if (i === 0 && showTechDebt) {
-          replacement += `<span class="glowing-god-tag" style="margin-left: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 4px 14px; border-radius: 6px; background: rgba(239, 68, 68, 0.25); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);">GOD MODULE</span>`;
-        }
-
-        if (showTechDebt && debtMap && debtMap[methodName]) {
-          const debtKey = debtMap[methodName];
-          if (debtKey !== "GOD_MODULE") {
-            const config = debtColorMap[debtKey] || { label: debtKey, bg: "rgba(255,255,255,0.05)", color: "#fff", border: "rgba(255,255,255,0.1)" };
-            replacement += `<span style="margin-left: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 4px; background: ${config.bg}; color: ${config.color}; border: 1px solid ${config.border}; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">${config.label}</span>`;
-          }
-        }
-        return replacement;
-      });
-
-      // Highlight keywords like PROCESS, WRITE, READ if they exist
-      if (content.includes("PROCESS:") || content.includes("WRITE:") || content.includes("READ:")) {
-        content = content.replace(/(PROCESS:|WRITE:|READ:)/g, '<span style="color: #3b82f6; font-weight: 700; margin-right: 8px;">$1</span>');
-      }
-
-      return (
-        <div key={i} style={{
-          display: "flex",
-          alignItems: "center",
-          minHeight: "36px", // Tightened for vertical line continuity
-          whiteSpace: "pre",
-          marginBottom: "0px",
-          padding: "0 20px",
-          borderRadius: "6px",
-          transition: "all 0.2s ease",
-          cursor: "default",
-          borderLeft: "2px solid transparent"
-        }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(59, 130, 246, 0.05)";
-            e.currentTarget.style.borderLeftColor = "#3b82f6";
-            e.currentTarget.style.transform = "translateX(6px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.borderLeftColor = "transparent";
-            e.currentTarget.style.transform = "translateX(0)";
-          }}
-          dangerouslySetInnerHTML={{ __html: content }} />
-      );
-    });
-  };
-
   const getProgramFlows = () => {
-    if (!cutData || !cutData.sub_cuts) return <div style={{ color: "#64748b", fontStyle: "italic" }}>No data available</div>;
+    if (!cutData?.sub_cuts) return <div style={{ color: "#64748b", fontStyle: "italic" }}>No data available</div>;
 
-    const subCut = cutData.sub_cuts.find(
-      (subCut) => subCut.flows && subCut.flows.length > 0
+    const allFlowsHtml = cutData.sub_cuts
+      .flatMap(sc => sc.flows || [])
+      .filter(flow => flow.program_flows)
+      .map(flow => {
+        let text = flow.program_flows;
+        if (showTechDebt) {
+          const debtMap = {};
+          flow.programs?.forEach(pgm => {
+            pgm.methods?.forEach(method => {
+              if (method.method_metadata?.tech_debt) {
+                debtMap[method.name] = method.method_metadata.tech_debt;
+              }
+            });
+          });
+
+          text = text.split('\n').map(line => {
+            const pgmMatch = line.match(/([A-Z0-9-]+)\[/);
+            if (pgmMatch) {
+              const methodName = pgmMatch[1];
+              const debtKey = debtMap[methodName];
+              if (debtKey) {
+                const config = debtColorMap[debtKey] || { label: debtKey, color: "#ef4444" };
+                return `${line}  <span style="color: ${config.color}; font-weight: 800; opacity: 0.9;">!! ${config.label}</span>`;
+              }
+            }
+            return line;
+          }).join('\n');
+        }
+        return text;
+      })
+      .join("\n\n---\n\n");
+
+    if (!allFlowsHtml) return <div style={{ color: "#64748b", fontStyle: "italic" }}>No program flows available</div>;
+
+    return (
+      <pre 
+        style={{
+          margin: 0,
+          padding: "24px",
+          color: "#e2e8f0",
+          fontFamily: "'Fira Code', 'Roboto Mono', monospace",
+          fontSize: "13px",
+          lineHeight: "1.5",
+          overflowX: "auto",
+          whiteSpace: "pre-wrap"
+        }}
+        dangerouslySetInnerHTML={{ __html: allFlowsHtml }}
+      />
     );
-    if (!subCut) return <div style={{ color: "#64748b", fontStyle: "italic" }}>No program flows available</div>;
-
-    return subCut.flows.map((flow, index) => {
-      // Build tech debt map for this specific flow
-      const debtMap = {};
-      flow.programs?.forEach(pgm => {
-        pgm.methods?.forEach(method => {
-          if (method.method_metadata?.tech_debt) {
-            debtMap[method.name] = method.method_metadata.tech_debt;
-          }
-        });
-      });
-
-      return (
-        <div
-          key={index}
-          style={{
-            color: "#e2e8f0",
-            background: "rgba(15, 23, 42, 0.3)",
-            padding: "24px",
-            borderRadius: "16px",
-            overflowX: "auto",
-            fontFamily: "'Fira Code', 'Roboto Mono', monospace",
-            fontSize: "13px",
-            lineHeight: "1.6",
-            border: "1px solid rgba(59, 130, 246, 0.1)"
-          }}
-        >
-          {highlightFlowData(flow.program_flows, debtMap)}
-        </div>
-      );
-    });
   };
 
   return (
@@ -2212,7 +2156,7 @@ function FlowDiagram({ data, cutId, cutData }) {
 
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <span style={{ fontSize: "11px", fontWeight: "700", color: showTechDebt ? "#3b82f6" : "#64748b", textTransform: "uppercase", letterSpacing: "1px" }}>
-                SHOW TECH DEBT SIGNALS
+                SHOW TECH DEBT
               </span>
               <button
                 onClick={() => setShowTechDebt(!showTechDebt)}
@@ -2228,20 +2172,6 @@ function FlowDiagram({ data, cutId, cutData }) {
                   padding: 0,
                   boxShadow: showTechDebt ? "0 0 12px rgba(59, 130, 246, 0.4)" : "none"
                 }}
-                onMouseEnter={(e) => {
-                  if (!showTechDebt) {
-                    e.currentTarget.style.background = "#2d3748";
-                  } else {
-                    e.currentTarget.style.boxShadow = "0 0 16px rgba(59, 130, 246, 0.6)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!showTechDebt) {
-                    e.currentTarget.style.background = "#1e293b";
-                  } else {
-                    e.currentTarget.style.boxShadow = "0 0 12px rgba(59, 130, 246, 0.4)";
-                  }
-                }}
               >
                 <div style={{
                   width: "18px",
@@ -2252,7 +2182,6 @@ function FlowDiagram({ data, cutId, cutData }) {
                   top: "3px",
                   left: showTechDebt ? "23px" : "3px",
                   transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
                 }} />
               </button>
             </div>
