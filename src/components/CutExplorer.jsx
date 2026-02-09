@@ -1100,11 +1100,11 @@ function FlowDiagram({ data, cutId, cutData }) {
                 <CodeIcon />
               </div>
               <div>
-                <h2 style={{ 
-                  fontSize: "14px", 
-                  fontWeight: "800", 
-                  color: "#fff", 
-                  textTransform: "uppercase", 
+                <h2 style={{
+                  fontSize: "14px",
+                  fontWeight: "800",
+                  color: "#fff",
+                  textTransform: "uppercase",
                   letterSpacing: "2px",
                   margin: 0
                 }}>
@@ -1423,7 +1423,7 @@ function ASCIIChart({ data, cutId }) {
 function DeepDiveOverview({ data, cutId, clusterId }) {
   const cluster = clusterData.clusters.find(c => c.id === clusterId);
   const stats = cluster?.stats || data.stats;
-  
+
   return (
     <div style={{
       display: 'flex',
@@ -1473,17 +1473,17 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
         </div>
 
         {/* Radiating Sub-nodes with Pulsating Curved Connections */}
-        <div style={{ 
-          position: 'relative', 
-          width: '100%', 
-          display: 'flex', 
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          display: 'flex',
           justifyContent: 'center',
           gap: '24px',
           paddingTop: '20px',
           zIndex: 1
         }}>
           {/* SVG Overlay for curved pulsating lines - Fixed with numeric coordinates */}
-          <svg 
+          <svg
             viewBox="0 0 1000 100"
             preserveAspectRatio="none"
             style={{
@@ -1508,13 +1508,13 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
               const xPos = (i + 1) * spacing;
               return (
                 <g key={i}>
-                  <path 
+                  <path
                     d={`M 500 0 C 500 40, ${xPos} 20, ${xPos} 80`}
                     stroke="rgba(59, 130, 246, 0.2)"
                     strokeWidth="2"
                     fill="none"
                   />
-                  <path 
+                  <path
                     d={`M 500 0 C 500 40, ${xPos} 20, ${xPos} 80`}
                     stroke="url(#lineGrad)"
                     strokeWidth="3"
@@ -1545,18 +1545,18 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
               transition: 'all 0.3s ease',
               backdropFilter: 'blur(4px)'
             }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)';
-              e.currentTarget.style.boxShadow = '0 12px 30px rgba(59, 130, 246, 0.2)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.15)';
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
-            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)';
+                e.currentTarget.style.boxShadow = '0 12px 30px rgba(59, 130, 246, 0.2)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.15)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
@@ -1621,8 +1621,8 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           backdropFilter: 'blur(8px)',
           transition: 'border-color 0.3s ease'
         }}
-        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'}
-        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.15)'}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.15)'}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ color: '#3b82f6' }}><OverviewIcon /></span>
@@ -1651,14 +1651,14 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
                 border: '1px solid rgba(59, 130, 246, 0.1)',
                 transition: 'all 0.3s ease'
               }}
-              onMouseEnter={e => {
-                e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.3)';
-                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.1)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
-              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.1)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                }}
               >
                 <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff' }}>{stat.value}</span>
                 <span style={{ fontSize: '9px', fontWeight: '800', color: '#64748b', letterSpacing: '0.5px' }}>{stat.label}</span>
@@ -1680,8 +1680,8 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           backdropFilter: 'blur(8px)',
           transition: 'border-color 0.3s ease'
         }}
-        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'}
-        onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.15)'}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.15)'}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ color: '#10b981' }}><CodeIcon /></span>
@@ -1699,21 +1699,21 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
                 border: '1px solid rgba(16, 185, 129, 0.1)',
                 transition: 'all 0.2s ease'
               }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.03)';
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.1)';
-              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                  e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(16, 185, 129, 0.03)';
+                  e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.1)';
+                }}
               >
                 <span style={{ fontSize: '13px', fontWeight: '800', color: '#10b981', letterSpacing: '0.5px' }}>{item.screen}</span>
                 <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '500' }}>
-                  {item.screen === 'COSGN0A' ? 'User Login' : 
-                   item.screen === 'CCRDLIA' ? 'Card List' :
-                   item.screen === 'CCRDSLA' ? 'Card Detail' :
-                   item.screen === 'CCRDUPA' ? 'Card Update' : 'Screen Interface'}
+                  {item.screen === 'COSGN0A' ? 'User Login' :
+                    item.screen === 'CCRDLIA' ? 'Card List' :
+                      item.screen === 'CCRDSLA' ? 'Card Detail' :
+                        item.screen === 'CCRDUPA' ? 'Card Update' : 'Screen Interface'}
                 </span>
               </div>
             )) : (
@@ -1928,7 +1928,7 @@ export function CutExplorer({ clusterId, onClose }) {
       }}>
         {activeTab === 'overview' && <DeepDiveOverview data={data} cutId={cutId} clusterId={clusterId} />}
         {activeTab === 'legacy' && <SystemOverview data={data} cutId={cutId} />}
-        {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} />}
+        {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} cutData={cutData} />}
         {activeTab === 'database' && <DatabaseMap data={data} cutId={cutId} />}
         {activeTab === 'ascii' && <ASCIIChart data={data} cutId={cutId} />}
       </div>
