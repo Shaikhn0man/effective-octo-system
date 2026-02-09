@@ -2856,7 +2856,7 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
-          {[...(data.tables?.master || []), ...(data.tables?.reference || [])].map((table, i) => (
+          {Array.from(new Map([...(data.tables?.master || []), ...(data.tables?.reference || [])].map(table => [table.name, table])).values()).map((table, i) => (
             <div key={i} style={{
               background: 'rgba(255, 255, 255, 0.03)',
               borderRadius: '30px',
