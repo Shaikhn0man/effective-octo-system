@@ -1143,34 +1143,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
           Deep Dive: Cut Explorer
         </button>
 
-        {/* Screen Flow Sequence Preview */}
-        {cutExplorerData[parseInt(cluster.id.match(/Cut_(\d+)_/)?.[1])]?.sequence && (
-          <div style={{ marginTop: '20px' }}>
-             <div style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-               SCREEN FLOW SEQUENCE
-             </div>
-             <div style={{ 
-               background: 'rgba(0,0,0,0.2)', 
-               borderRadius: '8px',
-               padding: '12px',
-               border: '1px solid rgba(255,255,255,0.05)',
-               fontSize: '11px',
-               fontFamily: 'monospace',
-               color: '#e2e8f0',
-               lineHeight: '1.6'
-             }}>
-               {cutExplorerData[parseInt(cluster.id.match(/Cut_(\d+)_/)?.[1])].sequence.map((row, i) => (
-                 <div key={i} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
-                   {row.map((node, j) => (
-                     <span key={j}>
-                       {node} {j < row.length - 1 ? '→' : ''}
-                     </span>
-                   ))}
-                 </div>
-               ))}
-             </div>
-          </div>
-        )}
+      
 
         {/* Tabs */}
         <div style={{

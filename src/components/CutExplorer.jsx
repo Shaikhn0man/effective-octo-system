@@ -129,7 +129,7 @@ function SystemOverview({ data, cutId }) {
           background: "rgba(255,255,255,0.02)",
           padding: "24px 32px",
           borderRadius: "24px",
-          border: "1px solid rgba(255,255,255,0.05)",
+          border: "1px solid rgba(59, 130, 246, 0.15)",
         }}
       >
         {Object.entries(data.stats).map(([key, val]) => (
@@ -190,7 +190,7 @@ function SystemOverview({ data, cutId }) {
           background: "rgba(15, 23, 42, 0.5)",
           padding: "24px",
           borderRadius: "24px",
-          border: "1px solid rgba(255,255,255,0.05)",
+          border: "1px solid rgba(59, 130, 246, 0.15)",
         }}
       >
         <h3
@@ -217,6 +217,7 @@ function SystemOverview({ data, cutId }) {
               padding: "16px",
               background: "rgba(255,255,255,0.02)",
               borderRadius: "12px",
+              border: "1px solid rgba(59, 130, 246, 0.1)",
             }}
           >
             <div
@@ -238,6 +239,7 @@ function SystemOverview({ data, cutId }) {
               padding: "16px",
               background: "rgba(255,255,255,0.02)",
               borderRadius: "12px",
+              border: "1px solid rgba(59, 130, 246, 0.1)",
             }}
           >
             <div
@@ -259,6 +261,7 @@ function SystemOverview({ data, cutId }) {
               padding: "16px",
               background: "rgba(255,255,255,0.02)",
               borderRadius: "12px",
+              border: "1px solid rgba(59, 130, 246, 0.1)",
             }}
           >
             <div
@@ -286,14 +289,50 @@ function FlowsTabHeader({
   onTabChange,
   showDataOps,
   setShowDataOps,
+  onExpandFlow,
 }) {
+  const TabButton = ({ id, label, isActive, onClick }) => (
+    <button
+      onClick={onClick}
+      style={{
+        padding: "10px 20px",
+        background: isActive ? "rgba(59, 130, 246, 0.2)" : "transparent",
+        color: isActive ? "#3b82f6" : "#94a3b8",
+        border: isActive ? "1px solid rgba(59, 130, 246, 0.5)" : "1px solid rgba(255,255,255,0.1)",
+        borderRadius: "8px",
+        fontWeight: "700",
+        fontSize: "12px",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.background = "rgba(59, 130, 246, 0.1)";
+          e.currentTarget.style.color = "#60a5fa";
+          e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.3)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.background = "transparent";
+          e.currentTarget.style.color = "#94a3b8";
+          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+        }
+      }}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-        background: "#1e293b", // Updated to match the dark theme
+        background: "#1e293b",
         padding: "24px",
         borderRadius: "12px",
         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
@@ -343,136 +382,29 @@ function FlowsTabHeader({
         <div
           style={{
             display: "flex",
-            gap: "8px",
-            background: "#0f172a",
-            borderRadius: "8px",
-            padding: "4px",
+            gap: "12px",
+            background: "rgba(15, 23, 42, 0.8)",
+            borderRadius: "10px",
+            padding: "6px",
+            border: "1px solid rgba(59, 130, 246, 0.1)",
           }}
         >
-          <button
+          <TabButton
+            id="executionTrace"
+            label="Execution Trace"
+            isActive={activeTab === "executionTrace"}
             onClick={() => onTabChange("executionTrace")}
-            style={{
-              padding: "8px 16px",
-              background:
-                activeTab === "executionTrace" ? "#3b82f6" : "transparent",
-              color: activeTab === "executionTrace" ? "#fff" : "#94a3b8",
-              border:
-                activeTab === "executionTrace"
-                  ? "1px solid #3b82f6"
-                  : "1px solid transparent",
-              borderRadius: "6px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== "executionTrace") {
-                e.currentTarget.style.background = "rgba(59, 130, 246, 0.1)";
-                e.currentTarget.style.color = "#fff";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== "executionTrace") {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#94a3b8";
-              }
-            }}
-          >
-            EXECUTION TRACE
-          </button>
-          <button
+          />
+          <TabButton
+            id="programs"
+            label="Programs"
+            isActive={activeTab === "programs"}
             onClick={() => onTabChange("programs")}
-            style={{
-              padding: "8px 16px",
-              background: activeTab === "programs" ? "#3b82f6" : "transparent",
-              color: activeTab === "programs" ? "#fff" : "#94a3b8",
-              border:
-                activeTab === "programs"
-                  ? "1px solid #3b82f6"
-                  : "1px solid transparent",
-              borderRadius: "6px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== "programs") {
-                e.currentTarget.style.background = "rgba(59, 130, 246, 0.1)";
-                e.currentTarget.style.color = "#fff";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== "programs") {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#94a3b8";
-              }
-            }}
-          >
-            PROGRAMS
-          </button>
+          />
         </div>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        {activeTab === "executionTrace" && (
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              fontSize: "12px",
-              fontWeight: "700",
-              color: "#94a3b8",
-              cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: "1px"
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={showDataOps}
-              onChange={(e) => setShowDataOps(e.target.checked)}
-              style={{ cursor: "pointer" }}
-            />
-            SHOW DATA OPS
-          </label>
-        )}
-        {activeTab === "executionTrace" && (
-          <button
-            style={{
-              padding: "8px 20px",
-              background: "#0f172a",
-              color: "#fff",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "6px",
-              fontWeight: "700",
-              fontSize: "12px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#3b82f6";
-              e.currentTarget.style.borderColor = "#3b82f6";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(59, 130, 246, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "#0f172a";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            EXPAND VIEW
-          </button>
-        )}
-      </div>
+     
     </div>
   );
 }
@@ -561,7 +493,7 @@ const nodeTypes = {
   batch: CustomBatchNode,
 };
 
-const SystemViewFlow = ({ systemView, showDataOps }) => {
+const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen = false, onExitFullscreen }) => {
   if (!systemView || !systemView.screens || !systemView.flow_connections) {
     return null;
   }
@@ -744,69 +676,239 @@ const SystemViewFlow = ({ systemView, showDataOps }) => {
     setEdges(initialEdges);
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
+  const containerHeight = isFullscreen ? '100vh' : '600px';
+  const containerStyle = isFullscreen ? {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 2000,
+    background: '#020617',
+  } : {
+    height: containerHeight,
+    width: '100%',
+    background: '#020617',
+    borderRadius: '24px',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
+    position: 'relative',
+    overflow: 'hidden'
+  };
+
   return (
-    <div style={{ 
-      height: '600px', 
-      width: '100%', 
-      background: '#020617', 
-      borderRadius: '24px', 
-      border: '1px solid rgba(59, 130, 246, 0.2)',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Custom Header Overlay */}
+    <div style={containerStyle}>
+      {/* Header with Controls */}
       <div style={{
         position: 'absolute',
-        top: '24px',
-        left: '24px',
-        zIndex: 10,
-        pointerEvents: 'none'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <div style={{ width: '8px', height: '8px', background: '#3b82f6', borderRadius: '50%' }}></div>
-          <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#4e5c70ff', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>SYSTEM VIEW</h3>
-        </div>
-        <p style={{ fontSize: '10px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
-          HYBRID EXECUTION: CICS ONLINE & BATCH SYNC
-        </p>
-      </div>
-
-      {/* Legend Overlay */}
-      <div style={{
-        position: 'absolute',
-        top: '24px',
-        right: '24px',
-        zIndex: 10,
+        top: 0,
+        left: 0,
+        right: 0,
+        height: isFullscreen ? '80px' : '60px',
+        background: 'rgba(2, 6, 23, 0.8)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
         display: 'flex',
-        gap: '24px',
-        background: 'rgba(2, 6, 23, 0.6)',
-        padding: '12px 20px',
-        borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(4px)'
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: isFullscreen ? '20px 40px' : '16px 24px',
+        zIndex: 20,
+        pointerEvents: 'auto'
       }}>
-        {[
-          { label: 'ONLINE SCREEN', color: '#3b82f6' },
-          { label: 'BATCH PROCESS', color: '#ea580c' },
-          { label: 'DATABASE TABLE', color: '#fbbf24' }
-        ].map(item => (
-          <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '10px', height: '10px', background: item.color, borderRadius: '2px' }}></div>
-            <span style={{ fontSize: '9px', fontWeight: '900', color: '#e5ebf3ff', letterSpacing: '0.5px' }}>{item.label}</span>
+        {/* Left: Title & Info */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '8px', height: '8px', background: '#3b82f6', borderRadius: '50%' }}></div>
+            <h3 style={{ fontSize: isFullscreen ? '16px' : '14px', fontWeight: '900', color: '#e2e8f0', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>SYSTEM VIEW</h3>
           </div>
-        ))}
+          <p style={{ fontSize: '10px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
+            HYBRID EXECUTION: CICS ONLINE & BATCH SYNC
+          </p>
+
+          {/* Data Ops Checkbox - Inline with title */}
+          {!isFullscreen && (
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#94a3b8',
+                cursor: 'pointer',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                padding: '6px 12px',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '6px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+                marginLeft: '16px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={showDataOps}
+                onChange={(e) => setShowDataOps(e.target.checked)}
+                style={{ cursor: 'pointer', width: '14px', height: '14px' }}
+              />
+              SHOW DATA OPS
+            </label>
+          )}
+        </div>
+
+        {/* Right: Legend & Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: isFullscreen ? '32px' : '16px' }}>
+          {/* Data Ops Checkbox - Only in fullscreen */}
+          {isFullscreen && (
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '11px',
+                fontWeight: '700',
+                color: '#94a3b8',
+                cursor: 'pointer',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                padding: '8px 16px',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={showDataOps}
+                onChange={(e) => setShowDataOps(e.target.checked)}
+                style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+              />
+              SHOW DATA OPS
+            </label>
+          )}
+
+          {/* Legend */}
+          <div style={{
+            display: 'flex',
+            gap: isFullscreen ? '20px' : '14px',
+            background: 'rgba(2, 6, 23, 0.6)',
+            padding: isFullscreen ? '12px 20px' : '8px 14px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(4px)'
+          }}>
+            {[
+              { label: 'ONLINE SCREEN', color: '#3b82f6' },
+              { label: 'BATCH PROCESS', color: '#ea580c' },
+              { label: 'DATABASE TABLE', color: '#fbbf24' }
+            ].map(item => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '7px', height: '7px', background: item.color, borderRadius: '2px' }}></div>
+                <span style={{ fontSize: isFullscreen ? '9px' : '8px', fontWeight: '900', color: '#e5ebf3', letterSpacing: '0.5px' }}>{item.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {!isFullscreen && (
+            <button
+              onClick={onExitFullscreen}
+              style={{
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                color: '#3b82f6',
+                padding: '6px 14px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '10px',
+                fontWeight: '700',
+                transition: 'all 0.2s ease',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#3b82f6';
+                e.currentTarget.style.color = '#fff';
+                e.currentTarget.style.borderColor = '#3b82f6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                e.currentTarget.style.color = '#3b82f6';
+                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+              }}
+            >
+              EXPAND
+            </button>
+          )}
+
+          {isFullscreen && (
+            <button
+              onClick={onExitFullscreen}
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: '700',
+                transition: 'all 0.2s ease',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+              }}
+            >
+              Exit Fullscreen
+            </button>
+          )}
+        </div>
       </div>
 
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        fitView
-      >
-        <Background color="#1e293b" gap={20} />
-      </ReactFlow>
+      {/* ReactFlow Container */}
+      <div style={{
+        position: 'absolute',
+        top: isFullscreen ? '80px' : '60px',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100%'
+      }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          fitView
+        >
+          <Background color="#1e293b" gap={20} />
+          <Controls />
+        </ReactFlow>
+      </div>
     </div>
   );
 };
@@ -815,6 +917,7 @@ function FlowDiagram({ data, cutId, cutData }) {
   const [activeTab, setActiveTab] = useState("executionTrace");
   const [showDataOps, setShowDataOps] = useState(false);
   const [showTechDebt, setShowTechDebt] = useState(false);
+  const [isFlowFullscreen, setIsFlowFullscreen] = useState(false);
 
   const debtColorMap = {
     "GOD_MODULE": { label: "GOD MODULE", bg: "rgba(239, 68, 68, 0.15)", color: "#ef4444", border: "rgba(239, 68, 68, 0.3)" },
@@ -950,7 +1053,7 @@ function FlowDiagram({ data, cutId, cutData }) {
             fontFamily: "'Fira Code', 'Roboto Mono', monospace",
             fontSize: "13px",
             lineHeight: "1.6",
-            border: "1px solid rgba(255,255,255,0.03)"
+            border: "1px solid rgba(59, 130, 246, 0.1)"
           }}
         >
           {highlightFlowData(flow.program_flows, debtMap)}
@@ -962,14 +1065,25 @@ function FlowDiagram({ data, cutId, cutData }) {
   return (
     <div>
       <PulsateStyle />
-      <FlowsTabHeader
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        showDataOps={showDataOps}
-        setShowDataOps={setShowDataOps}
-      />
+      {!isFlowFullscreen && (
+        <FlowsTabHeader
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          showDataOps={showDataOps}
+          setShowDataOps={setShowDataOps}
+          onExpandFlow={() => setIsFlowFullscreen(true)}
+        />
+      )}
 
-      {activeTab === "executionTrace" ? (
+      {isFlowFullscreen ? (
+        <SystemViewFlow 
+          systemView={cutData?.system_view} 
+          showDataOps={showDataOps}
+          setShowDataOps={setShowDataOps}
+          isFullscreen={true}
+          onExitFullscreen={() => setIsFlowFullscreen(false)}
+        />
+      ) : activeTab === "executionTrace" ? (
         <div>
           {/* Existing Flow Diagram content */}
           <div
@@ -977,7 +1091,7 @@ function FlowDiagram({ data, cutId, cutData }) {
           >
             {/* Flow Sequence / System View */}
             {cutData?.system_view ? (
-              <SystemViewFlow systemView={cutData.system_view} showDataOps={showDataOps} />
+              <SystemViewFlow systemView={cutData.system_view} showDataOps={showDataOps} setShowDataOps={setShowDataOps} />
             ) : (
               <section
                 style={{
@@ -1206,7 +1320,7 @@ function FlowDiagram({ data, cutId, cutData }) {
                       key={i}
                       style={{
                         background: "rgba(255,255,255,0.02)",
-                        border: "1px solid rgba(255,255,255,0.05)",
+                        border: "1px solid rgba(59, 130, 246, 0.15)",
                         padding: "20px",
                         borderRadius: "16px",
                         transition: "all 0.2s ease",
@@ -1516,7 +1630,7 @@ function FlowDiagram({ data, cutId, cutData }) {
             background: "rgba(0,0,0,0.2)",
             borderRadius: "20px",
             padding: "8px",
-            border: "1px solid rgba(255,255,255,0.03)"
+            border: "1px solid rgba(59, 130, 246, 0.1)"
           }}>
             {getProgramFlows()}
           </div>
@@ -1550,7 +1664,7 @@ function DatabaseMap({ data, cutId }) {
           background: "rgba(15, 23, 42, 0.5)",
           padding: "24px",
           borderRadius: "24px",
-          border: "1px solid rgba(255,255,255,0.05)",
+          border: "1px solid rgba(239, 68, 68, 0.15)",
         }}
       >
         <h3
@@ -1642,7 +1756,7 @@ function DatabaseMap({ data, cutId }) {
           background: "rgba(15, 23, 42, 0.5)",
           padding: "24px",
           borderRadius: "24px",
-          border: "1px solid rgba(255,255,255,0.05)",
+          border: "1px solid rgba(34, 197, 94, 0.15)",
         }}
       >
         <h3
@@ -1740,7 +1854,7 @@ function ASCIIChart({ data, cutId }) {
           background: "rgba(0,0,0,0.3)",
           padding: "32px",
           borderRadius: "24px",
-          border: "1px solid rgba(255,255,255,0.1)",
+          border: "1px solid rgba(59, 130, 246, 0.15)",
           fontFamily: "var(--font-family)",
           fontSize: "14px",
           lineHeight: "1.4",
@@ -1878,10 +1992,11 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           {cluster?.sub_cuts?.map((sub, idx) => (
             <div key={idx} style={{
               flex: '1',
+              minWidth: '200px',
               maxWidth: '260px',
               background: 'rgba(255, 255, 255, 0.03)',
               borderRadius: '16px',
-              padding: '24px',
+              padding: '20px',
               border: '1px solid rgba(59, 130, 246, 0.15)',
               boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
               display: 'flex',
@@ -1891,7 +2006,8 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
               position: 'relative',
               zIndex: 2,
               transition: 'all 0.3s ease',
-              backdropFilter: 'blur(4px)'
+              backdropFilter: 'blur(4px)',
+              overflow: 'hidden'
             }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
@@ -1906,13 +2022,13 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
                 e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', minWidth: 0 }}>
+                <div style={{ width: '32px', height: '32px', minWidth: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', flexShrink: 0 }}>
                   <CodeIcon />
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{sub.topic}</span>
+                <span style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px', wordBreak: 'break-word', wordWrap: 'break-word', whiteSpace: 'normal' }}>{sub.topic}</span>
               </div>
-              <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.5' }}>
+              <p style={{ fontSize: '11px', color: '#94a3b8', lineHeight: '1.4', margin: 0, wordBreak: 'break-word', wordWrap: 'break-word', whiteSpace: 'normal' }}>
                 Management of business logic and data patterns for {sub.topic.toLowerCase()}.
               </p>
             </div>
@@ -2128,9 +2244,8 @@ export function CutExplorer({ clusterId, onClose }) {
   if (!data) return null;
 
   const tabs = [
-    { id: 'overview', label: 'Deep Dive', icon: <OverviewIcon /> },
-    { id: 'legacy', label: 'System Overview', icon: <OverviewIcon /> },
-    { id: 'flow', label: 'Flow Diagram', icon: <FlowIcon /> },
+    { id: 'overview', label: 'Overview', icon: <OverviewIcon /> },
+    { id: 'flow', label: 'Flows', icon: <FlowIcon /> },
     { id: 'database', label: 'Database Map', icon: <DatabaseIcon /> },
     { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
   ];
@@ -2275,7 +2390,6 @@ export function CutExplorer({ clusterId, onClose }) {
         width: '100%'
       }}>
         {activeTab === 'overview' && <DeepDiveOverview data={data} cutId={cutId} clusterId={clusterId} />}
-        {activeTab === 'legacy' && <SystemOverview data={data} cutId={cutId} />}
         {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} cutData={cutData} />}
         {activeTab === 'database' && <DatabaseMap data={data} cutId={cutId} />}
         {activeTab === 'ascii' && <ASCIIChart data={data} cutId={cutId} />}
