@@ -277,7 +277,6 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
     const totalCuts = clusterData.total_clusters || clusterData.clusters?.length || 0;
     const stats = [
       { label: 'TOTAL CUTS', value: `${totalCuts} Clusters`, color: '#3b82f6', progress: 75 },
-      { label: 'COMPLEXITY', value: '4.2M LOC', color: '#f59e0b', progress: 85 },
     ];
 
     return (
@@ -292,7 +291,7 @@ export function ClusterSidebar({ cluster, onClose, dependencyInfo, filterType, s
         {/* Stats Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
+          gridTemplateColumns: '1fr',
           gap: '8px',
           marginBottom: '10px',
         }}>

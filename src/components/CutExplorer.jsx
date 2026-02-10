@@ -2905,7 +2905,11 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
             <span style={{ fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>IDENTITY & SCOPE</span>
           </div>
           <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.7', fontWeight: '500' }}>
-            {cluster?.description || data.description || "Manages the complete lifecycle of system operations, providing an integrated platform for data processing and business logic execution."}
+            {(() => {
+              const desc = cluster?.description || data.description || "Manages the complete lifecycle of system operations, providing an integrated platform for data processing and business logic execution.";
+              
+              return desc;
+            })()}
           </p>
 
           {/* Detailed Stats Horizontal Grid */}
