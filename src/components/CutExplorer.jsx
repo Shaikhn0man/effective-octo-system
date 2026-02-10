@@ -441,7 +441,7 @@ function FlowsTabHeader({
         </div>
       </div>
 
-     
+
     </div>
   );
 }
@@ -472,7 +472,7 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
         overflow: 'hidden',
         position: 'relative'
       }} onClick={e => e.stopPropagation()}>
-        
+
         {/* Header */}
         <div style={{
           padding: '24px 32px',
@@ -484,24 +484,24 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
-              <div style={{ 
-                background: '#fcd34d', 
-                color: '#78350f', 
-                padding: '4px 12px', 
+              <div style={{
+                background: '#fcd34d',
+                color: '#78350f',
+                padding: '4px 12px',
                 borderRadius: '9999px', // Pill shape
-                fontSize: '12px', 
+                fontSize: '12px',
                 fontWeight: '700',
                 textTransform: 'uppercase'
               }}>
                 {tableName}
               </div>
               <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', margin: 0 }}>{tableName}</h2>
-              <div style={{ 
-                background: '#0f172a', 
-                color: '#fff', 
-                padding: '4px 10px', 
-                borderRadius: '6px', 
-                fontSize: '10px', 
+              <div style={{
+                background: '#0f172a',
+                color: '#fff',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '10px',
                 fontWeight: '800',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px'
@@ -510,11 +510,11 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
               </div>
             </div>
             <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: '500' }}>
-               {tableData.business_context || "Database Table Information"}
+              {tableData.business_context || "Database Table Information"}
             </p>
           </div>
-          
-          <button 
+
+          <button
             onClick={onClose}
             style={{
               background: 'transparent',
@@ -553,24 +553,24 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
             </thead>
             <tbody>
               {tableData.fields && tableData.fields.map((field, idx) => {
-                 let usageBg = '#f3f4f6';
-                 let usageColor = '#6b7280';
-                 const usage = (field.usage || 'NONE').toUpperCase();
-                 
-                 if (usage === 'HEAVY') { usageBg = '#fecaca'; usageColor = '#ef4444'; }
-                 else if (usage === 'MEDIUM') { usageBg = '#fef3c7'; usageColor = '#f59e0b'; }
-                 else if (usage === 'LOW') { usageBg = '#dcfce7'; usageColor = '#22c55e'; }
-                 
-                 return (
+                let usageBg = '#f3f4f6';
+                let usageColor = '#6b7280';
+                const usage = (field.usage || 'NONE').toUpperCase();
+
+                if (usage === 'HEAVY') { usageBg = '#fecaca'; usageColor = '#ef4444'; }
+                else if (usage === 'MEDIUM') { usageBg = '#fef3c7'; usageColor = '#f59e0b'; }
+                else if (usage === 'LOW') { usageBg = '#dcfce7'; usageColor = '#22c55e'; }
+
+                return (
                   <tr key={idx} style={{ borderBottom: '1px solid #f8fafc' }}>
                     <td style={{ padding: '16px 32px', fontWeight: '700', color: '#334155', fontFamily: 'monospace' }}>{field.name}</td>
                     <td style={{ padding: '16px 24px', textAlign: 'center' }}>
-                      <span style={{ 
-                        background: usageBg, 
-                        color: usageColor, 
-                        padding: '4px 10px', 
-                        borderRadius: '6px', 
-                        fontSize: '10px', 
+                      <span style={{
+                        background: usageBg,
+                        color: usageColor,
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '10px',
                         fontWeight: '800',
                         letterSpacing: '0.5px'
                       }}>
@@ -580,13 +580,13 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
                     <td style={{ padding: '16px 24px', color: '#3b82f6', fontWeight: '600', fontFamily: 'monospace' }}>{field.type_of_usage}</td>
                     <td style={{ padding: '16px 32px', color: '#64748b' }}>{field.business_context}</td>
                   </tr>
-                 );
+                );
               })}
             </tbody>
           </table>
-          
+
           {(!tableData.fields || tableData.fields.length === 0) && (
-             <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No field data available for this table.</div>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>No field data available for this table.</div>
           )}
         </div>
       </div>
@@ -645,7 +645,7 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
         overflow: 'hidden',
         position: 'relative'
       }} onClick={e => e.stopPropagation()}>
-        
+
         {/* Header */}
         <div style={{
           padding: '24px 32px',
@@ -664,8 +664,8 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
             </div>
             <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8', fontWeight: '600' }}>{topic}</p>
           </div>
-          
-          <button 
+
+          <button
             onClick={onClose}
             style={{
               background: 'rgba(255, 255, 255, 0.05)',
@@ -742,7 +742,7 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
           <div style={{ color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
             Press <kbd style={{ background: '#334155', padding: '2px 6px', borderRadius: '4px', color: '#fff' }}>ESC</kbd> or click outside to dismiss
           </div>
-          <button 
+          <button
             onClick={onClose}
             style={{
               background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
@@ -768,21 +768,21 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
 };
 
 const CustomDatabaseNode = ({ data }) => (
-  <div 
+  <div
     onClick={() => data.onNodeClick && data.onNodeClick(data, data.nodeId)}
     style={{
-    background: 'rgba(251, 191, 36, 0.08)',
-    border: '3px solid #fbbf24',
-    borderRadius: '16px',
-    padding: '16px 20px',
-    width: '240px',
-    position: 'relative',
-    boxShadow: '0 12px 48px rgba(251, 191, 36, 0.15)',
-    backdropFilter: 'blur(12px)',
-    overflow: 'hidden',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-  }}
+      background: 'rgba(251, 191, 36, 0.08)',
+      border: '3px solid #fbbf24',
+      borderRadius: '16px',
+      padding: '16px 20px',
+      width: '240px',
+      position: 'relative',
+      boxShadow: '0 12px 48px rgba(251, 191, 36, 0.15)',
+      backdropFilter: 'blur(12px)',
+      overflow: 'hidden',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+    }}
     onMouseEnter={e => {
       e.currentTarget.style.transform = 'translateY(-5px)';
       e.currentTarget.style.borderColor = '#fcd34d';
@@ -800,20 +800,20 @@ const CustomDatabaseNode = ({ data }) => (
         <DatabaseIcon />
       </div>
       <div style={{
-          background: 'rgba(251, 191, 36, 0.2)',
-          color: 'black',
-          fontSize: '10px',
-          fontWeight: '900',
-          padding: '2px 8px',
-          borderRadius: '4px',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          border: '1px solid rgba(251, 191, 36, 0.3)',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis'
-        }}>
-          {data.type || 'MASTER'}
+        background: 'rgba(251, 191, 36, 0.2)',
+        color: 'black',
+        fontSize: '10px',
+        fontWeight: '900',
+        padding: '2px 8px',
+        borderRadius: '4px',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+        border: '1px solid rgba(251, 191, 36, 0.3)',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }}>
+        {data.type || 'MASTER'}
       </div>
     </div>
     <div style={{ fontSize: '18px', fontWeight: '900', color: '#854d0e', letterSpacing: '0.5px', wordBreak: 'break-word', wordWrap: 'break-word', whiteSpace: 'normal', overflow: 'hidden' }}>{data.label}</div>
@@ -822,7 +822,7 @@ const CustomDatabaseNode = ({ data }) => (
 );
 
 const CustomScreenNode = ({ data }) => (
-  <div 
+  <div
     onClick={() => data.onNodeClick && data.onNodeClick(data, data.nodeId)}
     style={{
       background: 'rgba(30, 41, 59, 0.8)',
@@ -849,7 +849,7 @@ const CustomScreenNode = ({ data }) => (
     <Handle type="source" position={Position.Top} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
     <Handle type="target" position={Position.Left} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
     <Handle type="source" position={Position.Right} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
-    
+
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
       <div style={{ color: '#60a5fa', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>
         CICS SCREEN
@@ -864,7 +864,7 @@ const CustomScreenNode = ({ data }) => (
 );
 
 const CustomBatchNode = ({ data }) => (
-  <div 
+  <div
     onClick={() => data.onNodeClick && data.onNodeClick(data, data.nodeId)}
     style={{
       background: 'rgba(124, 45, 18, 0.3)',
@@ -929,18 +929,18 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
 
     // Database node click handling
     if (nodeId && nodeId.startsWith('table-')) {
-       const tableName = nodeData.label;
-       const tableData = (systemView.field_matrix && systemView.field_matrix[tableName]) || { 
-         business_context: "No field details available.", 
-         fields: [] 
-       };
-       
-       setPopupDatabaseNode({
-         name: tableName,
-         type: nodeData.type,
-         data: tableData
-       });
-       return;
+      const tableName = nodeData.label;
+      const tableData = (systemView.field_matrix && systemView.field_matrix[tableName]) || {
+        business_context: "No field details available.",
+        fields: []
+      };
+
+      setPopupDatabaseNode({
+        name: tableName,
+        type: nodeData.type,
+        data: tableData
+      });
+      return;
     }
 
     // ASCII popup for other nodes
@@ -970,8 +970,8 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
 
     // 2. Fallback: Search in all clusters (including sub_cuts)
     if (!result) {
-      const clusters = Array.isArray(clusterData.clusters) 
-        ? clusterData.clusters 
+      const clusters = Array.isArray(clusterData.clusters)
+        ? clusterData.clusters
         : Object.values(clusterData.clusters);
 
       for (const cluster of clusters) {
@@ -999,10 +999,10 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
     }
 
     // Always show popup (with or without ASCII art)
-    setPopupNode({ 
-      name: nodeData.label, 
-      asciiArt: asciiArt || 'No ASCII preview available for this screen.', 
-      topic 
+    setPopupNode({
+      name: nodeData.label,
+      asciiArt: asciiArt || 'No ASCII preview available for this screen.',
+      topic
     });
   };
 
@@ -1043,20 +1043,20 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       const startConn = connections.find(c => !targets.has(c.source)) || connections[0];
       let current = startConn.source;
       orderedScreenNames.push(current);
-      
+
       let safetyCounter = 0;
       while (safetyCounter < systemView.screens.length * 2) {
-          const nextConn = connections.find(c => c.source === current);
-          if (nextConn && !orderedScreenNames.includes(nextConn.target)) {
-              current = nextConn.target;
-              orderedScreenNames.push(current);
-          } else {
-              break;
-          }
-          safetyCounter++;
+        const nextConn = connections.find(c => c.source === current);
+        if (nextConn && !orderedScreenNames.includes(nextConn.target)) {
+          current = nextConn.target;
+          orderedScreenNames.push(current);
+        } else {
+          break;
+        }
+        safetyCounter++;
       }
     }
-    
+
     // Fallback for screens not in connections
     const missingScreens = systemView.screens
       .map(s => s.name)
@@ -1110,7 +1110,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       edges.push({
         id: `seq-screen-${i}`,
         source: `screen-${finalOrderedScreenNames[i]}`,
-        target: `screen-${finalOrderedScreenNames[i+1]}`,
+        target: `screen-${finalOrderedScreenNames[i + 1]}`,
         type: 'straight',
         style: { stroke: '#3b82f6', strokeWidth: 3, opacity: 0.6 },
         markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
@@ -1135,7 +1135,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         edges.push({
           id: `seq-batch-${i}`,
           source: `batch-${systemView.batch_processes[i].name}`,
-          target: `batch-${systemView.batch_processes[i+1].name}`,
+          target: `batch-${systemView.batch_processes[i + 1].name}`,
           type: 'straight',
           style: { stroke: '#ea580c', strokeWidth: 3, opacity: 0.6 },
           markerEnd: { type: MarkerType.ArrowClosed, color: '#ea580c' },
@@ -1157,7 +1157,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
           label: conn.operation,
           animated: true,
           type: 'default', // Curved default edge
-          style: { 
+          style: {
             stroke: conn.operation === 'READ' ? '#22c55e' : conn.operation === 'WRITE' ? '#ef4444' : '#3b82f6',
             strokeWidth: 2,
             strokeDasharray: '5,5',
@@ -1505,16 +1505,16 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         </ReactFlow>
       </div>
 
-      <ScreenPopup 
+      <ScreenPopup
         isOpen={!!popupNode}
         onClose={() => setPopupNode(null)}
         nodeName={popupNode?.name}
         asciiArt={popupNode?.asciiArt}
         topic={popupNode?.topic}
       />
-      
-      <DatabasePopup 
-        isOpen={!!popupDatabaseNode} 
+
+      <DatabasePopup
+        isOpen={!!popupDatabaseNode}
         onClose={() => setPopupDatabaseNode(null)}
         tableName={popupDatabaseNode?.name}
         tableType={popupDatabaseNode?.type}
@@ -1537,7 +1537,7 @@ function FlowDiagram({ data, cutId, cutData }) {
     if (cutData.sub_cuts) {
       cutData.sub_cuts.forEach(sc => {
         if (sc.flows) {
-            flows = [...flows, ...sc.flows];
+          flows = [...flows, ...sc.flows];
         }
       });
     }
@@ -1615,7 +1615,7 @@ function FlowDiagram({ data, cutId, cutData }) {
     if (!allFlowsHtml) return <div style={{ color: "#64748b", fontStyle: "italic" }}>No program flows available</div>;
 
     return (
-      <pre 
+      <pre
         style={{
           margin: 0,
           padding: "24px",
@@ -1645,8 +1645,8 @@ function FlowDiagram({ data, cutId, cutData }) {
       )}
 
       {isFlowFullscreen ? (
-        <SystemViewFlow 
-          systemView={cutData?.system_view} 
+        <SystemViewFlow
+          systemView={cutData?.system_view}
           flows={allFlows}
           showDataOps={showDataOps}
           setShowDataOps={setShowDataOps}
@@ -1661,10 +1661,10 @@ function FlowDiagram({ data, cutId, cutData }) {
           >
             {/* Flow Sequence / System View */}
             {cutData?.system_view ? (
-              <SystemViewFlow 
-                systemView={cutData.system_view} 
+              <SystemViewFlow
+                systemView={cutData.system_view}
                 flows={allFlows}
-                showDataOps={showDataOps} 
+                showDataOps={showDataOps}
                 setShowDataOps={setShowDataOps}
                 onEnterFullscreen={() => setIsFlowFullscreen(true)}
               />
@@ -1708,156 +1708,156 @@ function FlowDiagram({ data, cutId, cutData }) {
                 {data.sequence &&
                   Array.isArray(data.sequence) &&
                   data.sequence.length > 0 ? (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "20px",
-                  }}
-                >
-                  {data.sequence.map((row, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "16px",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      {row.map((node, j) => (
-                        <div
-                          key={j}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "16px",
-                          }}
-                        >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "20px",
+                    }}
+                  >
+                    {data.sequence.map((row, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "16px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {row.map((node, j) => (
                           <div
+                            key={j}
                             style={{
-                              background:
-                                "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%)",
-                              border: "2px solid rgba(59, 130, 246, 0.3)",
-                              padding: "14px 20px",
-                              borderRadius: "12px",
-                              fontSize: "14px",
-                              fontWeight: "700",
-                              color: "#e2e8f0",
-                              fontFamily: "var(--font-family)",
-                              boxShadow: "0 4px 12px rgba(59, 130, 246, 0.15)",
                               display: "flex",
                               alignItems: "center",
-                              gap: "10px",
-                              transition: "all 0.2s ease",
-                              cursor: "default",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.transform =
-                                "translateY(-2px)";
-                              e.currentTarget.style.boxShadow =
-                                "0 6px 16px rgba(59, 130, 246, 0.25)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = "translateY(0)";
-                              e.currentTarget.style.boxShadow =
-                                "0 4px 12px rgba(59, 130, 246, 0.15)";
+                              gap: "16px",
                             }}
                           >
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
+                            <div
+                              style={{
+                                background:
+                                  "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%)",
+                                border: "2px solid rgba(59, 130, 246, 0.3)",
+                                padding: "14px 20px",
+                                borderRadius: "12px",
+                                fontSize: "14px",
+                                fontWeight: "700",
+                                color: "#e2e8f0",
+                                fontFamily: "var(--font-family)",
+                                boxShadow: "0 4px 12px rgba(59, 130, 246, 0.15)",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                transition: "all 0.2s ease",
+                                cursor: "default",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform =
+                                  "translateY(-2px)";
+                                e.currentTarget.style.boxShadow =
+                                  "0 6px 16px rgba(59, 130, 246, 0.25)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = "translateY(0)";
+                                e.currentTarget.style.boxShadow =
+                                  "0 4px 12px rgba(59, 130, 246, 0.15)";
+                              }}
                             >
-                              <rect
-                                x="2"
-                                y="7"
-                                width="20"
-                                height="10"
-                                rx="2"
-                                ry="2"
-                              ></rect>
-                            </svg>
-                            {node}
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <rect
+                                  x="2"
+                                  y="7"
+                                  width="20"
+                                  height="10"
+                                  rx="2"
+                                  ry="2"
+                                ></rect>
+                              </svg>
+                              {node}
+                            </div>
+                            {j < row.length - 1 && (
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#3b82f6"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                              </svg>
+                            )}
                           </div>
-                          {j < row.length - 1 && (
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="#3b82f6"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <line x1="5" y1="12" x2="19" y2="12"></line>
-                              <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg>
-                          )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ) : data.batchFlow && Array.isArray(data.batchFlow) ? (
+                  <div
+                    style={{
+                      background: "rgba(0,0,0,0.2)",
+                      padding: "24px",
+                      borderRadius: "12px",
+                      fontFamily: "monospace",
+                      color: "#22c55e",
+                      borderLeft: "4px solid #22c55e",
+                    }}
+                  >
+                    <div style={{ marginBottom: "8px", color: "#64748b" }}>
+                    // BATCH FLOW STEPS
                     </div>
-                  ))}
-                </div>
-              ) : data.batchFlow && Array.isArray(data.batchFlow) ? (
+                    {data.batchFlow.map((f, i) => (
+                      <div key={i} style={{ marginBottom: "4px" }}>
+                        PROCESS: {f}
+                      </div>
+                    ))}
+                    {data.steps?.map((p, i) => (
+                      <div key={i} style={{ marginTop: "16px" }}>
+                        <div style={{ color: "#f59e0b" }}>{p.process}:</div>
+                        {p.steps.map((s, j) => (
+                          <div key={j} style={{ paddingLeft: "20px" }}>
+                            └─ {s}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ color: "#64748b", fontStyle: "italic" }}>
+                    No sequence or batch flow data available.
+                  </div>
+                )}
+
+                {/* Visual background element */}
                 <div
                   style={{
-                    background: "rgba(0,0,0,0.2)",
-                    padding: "24px",
-                    borderRadius: "12px",
-                    fontFamily: "monospace",
-                    color: "#22c55e",
-                    borderLeft: "4px solid #22c55e",
+                    position: "absolute",
+                    top: "20px",
+                    right: "20px",
+                    fontSize: "120px",
+                    fontWeight: "900",
+                    opacity: 0.03,
+                    pointerEvents: "none",
                   }}
                 >
-                  <div style={{ marginBottom: "8px", color: "#64748b" }}>
-                    // BATCH FLOW STEPS
-                  </div>
-                  {data.batchFlow.map((f, i) => (
-                    <div key={i} style={{ marginBottom: "4px" }}>
-                      PROCESS: {f}
-                    </div>
-                  ))}
-                  {data.steps?.map((p, i) => (
-                    <div key={i} style={{ marginTop: "16px" }}>
-                      <div style={{ color: "#f59e0b" }}>{p.process}:</div>
-                      {p.steps.map((s, j) => (
-                        <div key={j} style={{ paddingLeft: "20px" }}>
-                          └─ {s}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
+                  {cutId}
                 </div>
-              ) : (
-                <div style={{ color: "#64748b", fontStyle: "italic" }}>
-                  No sequence or batch flow data available.
-                </div>
-              )}
-
-              {/* Visual background element */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "20px",
-                  right: "20px",
-                  fontSize: "120px",
-                  fontWeight: "900",
-                  opacity: 0.03,
-                  pointerEvents: "none",
-                }}
-              >
-                {cutId}
-              </div>
-            </section>
-          )}
+              </section>
+            )}
 
             {/* Interactive Table Interactions */}
-            {data.interactions && data.interactions.length > 0 && (
+            {/* {data.interactions && data.interactions.length > 0 && (
               <section>
                 <div
                   style={{
@@ -2103,7 +2103,7 @@ function FlowDiagram({ data, cutId, cutData }) {
                   ))}
                 </div>
               </section>
-            )}
+            )} */}
           </div>
         </div>
       ) : (
@@ -2443,248 +2443,422 @@ function ASCIIChart({ data, cutId }) {
 }
 
 // Helper functions
-function DependenciesTab({ data }) {
+function DependenciesTab({ data, currentCutName: propCutName }) {
   if (!data || !data.dependencies) {
-     return <div style={{ color: '#94a3b8', textAlign: 'center', marginTop: '40px' }}>No dependencies data available.</div>;
+    return <div style={{ color: '#94a3b8', textAlign: 'center', marginTop: '40px' }}>No dependencies data available.</div>;
   }
-  
+
   const { upstream_incoming, downstream_outgoing } = data.dependencies;
-  
-  const DependencyCard = ({ title, items }) => (
-    <div style={{
-       flex: 1,
-       background: 'rgba(30, 41, 59, 0.4)',
-       border: '1px solid rgba(255, 255, 255, 0.1)',
-       borderRadius: '24px',
-       padding: '32px',
-       backdropFilter: 'blur(10px)'
-    }}>
-      <h3 style={{
-          fontSize: '12px',
+  const currentCutName = propCutName || data.topic || `CUT ${data.cut_id?.replace(/^Cut_/, '') || ''}`;
+
+  const DependencyItem = ({ item, isIncoming }) => (
+    <div
+      style={{
+        background: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: '16px',
+        padding: '16px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        cursor: 'default',
+        width: '100%',
+        maxWidth: '300px',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+        e.currentTarget.style.borderColor = isIncoming ? 'rgba(148, 163, 184, 0.3)' : 'rgba(99, 102, 241, 0.3)';
+        e.currentTarget.style.transform = isIncoming ? 'translateX(8px)' : 'translateX(-8px)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+        e.currentTarget.style.transform = 'translateX(0)';
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{
+          width: '6px',
+          height: '6px',
+          borderRadius: '50%',
+          background: isIncoming ? '#94a3b8' : '#6366f1',
+          boxShadow: isIncoming ? '0 0 10px rgba(148, 163, 184, 0.6)' : '0 0 10px rgba(99, 102, 241, 0.6)'
+        }} />
+        <span style={{
           fontWeight: '800',
-          color: '#94a3b8',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          marginBottom: '24px'
-      }}>{title}</h3>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {(!items || items.length === 0) ? (
-            <div style={{ color: '#64748b', fontSize: '14px', fontStyle: 'italic' }}>No dependencies found.</div>
-        ) : (
-            items.map((item, idx) => (
-                <div key={idx} style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    borderRadius: '12px',
-                    padding: '16px 20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '16px',
-                    border: '1px solid rgba(255, 255, 255, 0.05)',
-                    transition: 'all 0.2s ease',
-                    cursor: 'default'
-                }}
-                onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
-                    e.currentTarget.style.transform = 'translateX(4px)';
-                }}
-                onMouseLeave={e => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                    e.currentTarget.style.transform = 'translateX(0)';
-                }}
-                >
-                    <div style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        background: title.includes('INCOMING') ? '#94a3b8' : '#6366f1',
-                        boxShadow: title.includes('INCOMING') ? '0 0 8px rgba(148, 163, 184, 0.4)' : '0 0 8px rgba(99, 102, 241, 0.4)'
-                    }} />
-                    <span style={{
-                        fontWeight: '700',
-                        color: '#f8fafc',
-                        fontSize: '14px',
-                        minWidth: '80px',
-                        fontFamily: 'monospace'
-                    }}>
-                        {item.cut_id ? `cut_${item.cut_id.replace(/^Cut_/, '').split('_')[0]}` : 'UNK'}
-                    </span>
-                     <span style={{
-                        color: '#cbd5e1',
-                        fontSize: '14px',
-                        flex: 1,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                    }}>
-                        {item.topic}
-                    </span>
-                </div>
-            ))
-        )}
+          color: '#f8fafc',
+          fontSize: '13px',
+          fontFamily: 'monospace',
+          letterSpacing: '0.5px'
+        }}>
+          {item.cut_id ? `cut_${item.cut_id.replace(/^Cut_/, '').split('_')[0]}` : 'UNK'}
+        </span>
       </div>
+      <span style={{
+        color: '#94a3b8',
+        fontSize: '12px',
+        fontWeight: '500',
+        lineHeight: '1.4',
+        display: '-webkit-box',
+        WebkitLineClamp: '2',
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden'
+      }}>
+        {item.topic}
+      </span>
+    </div>
+  );
+
+  const FlowArrow = ({ direction = 'right', color = '#94a3b8', label = '' }) => (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0 20px',
+      opacity: 0.6
+    }}>
+      {label && (
+        <span style={{
+          fontSize: '9px',
+          fontWeight: '800',
+          color: color,
+          textTransform: 'uppercase',
+          letterSpacing: '1.5px',
+          marginBottom: '8px'
+        }}>
+          {label}
+        </span>
+      )}
+      <svg width="60" height="24" viewBox="0 0 60 24" fill="none">
+        <path
+          d={direction === 'right' ? "M0 12H52M52 12L44 4M52 12L44 20" : "M60 12H8M8 12L16 4M8 12L16 20"}
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </div>
   );
 
   return (
-    <div style={{ display: 'flex', gap: '32px', height: '100%', alignItems: 'flex-start' }}>
-        <DependencyCard title="UPSTREAM DEPENDENCIES (INCOMING)" items={upstream_incoming} />
-        <DependencyCard title="DOWNSTREAM DEPENDENCIES (OUTGOING)" items={downstream_outgoing} />
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '40px',
+      padding: '20px'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0',
+        flex: 1
+      }}>
+        {/* Upstream/Incoming Section */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          alignItems: 'flex-end',
+          maxHeight: '500px',
+          overflowY: 'auto',
+          paddingRight: '10px'
+        }}>
+          <h3 style={{
+            fontSize: '11px',
+            fontWeight: '900',
+            color: '#94a3b8',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            marginBottom: '8px',
+            alignSelf: 'flex-end',
+            marginRight: '20px'
+          }}>Upstream (Incoming)</h3>
+
+          {(!upstream_incoming || upstream_incoming.length === 0) ? (
+            <div style={{ color: '#475569', fontSize: '13px', fontStyle: 'italic', marginRight: '20px' }}>No incoming dependencies</div>
+          ) : (
+            upstream_incoming.map((item, idx) => (
+              <DependencyItem key={idx} item={item} isIncoming={true} />
+            ))
+          )}
+        </div>
+
+        {/* Transition Arrows Left */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '100px' }}>
+          <FlowArrow color="#94a3b8" label="FEEDS INTO" />
+        </div>
+
+        {/* Central Cut Node */}
+        <div style={{
+          padding: '40px',
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.05) 100%)',
+          border: '2px solid rgba(99, 102, 241, 0.3)',
+          borderRadius: '32px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minWidth: '240px',
+          maxWidth: '300px',
+          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.5), 0 0 20px rgba(99, 102, 241, 0.1)',
+          position: 'relative',
+          zIndex: 2,
+          textAlign: 'center'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '-12px',
+            background: '#6366f1',
+            color: '#fff',
+            fontSize: '10px',
+            fontWeight: '900',
+            padding: '4px 12px',
+            borderRadius: '20px',
+            letterSpacing: '1px',
+            textTransform: 'uppercase'
+          }}>Active Cut</div>
+
+          <h2 style={{
+            fontSize: '16px',
+            fontWeight: '900',
+            color: '#fff',
+            margin: '0 0 8px 0',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}>
+            {currentCutName}
+          </h2>
+
+          <div style={{
+            height: '2px',
+            width: '40px',
+            background: 'rgba(99, 102, 241, 0.5)',
+            marginBottom: '12px'
+          }} />
+
+          <p style={{
+            fontSize: '11px',
+            color: '#818cf8',
+            fontWeight: '700',
+            margin: 0,
+            opacity: 0.8
+          }}>
+            Core Processing Unit
+          </p>
+        </div>
+
+        {/* Transition Arrows Right */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '100px' }}>
+          <FlowArrow color="#6366f1" label="PROVIDES TO" />
+        </div>
+
+        {/* Downstream/Outgoing Section */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          alignItems: 'flex-start',
+          maxHeight: '500px',
+          overflowY: 'auto',
+          paddingLeft: '10px'
+        }}>
+          <h3 style={{
+            fontSize: '11px',
+            fontWeight: '900',
+            color: '#6366f1',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            marginBottom: '8px',
+            marginLeft: '20px'
+          }}>Downstream (Outgoing)</h3>
+
+          {(!downstream_outgoing || downstream_outgoing.length === 0) ? (
+            <div style={{ color: '#475569', fontSize: '13px', fontStyle: 'italic', marginLeft: '20px' }}>No outgoing dependencies</div>
+          ) : (
+            downstream_outgoing.map((item, idx) => (
+              <DependencyItem key={idx} item={item} isIncoming={false} />
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Footer Info */}
+      <div style={{
+        textAlign: 'center',
+        fontSize: '11px',
+        color: '#475569',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        paddingTop: '20px'
+      }}>
+        Visualizing data flow across modularized system cuts
+      </div>
     </div>
   );
 }
+
 
 function DataTab({ data }) {
   const [selectedEntity, setSelectedEntity] = useState(null);
   const erdData = data?.system_view?.erd || data?.erd;
 
   if (!erdData?.entities) {
-     return <div style={{ color: '#94a3b8', textAlign: 'center', marginTop: '40px' }}>No entity model available.</div>;
+    return <div style={{ color: '#94a3b8', textAlign: 'center', marginTop: '40px' }}>No entity model available.</div>;
   }
-  
+
   const { entities, title, context, stats } = erdData;
   const fieldMatrix = data?.system_view?.field_matrix || {};
-  
+
   const getTypeColor = (type) => {
-      switch(type) {
-          case 'CORE_ENTITY': return '#6366f1'; // Indigo
-          case 'TRANSACTION': return '#f59e0b'; // Amber
-          case 'REFERENCE': return '#1a5ebdff'; // Slate
-          default: return '#1a5ebdff';
-      }
+    switch (type) {
+      case 'CORE_ENTITY': return '#6366f1'; // Indigo
+      case 'TRANSACTION': return '#f59e0b'; // Amber
+      case 'REFERENCE': return '#1a5ebdff'; // Slate
+      default: return '#1a5ebdff';
+    }
   };
 
   const handleEntityClick = (entity) => {
-      if (!entity.active_in_cut) return;
+    if (!entity.active_in_cut) return;
 
-      // Try to find rich data in field_matrix
-      let richData = fieldMatrix[entity.name];
+    // Try to find rich data in field_matrix
+    let richData = fieldMatrix[entity.name];
 
-      // If not found, map the raw ERD fields to the expected format
-      if (!richData) {
-          richData = {
-              business_context: "Extended usage data not available.",
-              fields: entity.fields?.map(f => ({
-                  name: f.name,
-                  usage: "NONE",
-                  type_of_usage: f.type || "Unknown",
-                  business_context: "-"
-              })) || []
-          };
-      }
+    // If not found, map the raw ERD fields to the expected format
+    if (!richData) {
+      richData = {
+        business_context: "Extended usage data not available.",
+        fields: entity.fields?.map(f => ({
+          name: f.name,
+          usage: "NONE",
+          type_of_usage: f.type || "Unknown",
+          business_context: "-"
+        })) || []
+      };
+    }
 
-      setSelectedEntity({
-          name: entity.name,
-          type: entity.type,
-          data: richData
-      });
+    setSelectedEntity({
+      name: entity.name,
+      type: entity.type,
+      data: richData
+    });
   };
 
   return (
     <div style={{ padding: '0 20px 40px' }}>
-       {/* Legend/Header */}
-       <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
-          <div>
-            <h2 style={{ fontSize: '14px', fontWeight: '900', color: '#f8fafc', letterSpacing: '1px', marginBottom: '8px', textTransform: 'uppercase' }}>
-                {title || 'Global Entity Model'}
-            </h2>
-            <p style={{ fontSize: '11px', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', margin: 0 }}>
-                CONTEXT: {data.topic || context}
-            </p>
-          </div>
-          
-          <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '8px', height: '8px', background: '#6366f1', borderRadius: '2px' }} />
-                  <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
-                    CORE ENTITY {stats?.core_entities !== undefined && `(${stats.core_entities})`}
-                  </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '8px', height: '8px', background: '#f59e0b', borderRadius: '2px' }} />
-                  <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
-                    TRANSACTION {stats?.transactions !== undefined && `(${stats.transactions})`}
-                  </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '8px', height: '8px', background: '#1a5ebdff', borderRadius: '2px' }} />
-                  <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
-                    REFERENCE {stats?.references !== undefined && `(${stats.references})`}
-                  </span>
-              </div>
-          </div>
-       </div>
+      {/* Legend/Header */}
+      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
+        <div>
+          <h2 style={{ fontSize: '14px', fontWeight: '900', color: '#f8fafc', letterSpacing: '1px', marginBottom: '8px', textTransform: 'uppercase' }}>
+            {title || 'Global Entity Model'}
+          </h2>
+          <p style={{ fontSize: '11px', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', margin: 0 }}>
+            CONTEXT: {data.topic || context}
+          </p>
+        </div>
 
-       {/* Grid */}
-       <div style={{ 
-           display: 'grid', 
-           gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-           gap: '32px' 
-       }}>
-         {entities.map((entity, idx) => {
-             const isActive = entity.active_in_cut;
-             const color = getTypeColor(entity.type);
-             
-             return (
-                 <div key={idx} 
-                    onClick={() => handleEntityClick(entity)}
-                    style={{
-                     background: '#fff',
-                     borderRadius: '16px',
-                     overflow: 'hidden',
-                     opacity: isActive ? 1 : 0.5,
-                     filter: isActive ? 'none' : 'blur(1.5px) grayscale(100%)',
-                     transform: isActive ? 'scale(1)' : 'scale(0.98)',
-                     transition: 'all 0.3s ease',
-                     boxShadow: isActive ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none',
-                     cursor: isActive ? 'pointer' : 'default'
-                 }}>
-                    {/* Card Header */}
-                    <div style={{
-                        background: color,
-                        padding: '12px 20px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
-                        <span style={{ color: '#fff', fontWeight: '800', fontSize: '13px', textTransform: 'uppercase' }}>{entity.name}</span>
-                        {isActive && (
-                            <span style={{ 
-                                background: 'rgba(255,255,255,0.2)', 
-                                color: '#fff', 
-                                fontSize: '9px', 
-                                fontWeight: '800', 
-                                padding: '2px 6px', 
-                                borderRadius: '4px' 
-                            }}>CUT</span>
-                        )}
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '8px', height: '8px', background: '#6366f1', borderRadius: '2px' }} />
+            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
+              CORE ENTITY {stats?.core_entities !== undefined && `(${stats.core_entities})`}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '8px', height: '8px', background: '#f59e0b', borderRadius: '2px' }} />
+            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
+              TRANSACTION {stats?.transactions !== undefined && `(${stats.transactions})`}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '8px', height: '8px', background: '#1a5ebdff', borderRadius: '2px' }} />
+            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
+              REFERENCE {stats?.references !== undefined && `(${stats.references})`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: '32px'
+      }}>
+        {entities.map((entity, idx) => {
+          const isActive = entity.active_in_cut;
+          const color = getTypeColor(entity.type);
+
+          return (
+            <div key={idx}
+              onClick={() => handleEntityClick(entity)}
+              style={{
+                background: '#fff',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                opacity: isActive ? 1 : 0.5,
+                filter: isActive ? 'none' : 'blur(1.5px) grayscale(100%)',
+                transform: isActive ? 'scale(1)' : 'scale(0.98)',
+                transition: 'all 0.3s ease',
+                boxShadow: isActive ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none',
+                cursor: isActive ? 'pointer' : 'default'
+              }}>
+              {/* Card Header */}
+              <div style={{
+                background: color,
+                padding: '12px 20px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ color: '#fff', fontWeight: '800', fontSize: '13px', textTransform: 'uppercase' }}>{entity.name}</span>
+                {isActive && (
+                  <span style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    color: '#fff',
+                    fontSize: '9px',
+                    fontWeight: '800',
+                    padding: '2px 6px',
+                    borderRadius: '4px'
+                  }}>CUT</span>
+                )}
+              </div>
+
+              {/* Card Body */}
+              <div style={{ padding: '20px' }}>
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>{entity.display_name}</h4>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {entity.fields?.slice(0, 5).map((field, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
+                      <div style={{ width: '4px', height: '4px', background: color, borderRadius: '50%' }} />
+                      <span style={{ color: '#64748b', fontFamily: 'monospace' }}>{field.name}</span>
                     </div>
-                    
-                    {/* Card Body */}
-                    <div style={{ padding: '20px' }}>
-                        <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>{entity.display_name}</h4>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {entity.fields?.slice(0, 5).map((field, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
-                                    <div style={{ width: '4px', height: '4px', background: color, borderRadius: '50%' }} />
-                                    <span style={{ color: '#64748b', fontFamily: 'monospace' }}>{field.name}</span>
-                                </div>
-                            ))}
-                            {entity.fields?.length > 5 && (
-                                <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '4px', paddingLeft: '12px' }}>
-                                    + {entity.fields.length - 5} more fields...
-                                </div>
-                            )}
-                        </div>
+                  ))}
+                  {entity.fields?.length > 5 && (
+                    <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '4px', paddingLeft: '12px' }}>
+                      + {entity.fields.length - 5} more fields...
                     </div>
-                 </div>
-             );
-         })}
-       </div>
-       
-       <DatabasePopup 
-        isOpen={!!selectedEntity} 
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <DatabasePopup
+        isOpen={!!selectedEntity}
         onClose={() => setSelectedEntity(null)}
         tableName={selectedEntity?.name}
         tableType={selectedEntity?.type}
@@ -2907,7 +3081,7 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.7', fontWeight: '500' }}>
             {(() => {
               const desc = cluster?.description || data.description || "Manages the complete lifecycle of system operations, providing an integrated platform for data processing and business logic execution.";
-              
+
               return desc;
             })()}
           </p>
@@ -3064,7 +3238,7 @@ export function CutExplorer({ clusterId, onClose }) {
     { id: 'dependencies', label: 'Dependencies', icon: <DependenciesIcon /> },
     { id: 'flow', label: 'Flows', icon: <FlowIcon /> },
     { id: 'data', label: 'Data', icon: <DataIcon /> },
-    { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
+    // { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
   ];
 
   return (
@@ -3207,7 +3381,7 @@ export function CutExplorer({ clusterId, onClose }) {
         width: '100%'
       }}>
         {activeTab === 'overview' && <DeepDiveOverview data={data} cutId={cutId} clusterId={clusterId} />}
-        {activeTab === 'dependencies' && <DependenciesTab data={cutData} />}
+        {activeTab === 'dependencies' && <DependenciesTab data={cutData} currentCutName={data.name} />}
         {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} cutData={cutData} />}
         {activeTab === 'data' && <DataTab data={cutData} />}
         {activeTab === 'ascii' && <ASCIIChart data={data} cutId={cutId} />}

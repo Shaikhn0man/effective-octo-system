@@ -303,41 +303,6 @@ CARD XREF  (Balance, Status)`}
               ))}
             </div>
           </div>
-
-          {/* Modernization Scenarios */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%)',
-            padding: '24px',
-            borderRadius: '16px',
-            border: '1px solid rgba(139, 92, 246, 0.2)',
-          }}>
-            <h4 style={{ color: '#8b5cf6', fontSize: '14px', fontWeight: '700', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Modernization Use Cases
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-              {[
-                'Discovery & Analysis',
-                'Migration Assessment',
-                'Refactoring',
-                'Replatforming',
-                'Augmentation',
-                'Service Enablement',
-                'Performance Testing'
-              ].map((scenario, i) => (
-                <div key={i} style={{
-                  padding: '12px 16px',
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  color: '#e2e8f0',
-                  fontWeight: '600',
-                  textAlign: 'center',
-                }}>
-                  {scenario}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>
