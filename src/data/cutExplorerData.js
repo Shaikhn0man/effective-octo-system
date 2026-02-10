@@ -1,7 +1,7 @@
 export const cutExplorerData = {
   1: {
     id: 1,
-    name: "Collect User Data for Credit Card Demo",
+    name: "Manage Credit Card Account Operations",
     type: "CLEAN_CUT",
     stats: { flows: 14, batch: 0, screen: 14, tables: 11 },
     sequence: [
@@ -124,7 +124,7 @@ DEPENDENCIES:
   },
   2: {
     id: 2,
-    name: "User Access Security and Permission Management",
+    name: "Manage User Access Security and Permissions",
     type: "CLEAN_CUT",
     stats: { flows: 7, batch: 0, screen: 7, tables: 5 },
     sequence: [
@@ -403,7 +403,7 @@ COBSWAIT
   },
   7: {
     id: 7,
-    name: "Batch Process Account Records for Multi-Format Output",
+    name: "Process Account Records for Multi-Format Output",
     type: "READ_ONLY_CUT",
     stats: { flows: 1, batch: 1, screen: 0, tables: 4 },
     batchFlow: ["CBACT01C (Multi-Format Account Output)"],
