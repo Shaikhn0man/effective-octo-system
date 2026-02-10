@@ -3064,7 +3064,6 @@ export function CutExplorer({ clusterId, onClose }) {
     { id: 'dependencies', label: 'Dependencies', icon: <DependenciesIcon /> },
     { id: 'flow', label: 'Flows', icon: <FlowIcon /> },
     { id: 'data', label: 'Data', icon: <DataIcon /> },
-    { id: 'database', label: 'Database Map', icon: <DatabaseIcon /> },
     { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
   ];
 
@@ -3211,7 +3210,6 @@ export function CutExplorer({ clusterId, onClose }) {
         {activeTab === 'dependencies' && <DependenciesTab data={cutData} />}
         {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} cutData={cutData} />}
         {activeTab === 'data' && <DataTab data={cutData} />}
-        {activeTab === 'database' && <DatabaseMap data={data} cutId={cutId} />}
         {activeTab === 'ascii' && <ASCIIChart data={data} cutId={cutId} />}
       </div>
 
