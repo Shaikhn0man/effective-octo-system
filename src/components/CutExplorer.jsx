@@ -1300,12 +1300,27 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
     // 1. Process Database Tables (Top Layer) - Only if showDataOps and tables filter is true
     if (showDataOps && nodeFilters.tables && systemView.data_ops && systemView.data_ops.database_tables) {
       systemView.data_ops.database_tables.forEach((table, idx) => {
-        nodes.push({
-          id: `table-${table.name}`,
-          type: 'database',
-          data: { label: table.name, sublabel: table.name, type: table.type || 'MASTER', onNodeClick: handleNodeClick, nodeId: `table-${table.name}` },
-          position: { x: idx * 300, y: 0 },
+        // Find if this table has any active (filtered-in) connections
+        const hasActiveConnection = systemView.data_ops.data_connections?.some(conn => {
+          if (conn.target !== table.name) return false;
+          
+          const isReadOp = conn.operation === 'READ';
+          const isWriteOp = conn.operation === 'WRITE';
+          const isBothOp = conn.operation === 'BOTH';
+          
+          return (isReadOp && connectionFilters.read) || 
+                 (isWriteOp && connectionFilters.write) || 
+                 (isBothOp && connectionFilters.both);
         });
+
+        if (hasActiveConnection) {
+          nodes.push({
+            id: `table-${table.name}`,
+            type: 'database',
+            data: { label: table.name, sublabel: table.name, type: table.type || 'MASTER', onNodeClick: handleNodeClick, nodeId: `table-${table.name}` },
+            position: { x: idx * 300, y: 0 },
+          });
+        }
       });
     }
 
@@ -1425,8 +1440,8 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Sync state when showDataOps changes (since nodes/edges are derived in useMemo)
-  useMemo(() => {
+  // Sync state when initialNodes or initialEdges change
+  useEffect(() => {
     setNodes(initialNodes);
     setEdges(initialEdges);
   }, [initialNodes, initialEdges, setNodes, setEdges]);
@@ -1618,7 +1633,19 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
             ].map(filter => (
               <button
                 key={filter.key}
-                onClick={() => setConnectionFilters(prev => ({ ...prev, [filter.key]: !prev[filter.key] }))}
+                onClick={() => {
+                  if (filter.key === 'screenFlow') {
+                    const newValue = !connectionFilters.screenFlow;
+                    setConnectionFilters(prev => ({ 
+                      ...prev, 
+                      screenFlow: newValue,
+                      batchFlow: newValue,
+                      both: newValue 
+                    }));
+                  } else {
+                    setConnectionFilters(prev => ({ ...prev, [filter.key]: !prev[filter.key] }));
+                  }
+                }}
                 style={{
                   background: connectionFilters[filter.key] ? `${filter.color}20` : 'rgba(255,255,255,0.02)',
                   border: connectionFilters[filter.key] ? `1px solid ${filter.color}40` : '1px solid rgba(255,255,255,0.08)',
