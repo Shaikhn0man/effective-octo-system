@@ -3036,6 +3036,7 @@ function DependenciesTab({ data, currentCutName: propCutName }) {
 
 function DataTab({ data }) {
   const [selectedEntity, setSelectedEntity] = useState(null);
+  const [viewMode, setViewMode] = useState('diagram');
   const erdData = data?.system_view?.erd || data?.erd;
 
   if (!erdData?.entities) {
@@ -3047,20 +3048,16 @@ function DataTab({ data }) {
 
   const getTypeColor = (type) => {
     switch (type) {
-      case 'CORE_ENTITY': return '#6366f1'; // Indigo
-      case 'TRANSACTION': return '#f59e0b'; // Amber
-      case 'REFERENCE': return '#1a5ebdff'; // Slate
+      case 'CORE_ENTITY': return '#6366f1';
+      case 'TRANSACTION': return '#f59e0b';
+      case 'REFERENCE': return '#1a5ebdff';
       default: return '#1a5ebdff';
     }
   };
 
   const handleEntityClick = (entity) => {
     if (!entity.active_in_cut) return;
-
-    // Try to find rich data in field_matrix
     let richData = fieldMatrix[entity.name];
-
-    // If not found, map the raw ERD fields to the expected format
     if (!richData) {
       richData = {
         business_context: "Extended usage data not available.",
@@ -3072,7 +3069,6 @@ function DataTab({ data }) {
         })) || []
       };
     }
-
     setSelectedEntity({
       name: entity.name,
       type: entity.type,
@@ -3080,9 +3076,71 @@ function DataTab({ data }) {
     });
   };
 
+  const EntityCard = ({ entity, color, onClick }) => (
+    <div
+      onClick={onClick}
+      style={{
+        background: `${color}15`,
+        border: `2px solid ${color}40`,
+        borderRadius: '16px',
+        padding: '20px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px'
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.borderColor = `${color}80`;
+        e.currentTarget.style.boxShadow = `0 12px 32px ${color}30`;
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.borderColor = `${color}40`;
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '8px', height: '8px', background: color, borderRadius: '50%' }} />
+        <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#fff', letterSpacing: '0.5px' }}>
+          {entity.name}
+        </h4>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {entity.fields?.slice(0, 3).map((field, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
+            <span style={{ color: color, fontWeight: '700' }}>•</span>
+            <span style={{ color: '#cbd5e1', fontFamily: 'monospace' }}>{field.name}</span>
+          </div>
+        ))}
+        {entity.fields?.length > 3 && (
+          <div style={{ fontSize: '10px', color: '#64748b', fontStyle: 'italic', paddingLeft: '12px' }}>
+            + {entity.fields.length - 3} more fields
+          </div>
+        )}
+      </div>
+      <div style={{
+        marginTop: 'auto',
+        paddingTop: '12px',
+        borderTop: `1px solid ${color}30`,
+        fontSize: '10px',
+        fontWeight: '700',
+        color: color,
+        textTransform: 'uppercase',
+        letterSpacing: '1px'
+      }}>
+        VIEW DETAILS →
+      </div>
+    </div>
+  );
+
+  const coreEntities = entities.filter(e => e.type === 'CORE_ENTITY' && e.active_in_cut);
+  const transactionEntities = entities.filter(e => e.type === 'TRANSACTION' && e.active_in_cut);
+  const referenceEntities = entities.filter(e => e.type === 'REFERENCE' && e.active_in_cut);
+
   return (
     <div style={{ padding: '0 20px 40px' }}>
-      {/* Legend/Header */}
       <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
         <div>
           <h2 style={{ fontSize: '14px', fontWeight: '900', color: '#f8fafc', letterSpacing: '1px', marginBottom: '8px', textTransform: 'uppercase' }}>
@@ -3092,96 +3150,384 @@ function DataTab({ data }) {
             CONTEXT: {data.topic || context}
           </p>
         </div>
-
-        <div style={{ display: 'flex', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '8px', height: '8px', background: '#6366f1', borderRadius: '2px' }} />
-            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
-              CORE ENTITY {stats?.core_entities !== undefined && `(${stats.core_entities})`}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '8px', height: '8px', background: '#f59e0b', borderRadius: '2px' }} />
-            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
-              TRANSACTION {stats?.transactions !== undefined && `(${stats.transactions})`}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '8px', height: '8px', background: '#1a5ebdff', borderRadius: '2px' }} />
-            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>
-              REFERENCE {stats?.references !== undefined && `(${stats.references})`}
-            </span>
-          </div>
+        <div style={{ display: 'flex', gap: '12px', background: 'rgba(2, 6, 23, 0.6)', padding: '6px 8px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+          {[
+            { id: 'diagram', label: 'DIAGRAM', icon: '📊' },
+            { id: 'grid', label: 'GRID', icon: '⊞' }
+          ].map(mode => (
+            <button
+              key={mode.id}
+              onClick={() => setViewMode(mode.id)}
+              style={{
+                background: viewMode === mode.id ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
+                border: viewMode === mode.id ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid rgba(255,255,255,0.08)',
+                color: viewMode === mode.id ? '#6366f1' : '#64748b',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '10px',
+                fontWeight: '700',
+                transition: 'all 0.2s ease',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              onMouseEnter={e => {
+                if (viewMode !== mode.id) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (viewMode !== mode.id) {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <span>{mode.icon}</span>
+              {mode.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: '32px'
-      }}>
-        {entities.map((entity, idx) => {
-          const isActive = entity.active_in_cut;
-          const color = getTypeColor(entity.type);
+      {viewMode === 'diagram' ? (
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.4)',
+          borderRadius: '24px',
+          padding: '24px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          overflow: 'auto',
+          minHeight: '700px'
+        }}>
+          <svg
+            style={{
+              width: '100%',
+              minHeight: '700px',
+              background: 'rgba(2, 6, 23, 0.3)',
+              borderRadius: '16px'
+            }}
+            viewBox="0 0 1600 900"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#60a5fa" />
+              </marker>
+              <marker id="arrowhead-amber" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#f59e0b" />
+              </marker>
+              <marker id="arrowhead-slate" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#64748b" />
+              </marker>
+            </defs>
 
-          return (
-            <div key={idx}
-              onClick={() => handleEntityClick(entity)}
-              style={{
-                background: '#fff',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                opacity: isActive ? 1 : 0.5,
-                filter: isActive ? 'none' : 'blur(1.5px) grayscale(100%)',
-                transform: isActive ? 'scale(1)' : 'scale(0.98)',
-                transition: 'all 0.3s ease',
-                boxShadow: isActive ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none',
-                cursor: isActive ? 'pointer' : 'default'
-              }}>
-              {/* Card Header */}
-              <div style={{
-                background: color,
-                padding: '12px 20px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <span style={{ color: '#fff', fontWeight: '800', fontSize: '13px', textTransform: 'uppercase' }}>{entity.name}</span>
-                {isActive && (
-                  <span style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    color: '#fff',
-                    fontSize: '9px',
-                    fontWeight: '800',
-                    padding: '2px 6px',
-                    borderRadius: '4px'
-                  }}>CUT</span>
-                )}
-              </div>
+            {/* Relationship lines */}
+            {coreEntities.length >= 2 && (
+              <>
+                <line x1="320" y1="180" x2="550" y2="180" stroke="#60a5fa" strokeWidth="2" opacity="0.4" />
+                <line x1="320" y1="180" x2="220" y2="420" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowhead)" opacity="0.5" />
+                <line x1="550" y1="180" x2="380" y2="420" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowhead)" opacity="0.5" />
+              </>
+            )}
 
-              {/* Card Body */}
-              <div style={{ padding: '20px' }}>
-                <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>{entity.display_name}</h4>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {entity.fields?.slice(0, 5).map((field, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
-                      <div style={{ width: '4px', height: '4px', background: color, borderRadius: '50%' }} />
-                      <span style={{ color: '#64748b', fontFamily: 'monospace' }}>{field.name}</span>
-                    </div>
+            {/* Core Entities - Top Row */}
+            {coreEntities.slice(0, 2).map((entity, idx) => {
+              const x = 100 + idx * 450;
+              const y = 80;
+              const boxHeight = 100;
+              const fieldCount = Math.min(entity.fields?.length || 0, 4);
+              
+              return (
+                <g key={`core-${idx}`}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width="320"
+                    height={boxHeight}
+                    fill="rgba(99, 102, 241, 0.08)"
+                    stroke="#6366f1"
+                    strokeWidth="2.5"
+                    rx="10"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleEntityClick(entity)}
+                  />
+                  <text
+                    x={x + 160}
+                    y={y + 25}
+                    textAnchor="middle"
+                    fill="#fff"
+                    fontSize="15"
+                    fontWeight="900"
+                    letterSpacing="1"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleEntityClick(entity)}
+                  >
+                    {entity.name}
+                  </text>
+                  <line x1={x} x2={x + 320} y1={y + 35} y2={y + 35} stroke="#6366f1" strokeWidth="1.5" opacity="0.6" />
+                  {entity.fields?.slice(0, 3).map((field, fIdx) => (
+                    <text
+                      key={`field-${fIdx}`}
+                      x={x + 12}
+                      y={y + 58 + fIdx * 16}
+                      fill="#cbd5e1"
+                      fontSize="12"
+                      fontFamily="monospace"
+                      fontWeight="500"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleEntityClick(entity)}
+                    >
+                      {field.name}
+                    </text>
                   ))}
-                  {entity.fields?.length > 5 && (
-                    <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '4px', paddingLeft: '12px' }}>
-                      + {entity.fields.length - 5} more fields...
-                    </div>
+                  {entity.fields?.length > 3 && (
+                    <text x={x + 12} y={y + 90} fill="#64748b" fontSize="11" fontStyle="italic">
+                      +{entity.fields.length - 3} more
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* Transaction Entities - Middle Row */}
+            {transactionEntities.slice(0, 2).map((entity, idx) => {
+              const x = 100 + idx * 450;
+              const y = 350;
+              
+              return (
+                <g key={`trans-${idx}`}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width="320"
+                    height="100"
+                    fill="rgba(245, 158, 11, 0.08)"
+                    stroke="#f59e0b"
+                    strokeWidth="2.5"
+                    rx="10"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleEntityClick(entity)}
+                  />
+                  <text
+                    x={x + 160}
+                    y={y + 25}
+                    textAnchor="middle"
+                    fill="#fff"
+                    fontSize="15"
+                    fontWeight="900"
+                    letterSpacing="1"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleEntityClick(entity)}
+                  >
+                    {entity.name}
+                  </text>
+                  <line x1={x} x2={x + 320} y1={y + 35} y2={y + 35} stroke="#f59e0b" strokeWidth="1.5" opacity="0.6" />
+                  {entity.fields?.slice(0, 3).map((field, fIdx) => (
+                    <text
+                      key={`field-${fIdx}`}
+                      x={x + 12}
+                      y={y + 58 + fIdx * 16}
+                      fill="#cbd5e1"
+                      fontSize="12"
+                      fontFamily="monospace"
+                      fontWeight="500"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleEntityClick(entity)}
+                    >
+                      {field.name}
+                    </text>
+                  ))}
+                  {entity.fields?.length > 3 && (
+                    <text x={x + 12} y={y + 90} fill="#64748b" fontSize="11" fontStyle="italic">
+                      +{entity.fields.length - 3} more
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* Reference Entities - Bottom Row */}
+            {referenceEntities.slice(0, 2).map((entity, idx) => {
+              const x = 100 + idx * 450;
+              const y = 620;
+              
+              return (
+                <g key={`ref-${idx}`}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width="320"
+                    height="100"
+                    fill="rgba(100, 116, 139, 0.08)"
+                    stroke="#64748b"
+                    strokeWidth="2.5"
+                    rx="10"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleEntityClick(entity)}
+                  />
+                  <text
+                    x={x + 160}
+                    y={y + 25}
+                    textAnchor="middle"
+                    fill="#fff"
+                    fontSize="15"
+                    fontWeight="900"
+                    letterSpacing="1"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleEntityClick(entity)}
+                  >
+                    {entity.name}
+                  </text>
+                  <line x1={x} x2={x + 320} y1={y + 35} y2={y + 35} stroke="#64748b" strokeWidth="1.5" opacity="0.6" />
+                  {entity.fields?.slice(0, 3).map((field, fIdx) => (
+                    <text
+                      key={`field-${fIdx}`}
+                      x={x + 12}
+                      y={y + 58 + fIdx * 16}
+                      fill="#cbd5e1"
+                      fontSize="12"
+                      fontFamily="monospace"
+                      fontWeight="500"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleEntityClick(entity)}
+                    >
+                      {field.name}
+                    </text>
+                  ))}
+                  {entity.fields?.length > 3 && (
+                    <text x={x + 12} y={y + 90} fill="#64748b" fontSize="11" fontStyle="italic">
+                      +{entity.fields.length - 3} more
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* Legend */}
+            <g>
+              <text x="1000" y="120" fill="#94a3b8" fontSize="13" fontWeight="800" letterSpacing="1">
+                LEGEND
+              </text>
+              <rect x="1000" y="140" width="24" height="24" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" strokeWidth="2" rx="4" />
+              <text x="1040" y="158" fill="#cbd5e1" fontSize="12">
+                Core Entity
+              </text>
+              
+              <rect x="1000" y="180" width="24" height="24" fill="rgba(245, 158, 11, 0.08)" stroke="#f59e0b" strokeWidth="2" rx="4" />
+              <text x="1040" y="198" fill="#cbd5e1" fontSize="12">
+                Transaction Entity
+              </text>
+              
+              <rect x="1000" y="220" width="24" height="24" fill="rgba(100, 116, 139, 0.08)" stroke="#64748b" strokeWidth="2" rx="4" />
+              <text x="1040" y="238" fill="#cbd5e1" fontSize="12">
+                Reference Entity
+              </text>
+
+              <line x1="1000" y1="270" x2="1030" y2="270" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowhead)" />
+              <text x="1040" y="276" fill="#cbd5e1" fontSize="12">
+                Relationship
+              </text>
+
+              {/* Entity Count */}
+              <text x="1000" y="330" fill="#94a3b8" fontSize="13" fontWeight="800" letterSpacing="1">
+                SUMMARY
+              </text>
+              <text x="1000" y="360" fill="#cbd5e1" fontSize="12">
+                Core: {coreEntities.length}
+              </text>
+              <text x="1000" y="385" fill="#cbd5e1" fontSize="12">
+                Transaction: {transactionEntities.length}
+              </text>
+              <text x="1000" y="410" fill="#cbd5e1" fontSize="12">
+                Reference: {referenceEntities.length}
+              </text>
+              <text x="1000" y="435" fill="#cbd5e1" fontSize="12">
+                Total: {entities.length}
+              </text>
+            </g>
+          </svg>
+
+          <div style={{
+            marginTop: '24px',
+            padding: '16px',
+            background: 'rgba(99, 102, 241, 0.1)',
+            border: '1px solid rgba(99, 102, 241, 0.3)',
+            borderRadius: '12px',
+            fontSize: '12px',
+            color: '#cbd5e1',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '16px' }}>💡</span>
+            <span>Click on any entity box to view detailed field information and relationships</span>
+          </div>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '32px'
+        }}>
+          {entities.map((entity, idx) => {
+            const isActive = entity.active_in_cut;
+            const color = getTypeColor(entity.type);
+            return (
+              <div key={idx}
+                onClick={() => handleEntityClick(entity)}
+                style={{
+                  background: '#fff',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  opacity: isActive ? 1 : 0.5,
+                  filter: isActive ? 'none' : 'blur(1.5px) grayscale(100%)',
+                  transform: isActive ? 'scale(1)' : 'scale(0.98)',
+                  transition: 'all 0.3s ease',
+                  boxShadow: isActive ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none',
+                  cursor: isActive ? 'pointer' : 'default'
+                }}>
+                <div style={{
+                  background: color,
+                  padding: '12px 20px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <span style={{ color: '#fff', fontWeight: '800', fontSize: '13px', textTransform: 'uppercase' }}>{entity.name}</span>
+                  {isActive && (
+                    <span style={{
+                      background: 'rgba(255,255,255,0.2)',
+                      color: '#fff',
+                      fontSize: '9px',
+                      fontWeight: '800',
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>CUT</span>
                   )}
                 </div>
+                <div style={{ padding: '20px' }}>
+                  <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>{entity.display_name}</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {entity.fields?.slice(0, 5).map((field, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
+                        <div style={{ width: '4px', height: '4px', background: color, borderRadius: '50%' }} />
+                        <span style={{ color: '#64748b', fontFamily: 'monospace' }}>{field.name}</span>
+                      </div>
+                    ))}
+                    {entity.fields?.length > 5 && (
+                      <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '4px', paddingLeft: '12px' }}>
+                        + {entity.fields.length - 5} more fields...
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       <DatabasePopup
         isOpen={!!selectedEntity}

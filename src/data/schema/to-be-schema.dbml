@@ -1,0 +1,570 @@
+// CardDemo Application - Legacy COBOL/VSAM To-Be ERD Schema
+// Generated from COBOL copybooks and VSAM file definitions
+// Source: AWS Mainframe Modernization Card Demo Application
+// Last Updated: 2026-02-05
+// Added: PendingAuthorization, PendingAuthorizationSummary, DailyTransaction, ExportRecord
+
+Project CardDemo {
+  database_type: 'Relational Database'
+  note: '''
+    # CardDemo Credit Card Management System
+
+    This schema represents the to-be state for modernizing the CardDemo
+    COBOL/CICS application with VSAM data stores to a relational database.
+
+    Source: Legacy mainframe application
+    Target: Modern relational database (PostgreSQL, MySQL, Oracle, DB2, etc.)
+  '''
+}
+
+// ===================================================================
+// CORE ENTITIES
+// ===================================================================
+
+Table Customer {
+  cust_id numeric(9) [pk, not null, note: 'CUST-ID PIC 9(09)']
+  first_name varchar(25) [note: 'CUST-FIRST-NAME']
+  middle_name varchar(25) [note: 'CUST-MIDDLE-NAME']
+  last_name varchar(25) [note: 'CUST-LAST-NAME']
+  address_line_1 varchar(50)
+  address_line_2 varchar(50)
+  address_line_3 varchar(50)
+  state_code varchar(2)
+  country_code varchar(3)
+  zip_code varchar(10)
+  phone_number_1 varchar(15)
+  phone_number_2 varchar(15)
+  ssn numeric(9) [note: 'Sensitive - requires encryption']
+  govt_issued_id varchar(20) [note: 'Sensitive']
+  date_of_birth date [note: 'CUST-DOB-YYYY-MM-DD']
+  eft_account_id varchar(10)
+  primary_card_holder_ind varchar(1) [note: 'Y/N indicator']
+  fico_credit_score numeric(3)
+
+  note: '''
+    Customer master data from VSAM KSDS: CUSTDATA.VSAM.KSDS
+    Source copybook: CVCUS01Y.cpy / CUSTREC.cpy
+    Record length: 500 bytes
+    Key: CUST-ID (position 0, length 9)
+  '''
+}
+
+Table Account {
+  acct_id numeric(11) [pk, not null, note: 'ACCT-ID PIC 9(11)']
+  active_status varchar(1) [note: 'Y/N']
+  current_balance decimal(12,2) [note: 'PIC S9(10)V99']
+  credit_limit decimal(12,2)
+  cash_credit_limit decimal(12,2)
+  open_date date
+  expiration_date date
+  reissue_date date
+  current_cycle_credit decimal(12,2)
+  current_cycle_debit decimal(12,2)
+  zip_code varchar(10)
+  group_id varchar(10) [note: 'FK to DisclosureGroup']
+
+  indexes {
+    group_id [name: 'idx_account_group_id']
+  }
+
+  note: '''
+    Account/Credit card account master data
+    Source VSAM KSDS: ACCTDATA.VSAM.KSDS
+    Source copybook: CVACT01Y.cpy
+    Record length: 300 bytes
+    Key: ACCT-ID (position 0, length 11)
+  '''
+}
+
+Table Card {
+  card_number varchar(16) [pk, not null, note: 'CARD-NUM - Sensitive PCI data']
+  acct_id numeric(11) [not null, note: 'FK to Account']
+  cvv_code numeric(3) [note: 'Sensitive - PCI']
+  embossed_name varchar(50)
+  expiration_date date
+  active_status varchar(1) [note: 'Y/N']
+
+  indexes {
+    acct_id [name: 'idx_card_acct_id'] // AIX in VSAM: CARDAIX
+  }
+
+  note: '''
+    Credit card physical card data
+    Source VSAM KSDS: CARDDATA.VSAM.KSDS
+    Source copybook: CVACT02Y.cpy / CVCRD01Y.cpy
+    Record length: 150 bytes
+    Primary Key: CARD-NUM (position 0, length 16)
+    Alternate Index: CARD-ACCT-ID (position 16, length 11)
+  '''
+}
+
+Table CardXref {
+  card_number varchar(16) [pk, not null, note: 'XREF-CARD-NUM']
+  cust_id numeric(9) [not null, note: 'FK to Customer']
+  acct_id numeric(11) [not null, note: 'FK to Account']
+
+  indexes {
+    acct_id [name: 'idx_cardxref_acct_id'] // AIX in VSAM: CARDXREF-AIX
+    cust_id [name: 'idx_cardxref_cust_id']
+  }
+
+  note: '''
+    Cross-reference junction table linking cards, customers, and accounts
+    Enables many-to-many relationships:
+    - A customer can have multiple cards
+    - A card can have multiple authorized users (customers)
+    - An account can have multiple cards and customers
+
+    Source VSAM KSDS: CARDXREF.VSAM.KSDS
+    Source copybook: CVACT03Y.cpy
+    Record length: 50 bytes
+    Primary Key: XREF-CARD-NUM (position 0, length 16)
+    Alternate Index: XREF-ACCT-ID (position 25, length 11)
+  '''
+}
+
+// ===================================================================
+// TRANSACTION ENTITIES
+// ===================================================================
+
+Table Transaction {
+  tran_id varchar(16) [pk, not null, note: 'TRAN-ID']
+  tran_type_code varchar(2) [not null, note: 'FK to TransactionType']
+  tran_category_code numeric(4) [note: 'FK to TransactionCategory']
+  tran_source varchar(10)
+  tran_desc varchar(100)
+  tran_amount decimal(11,2) [note: 'PIC S9(09)V99']
+  merchant_id numeric(9)
+  merchant_name varchar(50)
+  merchant_city varchar(50)
+  merchant_zip varchar(10)
+  card_number varchar(16) [note: 'FK to Card']
+  orig_timestamp timestamp [note: 'Transaction origination']
+  proc_timestamp timestamp [note: 'Transaction processing - indexed']
+
+  indexes {
+    proc_timestamp [name: 'idx_tran_proc_ts'] // AIX in VSAM: TRANSACT-AIX
+    card_number [name: 'idx_tran_card_num']
+    tran_type_code [name: 'idx_tran_type']
+    (tran_type_code, tran_category_code) [name: 'idx_tran_category']
+  }
+
+  note: '''
+    Transaction records - credit card transaction details
+    Source VSAM KSDS: TRANSACT.VSAM.KSDS
+    Source copybook: CVTRA05Y.cpy
+    Record length: 350 bytes
+    Primary Key: TRAN-ID (position 0, length 16)
+    Alternate Index: TRAN-PROC-TS (position 304, length 26)
+  '''
+}
+
+Table TransactionType {
+  tran_type varchar(2) [pk, not null, note: 'TRAN-TYPE']
+  tran_type_desc varchar(50)
+
+  note: '''
+    Transaction type lookup table
+    Examples: DB=Debit, CR=Credit, etc.
+    Source VSAM KSDS: TRANTYPE.VSAM.KSDS
+    Source copybook: CVTRA03Y.cpy
+    Record length: 60 bytes
+    Key: TRAN-TYPE (position 0, length 2)
+  '''
+}
+
+Table TransactionCategory {
+  tran_type_code varchar(2) [pk, not null, note: 'TRAN-TYPE-CD']
+  tran_cat_code numeric(4) [pk, not null, note: 'TRAN-CAT-CD']
+  tran_cat_type_desc varchar(50)
+
+  indexes {
+    tran_type_code [name: 'idx_trancat_type']
+  }
+
+  note: '''
+    Transaction category lookup table
+    Hierarchical: Type -> Category
+    Examples: Purchase categories, fee types, etc.
+    Source VSAM KSDS: TRANCATG.VSAM.KSDS
+    Source copybook: CVTRA04Y.cpy
+    Record length: 60 bytes
+    Composite Key: TRAN-TYPE-CD + TRAN-CAT-CD (position 0, length 6)
+  '''
+}
+
+Table DailyTransaction {
+  tran_id varchar(16) [pk, not null, note: 'DALYTRAN-ID']
+  tran_type_code varchar(2) [note: 'FK to TransactionType']
+  tran_category_code numeric(4) [note: 'FK to TransactionCategory']
+  tran_source varchar(10)
+  tran_desc varchar(100)
+  tran_amount decimal(11,2) [note: 'PIC S9(09)V99']
+  merchant_id numeric(9)
+  merchant_name varchar(50)
+  merchant_city varchar(50)
+  merchant_zip varchar(10)
+  card_number varchar(16) [note: 'FK to Card']
+  orig_timestamp timestamp [note: 'Transaction origination']
+  proc_timestamp timestamp [note: 'Transaction processing']
+
+  indexes {
+    proc_timestamp [name: 'idx_dalytran_proc_ts']
+    card_number [name: 'idx_dalytran_card_num']
+  }
+
+  note: '''
+    Daily transaction staging file for batch processing
+    Used for daily transaction reports and batch operations
+    Source Sequential File: DALYTRAN.PS
+    Source copybook: CVTRA06Y.cpy (DALYTRAN-RECORD)
+    Record length: 350 bytes
+    Key: DALYTRAN-ID (position 0, length 16)
+
+    MIGRATION NOTE: This is a staging/batch file that may be
+    implemented as a separate table or a flag on Transaction table
+  '''
+}
+
+// ===================================================================
+// AUTHORIZATION ENTITIES
+// ===================================================================
+
+Table PendingAuthorization {
+  auth_date_key numeric(5) [pk, not null, note: 'PA-AUTH-DATE-9C COMP-3']
+  auth_time_key numeric(9) [pk, not null, note: 'PA-AUTH-TIME-9C COMP-3']
+  auth_orig_date varchar(6) [note: 'YYMMDD format']
+  auth_orig_time varchar(6) [note: 'HHMMSS format']
+  card_number varchar(16) [not null, note: 'FK to Card']
+  auth_type varchar(4)
+  card_expiry_date varchar(4) [note: 'MMYY format']
+  message_type varchar(6)
+  message_source varchar(6)
+  auth_id_code varchar(6)
+  auth_resp_code varchar(2) [note: '00=Approved']
+  auth_resp_reason varchar(4)
+  processing_code numeric(6)
+  transaction_amt decimal(12,2) [note: 'PIC S9(10)V99 COMP-3']
+  approved_amt decimal(12,2) [note: 'PIC S9(10)V99 COMP-3']
+  merchant_category_code varchar(4)
+  acquirer_country_code varchar(3)
+  pos_entry_mode numeric(2)
+  merchant_id varchar(15)
+  merchant_name varchar(22)
+  merchant_city varchar(13)
+  merchant_state varchar(2)
+  merchant_zip varchar(9)
+  transaction_id varchar(15)
+  match_status varchar(1) [note: 'P=Pending, D=Declined, E=Expired, M=Matched']
+  auth_fraud varchar(1) [note: 'F=Fraud Confirmed, R=Fraud Removed']
+  fraud_report_date varchar(8) [note: 'YYYYMMDD']
+
+  indexes {
+    card_number [name: 'idx_pendauth_card']
+    match_status [name: 'idx_pendauth_status']
+    (card_number, match_status) [name: 'idx_pendauth_card_status']
+  }
+
+  note: '''
+    Pending authorization requests - real-time pre-authorization tracking
+    Source: IMS Database segment
+    Source copybook: CIPAUDTY.cpy (IMS SEGMENT - PENDING AUTHORIZATION DETAILS)
+    Composite Key: PA-AUTH-DATE-9C + PA-AUTH-TIME-9C
+
+    Used for:
+    - Real-time authorization approval/decline tracking
+    - Fraud detection and monitoring
+    - Matching authorizations with posted transactions
+
+    MIGRATION NOTE: Original stored in IMS hierarchical database
+    In relational DB, implement with proper indexing for real-time lookups
+  '''
+}
+
+Table PendingAuthorizationSummary {
+  acct_id numeric(11) [pk, not null, note: 'PA-ACCT-ID COMP-3']
+  cust_id numeric(9) [note: 'FK to Customer']
+  auth_status varchar(1)
+  account_status_1 varchar(2)
+  account_status_2 varchar(2)
+  account_status_3 varchar(2)
+  account_status_4 varchar(2)
+  account_status_5 varchar(2)
+  credit_limit decimal(11,2) [note: 'PIC S9(09)V99 COMP-3']
+  cash_limit decimal(11,2) [note: 'PIC S9(09)V99 COMP-3']
+  credit_balance decimal(11,2) [note: 'PIC S9(09)V99 COMP-3']
+  cash_balance decimal(11,2) [note: 'PIC S9(09)V99 COMP-3']
+  approved_auth_count numeric(4) [note: 'PIC S9(04) COMP']
+  declined_auth_count numeric(4) [note: 'PIC S9(04) COMP']
+  approved_auth_amt decimal(11,2) [note: 'PIC S9(09)V99 COMP-3']
+  declined_auth_amt decimal(11,2) [note: 'PIC S9(09)V99 COMP-3']
+
+  indexes {
+    cust_id [name: 'idx_pendauthsum_cust']
+  }
+
+  note: '''
+    Pending authorization summary metrics per account
+    Aggregated authorization statistics and account limits
+    Source: IMS Database segment
+    Source copybook: CIPAUSMY.cpy (IMS SEGMENT - PENDING AUTHORIZATION SUMMARY)
+    Key: PA-ACCT-ID
+
+    Contains:
+    - Real-time credit/cash limits and balances
+    - Authorization approval/decline counts and amounts
+    - Account status indicators
+
+    MIGRATION NOTE: Consider implementing as a materialized view
+    or cached aggregate table updated by authorization triggers
+  '''
+}
+
+// ===================================================================
+// BATCH/EXPORT ENTITIES
+// ===================================================================
+
+Table ExportRecord {
+  export_sequence_num numeric(9) [pk, not null, note: 'EXPORT-SEQUENCE-NUM COMP']
+  export_rec_type varchar(1) [not null, note: 'Record type indicator']
+  export_timestamp timestamp [not null]
+  export_date date
+  export_time varchar(15)
+  branch_id varchar(4)
+  region_code varchar(5)
+  record_data varchar(460) [note: 'Variable structure based on rec_type']
+
+  indexes {
+    export_rec_type [name: 'idx_export_rec_type']
+    export_timestamp [name: 'idx_export_timestamp']
+    (branch_id, region_code) [name: 'idx_export_branch_region']
+  }
+
+  note: '''
+    Multi-record export structure for data migration and branch transfers
+    Contains REDEFINES structure for different record types:
+    - Customer records (EXP-CUST-*)
+    - Account records (EXP-ACCT-*)
+    - Transaction records (EXP-TRAN-*)
+    - Card records (EXP-CARD-*)
+    - Card cross-reference records (EXP-XREF-*)
+
+    Source Sequential File: EXPORT.DATA
+    Source copybook: CVEXPORT.cpy
+    Total Record Length: 500 bytes
+
+    MIGRATION NOTE: This is a multi-format file using REDEFINES.
+    In relational DB, consider:
+    1. Separate tables per record type with proper FKs, OR
+    2. Keep as staging table with record_data as JSON/XML, OR
+    3. Use table inheritance/polymorphism if supported
+  '''
+}
+
+// ===================================================================
+// BALANCE & DISCLOSURE ENTITIES
+// ===================================================================
+
+Table TransactionCategoryBalance {
+  acct_id numeric(11) [pk, not null, note: 'TRANCAT-ACCT-ID']
+  tran_type_code varchar(2) [pk, not null, note: 'TRANCAT-TYPE-CD']
+  tran_cat_code numeric(4) [pk, not null, note: 'TRANCAT-CD']
+  tran_cat_balance decimal(11,2) [note: 'PIC S9(09)V99']
+
+  indexes {
+    acct_id [name: 'idx_tcatbal_acct']
+    (tran_type_code, tran_cat_code) [name: 'idx_tcatbal_category']
+  }
+
+  note: '''
+    Transaction category balance per account
+    Tracks balance breakdown by transaction category for each account
+    Source VSAM KSDS: TCATBALF.VSAM.KSDS
+    Source copybook: CVTRA01Y.cpy
+    Record length: 50 bytes
+    Composite Key: TRANCAT-ACCT-ID + TRANCAT-TYPE-CD + TRANCAT-CD (17 bytes)
+  '''
+}
+
+Table DisclosureGroup {
+  group_id varchar(10) [pk, not null, note: 'DIS-ACCT-GROUP-ID']
+  tran_type_code varchar(2) [pk, not null, note: 'DIS-TRAN-TYPE-CD']
+  tran_cat_code numeric(4) [pk, not null, note: 'DIS-TRAN-CAT-CD']
+  interest_rate decimal(6,2) [note: 'PIC S9(04)V99']
+
+  indexes {
+    (tran_type_code, tran_cat_code) [name: 'idx_discgrp_category']
+  }
+
+  note: '''
+    Disclosure group with interest rate information
+    Defines interest rates per account group and transaction category
+    Used for statement disclosures and interest calculations
+    Source VSAM KSDS: DISCGRP.VSAM.KSDS
+    Source copybook: CVTRA02Y.cpy
+    Record length: 50 bytes
+    Composite Key: DIS-ACCT-GROUP-ID + DIS-TRAN-TYPE-CD + DIS-TRAN-CAT-CD (16 bytes)
+  '''
+}
+
+// ===================================================================
+// SECURITY ENTITY
+// ===================================================================
+
+Table SecurityUser {
+  user_id varchar(8) [pk, not null, note: 'SEC-USR-ID']
+  first_name varchar(20)
+  last_name varchar(20)
+  password varchar(8) [note: 'Sensitive - hash required']
+  user_type varchar(1) [note: 'A=Admin, U=User']
+
+  note: '''
+    System user security and authentication
+    Source VSAM KSDS: USRSEC.VSAM.KSDS
+    Source copybook: CSUSR01Y.cpy
+    Record length: 80 bytes
+    Key: SEC-USR-ID (position 0, length 8)
+
+    MIGRATION NOTE: Passwords must be hashed (bcrypt/PBKDF2)
+  '''
+}
+
+// ===================================================================
+// RELATIONSHIPS
+// ===================================================================
+
+// Card to Account - Each card belongs to one account
+Ref: Card.acct_id > Account.acct_id
+
+// CardXref relationships (junction table)
+// Xref to Card
+Ref: CardXref.card_number > Card.card_number
+// Xref to Customer
+Ref: CardXref.cust_id > Customer.cust_id
+// Xref to Account
+Ref: CardXref.acct_id > Account.acct_id
+
+// Transaction relationships
+// Transaction uses card
+Ref: Transaction.card_number > Card.card_number
+// Transaction type
+Ref: Transaction.tran_type_code > TransactionType.tran_type
+// Transaction category
+Ref: Transaction.(tran_type_code, tran_category_code) > TransactionCategory.(tran_type_code, tran_cat_code)
+
+// Transaction Category to Type - Category belongs to type
+Ref: TransactionCategory.tran_type_code > TransactionType.tran_type
+
+// Transaction Category Balance relationships
+// Balance per account
+Ref: TransactionCategoryBalance.acct_id > Account.acct_id
+// Balance per category
+Ref: TransactionCategoryBalance.(tran_type_code, tran_cat_code) > TransactionCategory.(tran_type_code, tran_cat_code)
+
+// Account to Disclosure Group (soft reference via group_id)
+// Note: This is not enforced FK in original VSAM but logical relationship exists
+// Account disclosure group
+Ref: Account.group_id > DisclosureGroup.group_id
+
+// Disclosure Group relationships
+// Disclosure per type
+Ref: DisclosureGroup.tran_type_code > TransactionType.tran_type
+// Disclosure per category
+Ref: DisclosureGroup.(tran_type_code, tran_cat_code) > TransactionCategory.(tran_type_code, tran_cat_code)
+
+// DailyTransaction relationships
+// Daily transaction uses card
+Ref: DailyTransaction.card_number > Card.card_number
+// Daily transaction type
+Ref: DailyTransaction.tran_type_code > TransactionType.tran_type
+// Daily transaction category
+Ref: DailyTransaction.(tran_type_code, tran_category_code) > TransactionCategory.(tran_type_code, tran_cat_code)
+
+// PendingAuthorization relationships
+// Authorization for card
+Ref: PendingAuthorization.card_number > Card.card_number
+
+// PendingAuthorizationSummary relationships
+// Summary per account
+Ref: PendingAuthorizationSummary.acct_id > Account.acct_id
+// Summary per customer
+Ref: PendingAuthorizationSummary.cust_id > Customer.cust_id
+
+// ===================================================================
+// ENUMS (for documentation)
+// ===================================================================
+
+Enum account_status {
+  Y [note: 'Active']
+  N [note: 'Inactive']
+}
+
+Enum card_status {
+  Y [note: 'Active']
+  N [note: 'Inactive']
+}
+
+Enum user_type {
+  A [note: 'Administrator']
+  U [note: 'Regular User']
+}
+
+Enum auth_match_status {
+  P [note: 'Pending']
+  D [note: 'Declined']
+  E [note: 'Expired']
+  M [note: 'Matched with Transaction']
+}
+
+Enum auth_fraud_status {
+  F [note: 'Fraud Confirmed']
+  R [note: 'Fraud Removed']
+}
+
+// ===================================================================
+// TABLE GROUPS (for visualization organization)
+// ===================================================================
+
+TableGroup core_entities {
+  Customer
+  Account
+  Card
+  CardXref
+
+  note: "Core customer, account, and card entities"
+}
+
+TableGroup transactions {
+  Transaction
+  TransactionType
+  TransactionCategory
+  TransactionCategoryBalance
+  DailyTransaction
+
+  note: "Transaction processing and categorization"
+}
+
+TableGroup authorization {
+  PendingAuthorization
+  PendingAuthorizationSummary
+
+  note: "Real-time authorization and pre-authorization processing"
+}
+
+TableGroup reference_data {
+  DisclosureGroup
+
+  note: "Lookup and reference tables"
+}
+
+TableGroup security {
+  SecurityUser
+
+  note: "Security and user management"
+}
+
+TableGroup batch_export {
+  ExportRecord
+
+  note: "Batch processing and data export/migration"
+}

@@ -1,0 +1,860 @@
+schema:
+  version: "1.0"
+  description: "CardDemo Application - Legacy COBOL/VSAM To-Be ERD Schema"
+  source_system: "COBOL/CICS with VSAM"
+  target_system: "Relational Database"
+  created_date: "2026-02-05"
+
+metadata:
+  application: "CardDemo Credit Card Management System"
+  vendor: "AWS Mainframe Modernization - Card Demo Application"
+  record_format: "Fixed-length COBOL records"
+
+entities:
+
+  Customer:
+    description: "Customer master data - stores customer personal information"
+    source_vsam: "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+    source_copybook: "CVCUS01Y.cpy / CUSTREC.cpy"
+    record_length: 500
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "CUST-ID"
+      key_position: 0
+      key_length: 9
+    attributes:
+      - name: custId
+        cobol_name: "CUST-ID"
+        type: numeric
+        length: 9
+        format: "PIC 9(09)"
+        primary_key: true
+        nullable: false
+        description: "Unique customer identifier"
+      - name: firstName
+        cobol_name: "CUST-FIRST-NAME"
+        type: string
+        length: 25
+        format: "PIC X(25)"
+        nullable: true
+        description: "Customer first name"
+      - name: middleName
+        cobol_name: "CUST-MIDDLE-NAME"
+        type: string
+        length: 25
+        format: "PIC X(25)"
+        nullable: true
+        description: "Customer middle name"
+      - name: lastName
+        cobol_name: "CUST-LAST-NAME"
+        type: string
+        length: 25
+        format: "PIC X(25)"
+        nullable: true
+        description: "Customer last name"
+      - name: addressLine1
+        cobol_name: "CUST-ADDR-LINE-1"
+        type: string
+        length: 50
+        format: "PIC X(50)"
+        nullable: true
+        description: "Address line 1"
+      - name: addressLine2
+        cobol_name: "CUST-ADDR-LINE-2"
+        type: string
+        length: 50
+        format: "PIC X(50)"
+        nullable: true
+        description: "Address line 2"
+      - name: addressLine3
+        cobol_name: "CUST-ADDR-LINE-3"
+        type: string
+        length: 50
+        format: "PIC X(50)"
+        nullable: true
+        description: "Address line 3"
+      - name: stateCode
+        cobol_name: "CUST-ADDR-STATE-CD"
+        type: string
+        length: 2
+        format: "PIC X(02)"
+        nullable: true
+        description: "State code"
+      - name: countryCode
+        cobol_name: "CUST-ADDR-COUNTRY-CD"
+        type: string
+        length: 3
+        format: "PIC X(03)"
+        nullable: true
+        description: "Country code"
+      - name: zipCode
+        cobol_name: "CUST-ADDR-ZIP"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "ZIP/Postal code"
+      - name: phoneNumber1
+        cobol_name: "CUST-PHONE-NUM-1"
+        type: string
+        length: 15
+        format: "PIC X(15)"
+        nullable: true
+        description: "Primary phone number"
+      - name: phoneNumber2
+        cobol_name: "CUST-PHONE-NUM-2"
+        type: string
+        length: 15
+        format: "PIC X(15)"
+        nullable: true
+        description: "Secondary phone number"
+      - name: ssn
+        cobol_name: "CUST-SSN"
+        type: numeric
+        length: 9
+        format: "PIC 9(09)"
+        nullable: true
+        description: "Social Security Number"
+        sensitive: true
+      - name: govtIssuedId
+        cobol_name: "CUST-GOVT-ISSUED-ID"
+        type: string
+        length: 20
+        format: "PIC X(20)"
+        nullable: true
+        description: "Government issued ID"
+        sensitive: true
+      - name: dateOfBirth
+        cobol_name: "CUST-DOB-YYYY-MM-DD"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Date of birth (YYYY-MM-DD)"
+      - name: eftAccountId
+        cobol_name: "CUST-EFT-ACCOUNT-ID"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "EFT account identifier"
+      - name: primaryCardHolderInd
+        cobol_name: "CUST-PRI-CARD-HOLDER-IND"
+        type: string
+        length: 1
+        format: "PIC X(01)"
+        nullable: true
+        description: "Primary card holder indicator"
+      - name: ficoCreditScore
+        cobol_name: "CUST-FICO-CREDIT-SCORE"
+        type: numeric
+        length: 3
+        format: "PIC 9(03)"
+        nullable: true
+        description: "FICO credit score"
+
+  Account:
+    description: "Account/Credit card account master data"
+    source_vsam: "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+    source_copybook: "CVACT01Y.cpy"
+    record_length: 300
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "ACCT-ID"
+      key_position: 0
+      key_length: 11
+    attributes:
+      - name: acctId
+        cobol_name: "ACCT-ID"
+        type: numeric
+        length: 11
+        format: "PIC 9(11)"
+        primary_key: true
+        nullable: false
+        description: "Unique account identifier"
+      - name: activeStatus
+        cobol_name: "ACCT-ACTIVE-STATUS"
+        type: string
+        length: 1
+        format: "PIC X(01)"
+        nullable: true
+        description: "Account active status (Y/N)"
+      - name: currentBalance
+        cobol_name: "ACCT-CURR-BAL"
+        type: decimal
+        precision: 10
+        scale: 2
+        format: "PIC S9(10)V99"
+        nullable: true
+        description: "Current account balance"
+      - name: creditLimit
+        cobol_name: "ACCT-CREDIT-LIMIT"
+        type: decimal
+        precision: 10
+        scale: 2
+        format: "PIC S9(10)V99"
+        nullable: true
+        description: "Credit limit"
+      - name: cashCreditLimit
+        cobol_name: "ACCT-CASH-CREDIT-LIMIT"
+        type: decimal
+        precision: 10
+        scale: 2
+        format: "PIC S9(10)V99"
+        nullable: true
+        description: "Cash advance credit limit"
+      - name: openDate
+        cobol_name: "ACCT-OPEN-DATE"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Account open date"
+      - name: expirationDate
+        cobol_name: "ACCT-EXPIRAION-DATE"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Account expiration date"
+      - name: reissueDate
+        cobol_name: "ACCT-REISSUE-DATE"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Account reissue date"
+      - name: currentCycleCredit
+        cobol_name: "ACCT-CURR-CYC-CREDIT"
+        type: decimal
+        precision: 10
+        scale: 2
+        format: "PIC S9(10)V99"
+        nullable: true
+        description: "Current cycle credit amount"
+      - name: currentCycleDebit
+        cobol_name: "ACCT-CURR-CYC-DEBIT"
+        type: decimal
+        precision: 10
+        scale: 2
+        format: "PIC S9(10)V99"
+        nullable: true
+        description: "Current cycle debit amount"
+      - name: zipCode
+        cobol_name: "ACCT-ADDR-ZIP"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Account address ZIP code"
+      - name: groupId
+        cobol_name: "ACCT-GROUP-ID"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Disclosure group identifier"
+        foreign_key: DisclosureGroup.groupId
+
+  Card:
+    description: "Credit card physical card data"
+    source_vsam: "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+    source_copybook: "CVACT02Y.cpy / CVCRD01Y.cpy"
+    record_length: 150
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "CARD-NUM"
+      key_position: 0
+      key_length: 16
+      alternate_indexes:
+        - name: "CARDAIX"
+          key_field: "CARD-ACCT-ID"
+          key_position: 16
+          key_length: 11
+          unique: false
+    attributes:
+      - name: cardNumber
+        cobol_name: "CARD-NUM"
+        type: string
+        length: 16
+        format: "PIC X(16)"
+        primary_key: true
+        nullable: false
+        description: "Credit card number"
+        sensitive: true
+      - name: acctId
+        cobol_name: "CARD-ACCT-ID"
+        type: numeric
+        length: 11
+        format: "PIC 9(11)"
+        nullable: false
+        description: "Associated account ID"
+        foreign_key: Account.acctId
+        indexed: true
+      - name: cvvCode
+        cobol_name: "CARD-CVV-CD"
+        type: numeric
+        length: 3
+        format: "PIC 9(03)"
+        nullable: true
+        description: "Card CVV security code"
+        sensitive: true
+      - name: embossedName
+        cobol_name: "CARD-EMBOSSED-NAME"
+        type: string
+        length: 50
+        format: "PIC X(50)"
+        nullable: true
+        description: "Name embossed on card"
+      - name: expirationDate
+        cobol_name: "CARD-EXPIRAION-DATE"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Card expiration date"
+      - name: activeStatus
+        cobol_name: "CARD-ACTIVE-STATUS"
+        type: string
+        length: 1
+        format: "PIC X(01)"
+        nullable: true
+        description: "Card active status (Y/N)"
+
+  CardXref:
+    description: "Cross-reference table linking cards to customers and accounts"
+    source_vsam: "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"
+    source_copybook: "CVACT03Y.cpy"
+    record_length: 50
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "XREF-CARD-NUM"
+      key_position: 0
+      key_length: 16
+      alternate_indexes:
+        - name: "CARDXREF-AIX"
+          key_field: "XREF-ACCT-ID"
+          key_position: 25
+          key_length: 11
+          unique: false
+    attributes:
+      - name: cardNumber
+        cobol_name: "XREF-CARD-NUM"
+        type: string
+        length: 16
+        format: "PIC X(16)"
+        primary_key: true
+        nullable: false
+        description: "Card number"
+        foreign_key: Card.cardNumber
+      - name: custId
+        cobol_name: "XREF-CUST-ID"
+        type: numeric
+        length: 9
+        format: "PIC 9(09)"
+        nullable: false
+        description: "Customer identifier"
+        foreign_key: Customer.custId
+      - name: acctId
+        cobol_name: "XREF-ACCT-ID"
+        type: numeric
+        length: 11
+        format: "PIC 9(11)"
+        nullable: false
+        description: "Account identifier"
+        foreign_key: Account.acctId
+        indexed: true
+
+  Transaction:
+    description: "Transaction records - credit card transaction details"
+    source_vsam: "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+    source_copybook: "CVTRA05Y.cpy"
+    record_length: 350
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "TRAN-ID"
+      key_position: 0
+      key_length: 16
+      alternate_indexes:
+        - name: "TRANSACT-AIX"
+          key_field: "TRAN-PROC-TS"
+          key_position: 304
+          key_length: 26
+          unique: false
+    attributes:
+      - name: tranId
+        cobol_name: "TRAN-ID"
+        type: string
+        length: 16
+        format: "PIC X(16)"
+        primary_key: true
+        nullable: false
+        description: "Unique transaction identifier"
+      - name: tranTypeCode
+        cobol_name: "TRAN-TYPE-CD"
+        type: string
+        length: 2
+        format: "PIC X(02)"
+        nullable: true
+        description: "Transaction type code"
+        foreign_key: TransactionType.tranType
+      - name: tranCategoryCode
+        cobol_name: "TRAN-CAT-CD"
+        type: numeric
+        length: 4
+        format: "PIC 9(04)"
+        nullable: true
+        description: "Transaction category code"
+        foreign_key: TransactionCategory.tranCatCode
+      - name: tranSource
+        cobol_name: "TRAN-SOURCE"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Transaction source"
+      - name: tranDesc
+        cobol_name: "TRAN-DESC"
+        type: string
+        length: 100
+        format: "PIC X(100)"
+        nullable: true
+        description: "Transaction description"
+      - name: tranAmount
+        cobol_name: "TRAN-AMT"
+        type: decimal
+        precision: 9
+        scale: 2
+        format: "PIC S9(09)V99"
+        nullable: true
+        description: "Transaction amount"
+      - name: merchantId
+        cobol_name: "TRAN-MERCHANT-ID"
+        type: numeric
+        length: 9
+        format: "PIC 9(09)"
+        nullable: true
+        description: "Merchant identifier"
+      - name: merchantName
+        cobol_name: "TRAN-MERCHANT-NAME"
+        type: string
+        length: 50
+        format: "PIC X(50)"
+        nullable: true
+        description: "Merchant name"
+      - name: merchantCity
+        cobol_name: "TRAN-MERCHANT-CITY"
+        type: string
+        length: 50
+        format: "PIC X(50)"
+        nullable: true
+        description: "Merchant city"
+      - name: merchantZip
+        cobol_name: "TRAN-MERCHANT-ZIP"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        nullable: true
+        description: "Merchant ZIP code"
+      - name: cardNumber
+        cobol_name: "TRAN-CARD-NUM"
+        type: string
+        length: 16
+        format: "PIC X(16)"
+        nullable: true
+        description: "Card number used for transaction"
+        foreign_key: Card.cardNumber
+      - name: origTimestamp
+        cobol_name: "TRAN-ORIG-TS"
+        type: string
+        length: 26
+        format: "PIC X(26)"
+        nullable: true
+        description: "Transaction origination timestamp"
+      - name: procTimestamp
+        cobol_name: "TRAN-PROC-TS"
+        type: string
+        length: 26
+        format: "PIC X(26)"
+        nullable: true
+        description: "Transaction processing timestamp"
+        indexed: true
+
+  TransactionType:
+    description: "Transaction type lookup table"
+    source_vsam: "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS"
+    source_copybook: "CVTRA03Y.cpy"
+    record_length: 60
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "TRAN-TYPE"
+      key_position: 0
+      key_length: 2
+    attributes:
+      - name: tranType
+        cobol_name: "TRAN-TYPE"
+        type: string
+        length: 2
+        format: "PIC X(02)"
+        primary_key: true
+        nullable: false
+        description: "Transaction type code"
+      - name: tranTypeDesc
+        cobol_name: "TRAN-TYPE-DESC"
+        type: string
+        length: 50
+        format: "PIC X(50)"
+        nullable: true
+        description: "Transaction type description"
+
+  TransactionCategory:
+    description: "Transaction category lookup table"
+    source_vsam: "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS"
+    source_copybook: "CVTRA04Y.cpy"
+    record_length: 60
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "TRAN-TYPE-CD + TRAN-CAT-CD"
+      key_position: 0
+      key_length: 6
+    attributes:
+      - name: tranTypeCode
+        cobol_name: "TRAN-TYPE-CD"
+        type: string
+        length: 2
+        format: "PIC X(02)"
+        primary_key: true
+        nullable: false
+        description: "Transaction type code"
+        foreign_key: TransactionType.tranType
+      - name: tranCatCode
+        cobol_name: "TRAN-CAT-CD"
+        type: numeric
+        length: 4
+        format: "PIC 9(04)"
+        primary_key: true
+        nullable: false
+        description: "Transaction category code"
+      - name: tranCatTypeDesc
+        cobol_name: "TRAN-CAT-TYPE-DESC"
+        type: string
+        length: 50
+        format: "PIC X(50)"
+        nullable: true
+        description: "Transaction category description"
+
+  TransactionCategoryBalance:
+    description: "Transaction category balance per account"
+    source_vsam: "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"
+    source_copybook: "CVTRA01Y.cpy"
+    record_length: 50
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "TRANCAT-ACCT-ID + TRANCAT-TYPE-CD + TRANCAT-CD"
+      key_position: 0
+      key_length: 17
+    attributes:
+      - name: acctId
+        cobol_name: "TRANCAT-ACCT-ID"
+        type: numeric
+        length: 11
+        format: "PIC 9(11)"
+        primary_key: true
+        nullable: false
+        description: "Account identifier"
+        foreign_key: Account.acctId
+      - name: tranTypeCode
+        cobol_name: "TRANCAT-TYPE-CD"
+        type: string
+        length: 2
+        format: "PIC X(02)"
+        primary_key: true
+        nullable: false
+        description: "Transaction type code"
+        foreign_key: TransactionType.tranType
+      - name: tranCatCode
+        cobol_name: "TRANCAT-CD"
+        type: numeric
+        length: 4
+        format: "PIC 9(04)"
+        primary_key: true
+        nullable: false
+        description: "Transaction category code"
+        foreign_key: TransactionCategory.tranCatCode
+      - name: tranCatBalance
+        cobol_name: "TRAN-CAT-BAL"
+        type: decimal
+        precision: 9
+        scale: 2
+        format: "PIC S9(09)V99"
+        nullable: true
+        description: "Category balance amount"
+
+  DisclosureGroup:
+    description: "Disclosure group with interest rate information"
+    source_vsam: "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS"
+    source_copybook: "CVTRA02Y.cpy"
+    record_length: 50
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "DIS-ACCT-GROUP-ID + DIS-TRAN-TYPE-CD + DIS-TRAN-CAT-CD"
+      key_position: 0
+      key_length: 16
+    attributes:
+      - name: groupId
+        cobol_name: "DIS-ACCT-GROUP-ID"
+        type: string
+        length: 10
+        format: "PIC X(10)"
+        primary_key: true
+        nullable: false
+        description: "Account group identifier"
+      - name: tranTypeCode
+        cobol_name: "DIS-TRAN-TYPE-CD"
+        type: string
+        length: 2
+        format: "PIC X(02)"
+        primary_key: true
+        nullable: false
+        description: "Transaction type code"
+        foreign_key: TransactionType.tranType
+      - name: tranCatCode
+        cobol_name: "DIS-TRAN-CAT-CD"
+        type: numeric
+        length: 4
+        format: "PIC 9(04)"
+        primary_key: true
+        nullable: false
+        description: "Transaction category code"
+        foreign_key: TransactionCategory.tranCatCode
+      - name: interestRate
+        cobol_name: "DIS-INT-RATE"
+        type: decimal
+        precision: 4
+        scale: 2
+        format: "PIC S9(04)V99"
+        nullable: true
+        description: "Interest rate for this group/category"
+
+  SecurityUser:
+    description: "System user security and authentication"
+    source_vsam: "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+    source_copybook: "CSUSR01Y.cpy"
+    record_length: 80
+    vsam_type: "KSDS"
+    key_definition:
+      primary_key: "SEC-USR-ID"
+      key_position: 0
+      key_length: 8
+    attributes:
+      - name: userId
+        cobol_name: "SEC-USR-ID"
+        type: string
+        length: 8
+        format: "PIC X(08)"
+        primary_key: true
+        nullable: false
+        description: "User ID"
+      - name: firstName
+        cobol_name: "SEC-USR-FNAME"
+        type: string
+        length: 20
+        format: "PIC X(20)"
+        nullable: true
+        description: "User first name"
+      - name: lastName
+        cobol_name: "SEC-USR-LNAME"
+        type: string
+        length: 20
+        format: "PIC X(20)"
+        nullable: true
+        description: "User last name"
+      - name: password
+        cobol_name: "SEC-USR-PWD"
+        type: string
+        length: 8
+        format: "PIC X(08)"
+        nullable: true
+        description: "User password"
+        sensitive: true
+      - name: userType
+        cobol_name: "SEC-USR-TYPE"
+        type: string
+        length: 1
+        format: "PIC X(01)"
+        nullable: true
+        description: "User type (A=Admin, U=User)"
+
+relationships:
+
+  - name: card_to_account
+    from: Card
+    to: Account
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: acctId
+    to_field: acctId
+    description: "Each card belongs to one account; an account can have multiple cards"
+    referential_integrity: true
+
+  - name: cardxref_to_card
+    from: CardXref
+    to: Card
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: cardNumber
+    to_field: cardNumber
+    description: "Cross-reference links to card"
+    referential_integrity: true
+
+  - name: cardxref_to_customer
+    from: CardXref
+    to: Customer
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: custId
+    to_field: custId
+    description: "Cross-reference links to customer"
+    referential_integrity: true
+
+  - name: cardxref_to_account
+    from: CardXref
+    to: Account
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: acctId
+    to_field: acctId
+    description: "Cross-reference links to account"
+    referential_integrity: true
+
+  - name: customer_to_card
+    from: Customer
+    to: Card
+    type: many-to-many
+    cardinality: "N:M"
+    via: CardXref
+    description: "Customers can have multiple cards; cards can be shared by multiple customers (authorized users)"
+    referential_integrity: true
+
+  - name: customer_to_account
+    from: Customer
+    to: Account
+    type: many-to-many
+    cardinality: "N:M"
+    via: CardXref
+    description: "Customers can have multiple accounts; accounts can have multiple customers"
+    referential_integrity: true
+
+  - name: transaction_to_card
+    from: Transaction
+    to: Card
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: cardNumber
+    to_field: cardNumber
+    description: "Each transaction is associated with one card"
+    referential_integrity: true
+
+  - name: transaction_to_transaction_type
+    from: Transaction
+    to: TransactionType
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: tranTypeCode
+    to_field: tranType
+    description: "Each transaction has a transaction type"
+    referential_integrity: true
+
+  - name: transaction_to_transaction_category
+    from: Transaction
+    to: TransactionCategory
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: [tranTypeCode, tranCategoryCode]
+    to_field: [tranTypeCode, tranCatCode]
+    description: "Each transaction belongs to a transaction category"
+    referential_integrity: true
+
+  - name: transaction_category_to_transaction_type
+    from: TransactionCategory
+    to: TransactionType
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: tranTypeCode
+    to_field: tranType
+    description: "Each transaction category belongs to a transaction type"
+    referential_integrity: true
+
+  - name: transaction_category_balance_to_account
+    from: TransactionCategoryBalance
+    to: Account
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: acctId
+    to_field: acctId
+    description: "Category balances are tracked per account"
+    referential_integrity: true
+
+  - name: transaction_category_balance_to_transaction_category
+    from: TransactionCategoryBalance
+    to: TransactionCategory
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: [tranTypeCode, tranCatCode]
+    to_field: [tranTypeCode, tranCatCode]
+    description: "Category balance references transaction category"
+    referential_integrity: true
+
+  - name: account_to_disclosure_group
+    from: Account
+    to: DisclosureGroup
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: groupId
+    to_field: groupId
+    description: "Each account belongs to a disclosure group for interest rate determination"
+    referential_integrity: false
+    note: "Relationship via ACCT-GROUP-ID to DIS-ACCT-GROUP-ID"
+
+  - name: disclosure_group_to_transaction_type
+    from: DisclosureGroup
+    to: TransactionType
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: tranTypeCode
+    to_field: tranType
+    description: "Disclosure group rates are defined per transaction type"
+    referential_integrity: true
+
+  - name: disclosure_group_to_transaction_category
+    from: DisclosureGroup
+    to: TransactionCategory
+    type: many-to-one
+    cardinality: "N:1"
+    from_field: [tranTypeCode, tranCatCode]
+    to_field: [tranTypeCode, tranCatCode]
+    description: "Disclosure group rates are defined per transaction category"
+    referential_integrity: true
+
+business_rules:
+  - rule: "A customer must have at least one card via CardXref"
+  - rule: "Each card must be associated with exactly one account"
+  - rule: "Transactions reference cards, and through cards reference accounts and customers"
+  - rule: "Transaction categories are hierarchical: Type -> Category"
+  - rule: "Account balances can be calculated by transaction category via TransactionCategoryBalance"
+  - rule: "Interest rates are determined by disclosure group and transaction category"
+  - rule: "Card numbers and SSNs are sensitive PII and require encryption"
+  - rule: "All date fields use string format YYYY-MM-DD"
+  - rule: "All monetary amounts are signed decimals with 2 decimal places"
+
+migration_notes:
+  - note: "VSAM KSDS files should be migrated to relational tables with primary key indexes"
+  - note: "VSAM alternate indexes should become secondary indexes in the target database"
+  - note: "Composite keys (e.g., TRAN-TYPE-CD + TRAN-CAT-CD) should be preserved"
+  - note: "Fixed-length COBOL strings should be trimmed during migration"
+  - note: "Numeric fields in COBOL should map to appropriate numeric types (INTEGER, DECIMAL)"
+  - note: "Date fields stored as strings should be converted to DATE type"
+  - note: "FILLER fields in copybooks can be ignored during migration"
+  - note: "Consider adding audit fields (created_date, updated_date, created_by, updated_by)"
+  - note: "Sensitive fields (SSN, card numbers, passwords) require encryption at rest"
+  - note: "Consider normalizing address data into separate address table"
