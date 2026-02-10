@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import ReactFlow, {
   Background,
   Controls,
@@ -10,7 +11,6 @@ import ReactFlow, {
   useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { clusterData } from '../data/clusterData';
 import { cutExplorerData } from '../data/cutExplorerData';
@@ -3397,6 +3397,7 @@ function TestsTab({ data }) {
 function ModernPossibilitiesTab({ cutId }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedSection, setSelectedSection] = useState(null);
 
   useEffect(() => {
     const loadContent = async () => {
@@ -3438,112 +3439,431 @@ function ModernPossibilitiesTab({ cutId }) {
     );
   }
 
+  // Parse content to extract sections
+  const sections = content.split(/^## /m).filter(s => s.trim());
+  const title = sections[0]?.split('\n')[0] || 'Modern Possibilities';
+  const subtitle = sections[0]?.split('\n')[1]?.replace(/^### /, '') || '';
+
+  const colors = [
+    { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', accent: '#3b82f6', icon: '🏗️' },
+    { bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)', accent: '#10b981', icon: '⚡' },
+    { bg: 'rgba(139, 92, 246, 0.1)', border: 'rgba(139, 92, 246, 0.3)', accent: '#8b5cf6', icon: '🔧' },
+    { bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)', accent: '#f59e0b', icon: '📊' },
+  ];
+
+  const DetailModal = ({ section, index, onClose }) => {
+    if (!section) return null;
+
+    const lines = section.trim().split('\n');
+    const sectionTitle = lines[0]?.replace(/^#+\s/, '') || `Section ${index + 1}`;
+    const sectionContent = lines.slice(1).join('\n').trim();
+    const color = colors[index % colors.length];
+
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(2, 6, 23, 0.95)',
+          backdropFilter: 'blur(16px)',
+          zIndex: 10000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px',
+          animation: 'fadeIn 0.3s ease-out'
+        }}
+        onClick={onClose}
+      >
+        <div
+          style={{
+            background: 'rgba(15, 23, 42, 0.8)',
+            borderRadius: '32px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            maxWidth: '900px',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            boxShadow: '0 40px 100px -12px rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(12px)',
+            animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Modal Header */}
+          <div
+            style={{
+              background: `linear-gradient(135deg, ${color.accent}20 0%, ${color.accent}10 100%)`,
+              borderBottom: `1px solid ${color.border}`,
+              padding: '40px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              gap: '20px',
+              position: 'sticky',
+              top: 0,
+              zIndex: 10
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flex: 1 }}>
+              <span style={{ fontSize: '32px', lineHeight: 1 }}>{color.icon}</span>
+              <div>
+                <h2 style={{
+                  fontSize: '28px',
+                  fontWeight: '900',
+                  color: '#fff',
+                  margin: '0 0 8px 0',
+                  letterSpacing: '-0.5px'
+                }}>
+                  {sectionTitle}
+                </h2>
+                <p style={{
+                  fontSize: '12px',
+                  color: color.accent,
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px',
+                  margin: 0
+                }}>
+                  DETAILED EXPLORATION
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onClose}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#94a3b8',
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                transition: 'all 0.2s ease',
+                flexShrink: 0
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                e.currentTarget.style.color = '#ef4444';
+                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.color = '#94a3b8';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Modal Content */}
+          <div style={{ padding: '40px' }}>
+            <div style={{
+              fontSize: '14px',
+              color: '#cbd5e1',
+              lineHeight: '1.8',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              {sectionContent.split('\n').map((line, i) => {
+                const trimmed = line.trim();
+                if (!trimmed) return null;
+
+                if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                  return (
+                    <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                      <span style={{ color: color.accent, fontWeight: '700', marginTop: '2px', flexShrink: 0 }}>•</span>
+                      <span>{trimmed.replace(/^[-*]\s/, '')}</span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <p key={i} style={{ margin: 0 }}>
+                    {trimmed}
+                  </p>
+                );
+              })}
+            </div>
+
+            {/* Footer CTA */}
+            <div
+              style={{
+                marginTop: '40px',
+                paddingTop: '24px',
+                borderTop: `1px solid ${color.border}`,
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '12px'
+              }}
+            >
+              <button
+                onClick={onClose}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#fff',
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                }}
+              >
+                CLOSE
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{
-      background: 'rgba(15, 23, 42, 0.3)',
-      borderRadius: '32px',
-      padding: '60px',
-      border: '1px solid rgba(255, 255, 255, 0.05)',
-      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-      color: '#e2e8f0',
-      lineHeight: '1.7',
-      maxWidth: '1100px',
-      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '40px',
       animation: 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
     }}>
-      <div className="markdown-content">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            h1: ({ node, ...props }) => <h1 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '32px', color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '16px', letterSpacing: '-1px' }} {...props} />,
-            h2: ({ node, ...props }) => <h2 style={{ fontSize: '24px', fontWeight: '800', marginTop: '48px', marginBottom: '20px', color: '#3b82f6', letterSpacing: '-0.5px', textTransform: 'uppercase' }} {...props} />,
-            h3: ({ node, ...props }) => <h3 style={{ fontSize: '20px', fontWeight: '700', marginTop: '32px', marginBottom: '16px', color: '#60a5fa' }} {...props} />,
-            p: ({ node, ...props }) => <p style={{ marginBottom: '20px', fontSize: '17px', color: '#cbd5e1' }} {...props} />,
-            ul: ({ node, ...props }) => <ul style={{ marginBottom: '24px', paddingLeft: '0', listStyleType: 'none' }} {...props} />,
-            li: ({ node, ...props }) => (
-              <li style={{ marginBottom: '16px', color: '#cbd5e1', position: 'relative', paddingLeft: '28px', fontSize: '16px' }}>
-                <span style={{ position: 'absolute', left: 0, top: '10px', width: '8px', height: '8px', background: '#3b82f6', borderRadius: '2px', boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}></span>
-                {props.children}
-              </li>
-            ),
-            code: ({ node, className, children, ...props }) => {
-              const match = /language-(\w+)/.exec(className || '');
-              const isBlock = !node.properties?.inline && (match || children?.toString().includes('\n'));
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+        borderRadius: '32px',
+        padding: '60px 48px',
+        color: '#fff',
+        boxShadow: '0 20px 60px rgba(99, 102, 241, 0.3)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ position: 'absolute', top: 0, right: 0, opacity: 0.1, fontSize: '200px', fontWeight: '900', lineHeight: 1 }}>✨</div>
+        <h2 style={{ fontSize: '32px', fontWeight: '900', margin: '0 0 12px 0', letterSpacing: '-1px' }}>
+          {title}
+        </h2>
+        <p style={{ fontSize: '14px', fontWeight: '700', margin: 0, opacity: 0.95, textTransform: 'uppercase', letterSpacing: '2px' }}>
+          {subtitle}
+        </p>
+      </div>
 
-              if (!isBlock) {
-                return <code style={{
-                  background: 'rgba(59, 130, 246, 0.25)',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
+      {/* Content Cards Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        gap: '24px'
+      }}>
+        {sections.slice(1).map((section, idx) => {
+          const lines = section.trim().split('\n');
+          const sectionTitle = lines[0]?.replace(/^#+\s/, '') || `Section ${idx + 1}`;
+          const sectionContent = lines.slice(1).join('\n').trim();
+          const color = colors[idx % colors.length];
+
+          return (
+            <div
+              key={idx}
+              style={{
+                background: color.bg,
+                border: `2px solid ${color.border}`,
+                borderRadius: '24px',
+                padding: '32px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                transition: 'all 0.3s ease',
+                cursor: 'default',
+                backdropFilter: 'blur(8px)'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.borderColor = color.accent;
+                e.currentTarget.style.boxShadow = `0 12px 32px ${color.accent}20`;
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = color.border;
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px' }}>{color.icon}</span>
+                <h3 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
                   color: '#fff',
-                  fontFamily: "'Fira Code', monospace",
-                  fontSize: '0.9em',
-                  fontWeight: '700',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                }} {...props}>{children}</code>;
-              }
+                  margin: 0,
+                  letterSpacing: '0.5px'
+                }}>
+                  {sectionTitle}
+                </h3>
+              </div>
 
-              return (
-                <div style={{ position: 'relative', margin: '40px 0' }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-14px',
-                    right: '24px',
-                    background: '#3b82f6',
-                    color: '#fff',
-                    fontSize: '10px',
-                    fontWeight: '900',
-                    padding: '6px 16px',
-                    borderRadius: '20px',
-                    letterSpacing: '1.5px',
-                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
-                    zIndex: 10
-                  }}>PROPOSED ARCHITECTURE</div>
+              <div style={{
+                fontSize: '13px',
+                color: '#cbd5e1',
+                lineHeight: '1.6',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                {sectionContent.split('\n').slice(0, 3).map((line, i) => (
+                  line.trim() && (
+                    <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                      <span style={{ color: color.accent, fontWeight: '700', marginTop: '2px' }}>•</span>
+                      <span>{line.replace(/^[-*]\s/, '')}</span>
+                    </div>
+                  )
+                ))}
+              </div>
+
+              <div
+                onClick={() => setSelectedSection({ content: section, index: idx })}
+                style={{
+                  marginTop: 'auto',
+                  paddingTop: '16px',
+                  borderTop: `1px solid ${color.border}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: color.accent,
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.gap = '12px';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.gap = '8px';
+                }}
+              >
+                EXPLORE
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Full Content Section */}
+      <div style={{
+        background: 'rgba(15, 23, 42, 0.4)',
+        borderRadius: '24px',
+        padding: '48px',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        color: '#e2e8f0',
+        lineHeight: '1.8'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ width: '4px', height: '24px', background: '#6366f1', borderRadius: '2px' }} />
+          <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>
+            DETAILED SPECIFICATIONS
+          </h3>
+        </div>
+
+        <div className="markdown-content">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              h1: ({ node, ...props }) => <h1 style={{ fontSize: '28px', fontWeight: '900', marginBottom: '24px', color: '#fff', letterSpacing: '-0.5px' }} {...props} />,
+              h2: ({ node, ...props }) => <h2 style={{ fontSize: '20px', fontWeight: '800', marginTop: '32px', marginBottom: '16px', color: '#60a5fa', letterSpacing: '-0.5px' }} {...props} />,
+              h3: ({ node, ...props }) => <h3 style={{ fontSize: '16px', fontWeight: '700', marginTop: '24px', marginBottom: '12px', color: '#93c5fd' }} {...props} />,
+              p: ({ node, ...props }) => <p style={{ marginBottom: '16px', fontSize: '14px', color: '#cbd5e1' }} {...props} />,
+              ul: ({ node, ...props }) => <ul style={{ marginBottom: '20px', paddingLeft: '0', listStyleType: 'none' }} {...props} />,
+              li: ({ node, ...props }) => (
+                <li style={{ marginBottom: '12px', color: '#cbd5e1', position: 'relative', paddingLeft: '24px', fontSize: '14px' }}>
+                  <span style={{ position: 'absolute', left: 0, top: '6px', width: '6px', height: '6px', background: '#6366f1', borderRadius: '50%' }}></span>
+                  {props.children}
+                </li>
+              ),
+              code: ({ node, className, children, ...props }) => {
+                const match = /language-(\w+)/.exec(className || '');
+                const isBlock = !node.properties?.inline && (match || children?.toString().includes('\n'));
+
+                if (!isBlock) {
+                  return <code style={{
+                    background: 'rgba(99, 102, 241, 0.2)',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    color: '#c7d2fe',
+                    fontFamily: "'Fira Code', monospace",
+                    fontSize: '0.9em',
+                    fontWeight: '600',
+                    border: '1px solid rgba(99, 102, 241, 0.3)'
+                  }} {...props}>{children}</code>;
+                }
+
+                return (
                   <pre style={{
-                    background: 'rgba(2, 6, 23, 0.8)',
-                    padding: '40px 32px 32px',
-                    borderRadius: '24px',
+                    background: 'rgba(2, 6, 23, 0.6)',
+                    padding: '20px 24px',
+                    borderRadius: '16px',
                     overflowX: 'auto',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-                    backdropFilter: 'blur(12px)'
+                    border: '1px solid rgba(99, 102, 241, 0.2)',
+                    margin: '24px 0',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
                   }}>
                     <code style={{
                       fontFamily: "'Fira Code', monospace",
-                      fontSize: '14px',
+                      fontSize: '13px',
                       color: '#94a3b8',
-                      lineHeight: '1.6'
+                      lineHeight: '1.5'
                     }} className={className} {...props}>
                       {children}
                     </code>
                   </pre>
-                </div>
-              );
-            },
-            table: ({ node, ...props }) => (
-              <div style={{
-                overflowX: 'auto',
-                marginBottom: '48px',
-                marginTop: '32px',
-                borderRadius: '24px',
-                border: '1px solid rgba(255,255,255,0.08)',
-                background: 'rgba(2, 6, 23, 0.4)',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-              }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }} {...props} />
-              </div>
-            ),
-            th: ({ node, ...props }) => <th style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '24px', textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#3b82f6', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '11px' }} {...props} />,
-            td: ({ node, ...props }) => <td style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)', color: '#94a3b8' }} {...props} />,
-            strong: ({ node, ...props }) => <strong style={{ color: '#fff', fontWeight: '900', letterSpacing: '0.2px' }} {...props} />,
-            hr: () => <hr style={{ border: 'none', borderTop: '2px solid rgba(255,255,255,0.05)', margin: '60px 0' }} />,
-            blockquote: ({ node, ...props }) => <blockquote style={{ borderLeft: '6px solid #3b82f6', background: 'rgba(59, 130, 246, 0.05)', padding: '32px 40px', margin: '40px 0', borderRadius: '0 24px 24px 0', fontStyle: 'italic', color: '#60a5fa', fontSize: '20px' }} {...props} />,
-          }}
-        >
-          {content}
-        </ReactMarkdown>
+                );
+              },
+              strong: ({ node, ...props }) => <strong style={{ color: '#fff', fontWeight: '800' }} {...props} />,
+              blockquote: ({ node, ...props }) => <blockquote style={{ borderLeft: '4px solid #6366f1', background: 'rgba(99, 102, 241, 0.08)', padding: '20px 24px', margin: '24px 0', borderRadius: '0 12px 12px 0', color: '#93c5fd', fontSize: '14px' }} {...props} />,
+            }}
+          >
+            {content}
+          </ReactMarkdown>
+        </div>
       </div>
+
+      {/* Modal */}
+      {selectedSection && (
+        <DetailModal
+          section={selectedSection.content}
+          index={selectedSection.index}
+          onClose={() => setSelectedSection(null)}
+        />
+      )}
+
+      <style>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -3710,7 +4030,12 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
-          {(cluster?.system_view?.data_ops?.database_tables || []).map((table, i) => (
+          {(cluster?.system_view?.data_ops?.database_tables || [])
+            .filter(table => {
+              const tableName = table.name.toLowerCase();
+              return tableName.includes('customer') || tableName.includes('account') || tableName.includes('card');
+            })
+            .map((table, i) => (
             <div key={i} style={{
               background: 'rgba(255, 255, 255, 0.03)',
               borderRadius: '30px',
