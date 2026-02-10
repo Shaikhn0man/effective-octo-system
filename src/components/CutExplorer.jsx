@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import ReactFlow, {
-    Background,
-    Controls,
-    Handle,
-    MarkerType,
-    Position,
-    useEdgesState,
-    useNodesState,
-    useReactFlow
+  Background,
+  Controls,
+  Handle,
+  MarkerType,
+  Position,
+  useEdgesState,
+  useNodesState,
+  useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import remarkGfm from 'remark-gfm';
@@ -3306,8 +3306,8 @@ function DataTab({ data }) {
           position: 'relative'
         }}>
           <ReactFlow
-            nodes={nodes}
-            edges={edges}
+            nodes={nodes.filter(n => !n.data.label?.includes('CARD_XREF'))}
+            edges={edges.filter(e => !e.source.includes('CARD_XREF') && !e.target.includes('CARD_XREF'))}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             nodeTypes={nodeTypes}
@@ -3396,7 +3396,7 @@ function DataTab({ data }) {
           gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
           gap: '32px'
         }}>
-          {entities.map((entity, idx) => {
+          {entities.filter(e => e.name !== 'CARD_XREF').map((entity, idx) => {
             const isActive = entity.active_in_cut;
             const color = getTypeColor(entity.type);
             return (
@@ -4319,7 +4319,7 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           {(cluster?.system_view?.data_ops?.database_tables || [])
             .filter(table => {
               const tableName = table.name.toLowerCase();
-              return tableName.includes('customer') || tableName.includes('account') || tableName.includes('card');
+              return (tableName === 'customer' || tableName === 'account' || tableName === 'card');
             })
             .map((table, i) => (
             <div key={i} style={{
@@ -4585,28 +4585,68 @@ export function CutExplorer({ clusterId, onClose }) {
             {data.name}
           </h1>
         </div>
-        <button
-          onClick={onClose}
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "#fff",
-            padding: "10px 20px",
-            borderRadius: "12px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "700",
-            transition: "all 0.2s ease",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
-          }
-        >
-          Exit Explorer
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <button
+            onClick={() => {
+              const cutIdParam = clusterId;
+              const runIdParam = clusterId;
+              const url = `http://localhost:7898/?cutId=${cutIdParam}&runId=${runIdParam}`;
+              window.open(url, "_blank");
+            }}
+            style={{
+              background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+              border: "none",
+              color: "#fff",
+              padding: "10px 20px",
+              borderRadius: "12px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "700",
+              transition: "all 0.2s ease",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 6px 16px rgba(37, 99, 235, 0.5)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(37, 99, 235, 0.3)";
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            EXPLORE
+          </button>
+          <button
+            onClick={onClose}
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "#fff",
+              padding: "10px 20px",
+              borderRadius: "12px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "700",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
+            }
+          >
+            Exit Explorer
+          </button>
+        </div>
       </div>
 
       {/* Navigation Tabs */}
