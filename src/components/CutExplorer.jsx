@@ -445,8 +445,10 @@ function FlowsTabHeader({
     </div>
   );
 }
-const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => {
+const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData, referenceLink }) => {
   if (!isOpen) return null;
+
+  console.log('DatabasePopup rendered with:', { tableName, referenceLink, hasReferenceLink: !!referenceLink });
 
   return (
     <div style={{
@@ -480,16 +482,16 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          background: '#fffdf5' // Slight off-white/yellow tint for header as in image? Image header looks white but maybe warm.
+          background: '#fffdf5'
         }}>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
-              <div style={{
-                background: '#fcd34d',
-                color: '#78350f',
-                padding: '4px 12px',
-                borderRadius: '9999px', // Pill shape
-                fontSize: '12px',
+              <div style={{ 
+                background: '#fcd34d', 
+                color: '#78350f', 
+                padding: '4px 12px', 
+                borderRadius: '9999px',
+                fontSize: '12px', 
                 fontWeight: '700',
                 textTransform: 'uppercase'
               }}>
@@ -508,6 +510,45 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
               }}>
                 {tableType || 'MASTER'}
               </div>
+              {referenceLink && (
+                <a
+                  href={referenceLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    background: '#3b82f6',
+                    color: '#fff',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontSize: '10px',
+                    fontWeight: '800',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    transition: 'all 0.2s',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = '#2563eb';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = '#3b82f6';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                  VIEW
+                </a>
+              )}
             </div>
             <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: '500' }}>
               {tableData.business_context || "Database Table Information"}
@@ -526,7 +567,8 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'color 0.2s'
+              transition: 'color 0.2s',
+              flexShrink: 0
             }}
             onMouseEnter={e => e.target.style.color = '#0f172a'}
             onMouseLeave={e => e.target.style.color = '#94a3b8'}
@@ -594,7 +636,7 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
   );
 };
 
-const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
+const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic, onNext, onPrev, hasNext, hasPrev }) => {
   if (!isOpen) return null;
 
   // Clean up the ASCII string if it's formatted as a JSON string array
@@ -735,32 +777,116 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           background: 'rgba(2, 6, 23, 0.8)',
           display: 'flex',
-          justifyContent: 'flex-end',
+          justifyContent: 'space-between',
           alignItems: 'center',
           gap: '24px'
         }}>
           <div style={{ color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
             Press <kbd style={{ background: '#334155', padding: '2px 6px', borderRadius: '4px', color: '#fff' }}>ESC</kbd> or click outside to dismiss
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              border: 'none',
-              color: '#fff',
-              padding: '12px 32px',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              fontSize: '15px',
-              fontWeight: '800',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            CLOSE PREVIEW
-          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Previous Button */}
+            <button 
+              onClick={onPrev}
+              disabled={!hasPrev}
+              style={{
+                background: hasPrev ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: hasPrev ? '#fff' : '#64748b',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: hasPrev ? 'pointer' : 'not-allowed',
+                fontSize: '13px',
+                fontWeight: '700',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                opacity: hasPrev ? 1 : 0.5,
+              }}
+              onMouseEnter={e => {
+                if (hasPrev) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                  e.currentTarget.style.transform = 'translateX(-2px)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (hasPrev) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.transform = 'translateX(0)';
+                }
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 19l-7-7 7-7" />
+              </svg>
+              PREV
+            </button>
+
+            {/* Next Button */}
+            <button 
+              onClick={onNext}
+              disabled={!hasNext}
+              style={{
+                background: hasNext ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : 'rgba(255, 255, 255, 0.03)',
+                border: hasNext ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: hasNext ? 'pointer' : 'not-allowed',
+                fontSize: '13px',
+                fontWeight: '700',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                opacity: hasNext ? 1 : 0.5,
+                boxShadow: hasNext ? '0 4px 12px rgba(37, 99, 235, 0.3)' : 'none',
+              }}
+              onMouseEnter={e => {
+                if (hasNext) {
+                  e.currentTarget.style.transform = 'translateX(2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(37, 99, 235, 0.5)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (hasNext) {
+                  e.currentTarget.style.transform = 'translateX(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.3)';
+                }
+              }}
+            >
+              NEXT
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Close Button */}
+            <button 
+              onClick={onClose}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '700',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              }}
+            >
+              CLOSE
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -859,7 +985,7 @@ const CustomScreenNode = ({ data }) => (
       </div>
     </div>
     <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
-    <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
+    <div style={{ fontSize: '12px', color: '#fff', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
   </div>
 );
 
@@ -916,10 +1042,68 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   const [focusMode, setFocusMode] = useState(false);
   const [focusedNodeId, setFocusedNodeId] = useState(null);
   const [popupDatabaseNode, setPopupDatabaseNode] = useState(null);
+  const [screenOrder, setScreenOrder] = useState([]);
+  const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
 
   if (!systemView || !systemView.screens || !systemView.flow_connections) {
     return null;
   }
+
+  // Build screen order from flow connections
+  useMemo(() => {
+    const orderedScreenNames = [];
+    const connections = systemView.flow_connections;
+    if (connections && connections.length > 0) {
+      const targets = new Set(connections.map(c => c.target));
+      const startConn = connections.find(c => !targets.has(c.source)) || connections[0];
+      let current = startConn.source;
+      orderedScreenNames.push(current);
+      
+      let safetyCounter = 0;
+      while (safetyCounter < systemView.screens.length * 2) {
+          const nextConn = connections.find(c => c.source === current);
+          if (nextConn && !orderedScreenNames.includes(nextConn.target)) {
+              current = nextConn.target;
+              orderedScreenNames.push(current);
+          } else {
+              break;
+          }
+          safetyCounter++;
+      }
+    }
+    
+    // Fallback for screens not in connections
+    const missingScreens = systemView.screens
+      .map(s => s.name)
+      .filter(name => !orderedScreenNames.includes(name));
+    const finalOrderedScreenNames = [...orderedScreenNames, ...missingScreens];
+    
+    setScreenOrder(finalOrderedScreenNames);
+  }, [systemView]);
+
+  const handleNavigateNext = () => {
+    if (currentScreenIndex < screenOrder.length - 1) {
+      const nextScreenName = screenOrder[currentScreenIndex + 1];
+      setCurrentScreenIndex(currentScreenIndex + 1);
+      // Trigger click on next screen
+      const nextScreen = systemView.screens.find(s => s.name === nextScreenName);
+      if (nextScreen) {
+        handleNodeClick({ label: nextScreenName, sublabel: nextScreen.topic }, `screen-${nextScreenName}`);
+      }
+    }
+  };
+
+  const handleNavigatePrev = () => {
+    if (currentScreenIndex > 0) {
+      const prevScreenName = screenOrder[currentScreenIndex - 1];
+      setCurrentScreenIndex(currentScreenIndex - 1);
+      // Trigger click on previous screen
+      const prevScreen = systemView.screens.find(s => s.name === prevScreenName);
+      if (prevScreen) {
+        handleNodeClick({ label: prevScreenName, sublabel: prevScreen.topic }, `screen-${prevScreenName}`);
+      }
+    }
+  };
 
   const handleNodeClick = (nodeData, nodeId) => {
     if (focusMode) {
@@ -929,23 +1113,58 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
 
     // Database node click handling
     if (nodeId && nodeId.startsWith('table-')) {
-      const tableName = nodeData.label;
-      const tableData = (systemView.field_matrix && systemView.field_matrix[tableName]) || {
-        business_context: "No field details available.",
-        fields: []
-      };
-
-      setPopupDatabaseNode({
-        name: tableName,
-        type: nodeData.type,
-        data: tableData
-      });
-      return;
+       const tableName = nodeData.label;
+       const tableData = (systemView.field_matrix && systemView.field_matrix[tableName]) || { 
+         business_context: "No field details available.", 
+         fields: [] 
+       };
+       
+       // Extract reference_link - search in clusterData sub_cuts data_domain
+       let referenceLink = null;
+       const clusters = Array.isArray(clusterData.clusters) 
+         ? clusterData.clusters 
+         : Object.values(clusterData.clusters);
+       
+       for (const cluster of clusters) {
+         if (cluster.sub_cuts) {
+           for (const subCut of cluster.sub_cuts) {
+             if (subCut.data_domain) {
+               const masterTable = subCut.data_domain.master_tables?.find(t => t.name === tableName);
+               if (masterTable?.reference_link) {
+                 referenceLink = masterTable.reference_link;
+                 break;
+               }
+               const refTable = subCut.data_domain.reference_tables?.find(t => t.name === tableName);
+               if (refTable?.reference_link) {
+                 referenceLink = refTable.reference_link;
+                 break;
+               }
+             }
+           }
+           if (referenceLink) break;
+         }
+       }
+       
+       console.log('Database node clicked:', { tableName, referenceLink, hasReferenceLink: !!referenceLink });
+       
+       setPopupDatabaseNode({
+         name: tableName,
+         type: nodeData.type,
+         data: tableData,
+         referenceLink
+       });
+       return;
     }
 
     // ASCII popup for other nodes
     if (!nodeData.label) {
       return;
+    }
+
+    // Track current screen index for navigation
+    const screenIndex = screenOrder.indexOf(nodeData.label);
+    if (screenIndex >= 0) {
+      setCurrentScreenIndex(screenIndex);
     }
 
     // Attempt to find ASCII art in multiple locations
@@ -1511,6 +1730,10 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         nodeName={popupNode?.name}
         asciiArt={popupNode?.asciiArt}
         topic={popupNode?.topic}
+        onNext={handleNavigateNext}
+        onPrev={handleNavigatePrev}
+        hasNext={currentScreenIndex < screenOrder.length - 1}
+        hasPrev={currentScreenIndex > 0}
       />
 
       <DatabasePopup
@@ -1519,6 +1742,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         tableName={popupDatabaseNode?.name}
         tableType={popupDatabaseNode?.type}
         tableData={popupDatabaseNode?.data}
+        referenceLink={popupDatabaseNode?.referenceLink}
       />
     </div>
   );
