@@ -135,6 +135,22 @@ const DataIcon = () => (
   </svg>
 );
 
+const TestsIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="9 11 12 14 22 4"></polyline>
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+  </svg>
+);
+
 const DBInteractionIcon = () => (
   <svg
     width="18"
@@ -486,12 +502,12 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData, refer
         }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
-              <div style={{ 
-                background: '#fcd34d', 
-                color: '#78350f', 
-                padding: '4px 12px', 
+              <div style={{
+                background: '#fcd34d',
+                color: '#78350f',
+                padding: '4px 12px',
                 borderRadius: '9999px',
-                fontSize: '12px', 
+                fontSize: '12px',
                 fontWeight: '700',
                 textTransform: 'uppercase'
               }}>
@@ -784,10 +800,10 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic, onNext, onPre
           <div style={{ color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
             Press <kbd style={{ background: '#334155', padding: '2px 6px', borderRadius: '4px', color: '#fff' }}>ESC</kbd> or click outside to dismiss
           </div>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {/* Previous Button */}
-            <button 
+            <button
               onClick={onPrev}
               disabled={!hasPrev}
               style={{
@@ -825,7 +841,7 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic, onNext, onPre
             </button>
 
             {/* Next Button */}
-            <button 
+            <button
               onClick={onNext}
               disabled={!hasNext}
               style={{
@@ -864,7 +880,7 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic, onNext, onPre
             </button>
 
             {/* Close Button */}
-            <button 
+            <button
               onClick={onClose}
               style={{
                 background: 'rgba(255, 255, 255, 0.05)',
@@ -1044,7 +1060,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   const [popupDatabaseNode, setPopupDatabaseNode] = useState(null);
   const [screenOrder, setScreenOrder] = useState([]);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
-  
+
   // Filter states
   const [nodeFilters, setNodeFilters] = useState({
     screens: true,
@@ -1073,26 +1089,26 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       const startConn = connections.find(c => !targets.has(c.source)) || connections[0];
       let current = startConn.source;
       orderedScreenNames.push(current);
-      
+
       let safetyCounter = 0;
       while (safetyCounter < systemView.screens.length * 2) {
-          const nextConn = connections.find(c => c.source === current);
-          if (nextConn && !orderedScreenNames.includes(nextConn.target)) {
-              current = nextConn.target;
-              orderedScreenNames.push(current);
-          } else {
-              break;
-          }
-          safetyCounter++;
+        const nextConn = connections.find(c => c.source === current);
+        if (nextConn && !orderedScreenNames.includes(nextConn.target)) {
+          current = nextConn.target;
+          orderedScreenNames.push(current);
+        } else {
+          break;
+        }
+        safetyCounter++;
       }
     }
-    
+
     // Fallback for screens not in connections
     const missingScreens = systemView.screens
       .map(s => s.name)
       .filter(name => !orderedScreenNames.includes(name));
     const finalOrderedScreenNames = [...orderedScreenNames, ...missingScreens];
-    
+
     setScreenOrder(finalOrderedScreenNames);
   }, [systemView]);
 
@@ -1128,47 +1144,47 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
 
     // Database node click handling
     if (nodeId && nodeId.startsWith('table-')) {
-       const tableName = nodeData.label;
-       const tableData = (systemView.field_matrix && systemView.field_matrix[tableName]) || { 
-         business_context: "No field details available.", 
-         fields: [] 
-       };
-       
-       // Extract reference_link - search in clusterData sub_cuts data_domain
-       let referenceLink = null;
-       const clusters = Array.isArray(clusterData.clusters) 
-         ? clusterData.clusters 
-         : Object.values(clusterData.clusters);
-       
-       for (const cluster of clusters) {
-         if (cluster.sub_cuts) {
-           for (const subCut of cluster.sub_cuts) {
-             if (subCut.data_domain) {
-               const masterTable = subCut.data_domain.master_tables?.find(t => t.name === tableName);
-               if (masterTable?.reference_link) {
-                 referenceLink = masterTable.reference_link;
-                 break;
-               }
-               const refTable = subCut.data_domain.reference_tables?.find(t => t.name === tableName);
-               if (refTable?.reference_link) {
-                 referenceLink = refTable.reference_link;
-                 break;
-               }
-             }
-           }
-           if (referenceLink) break;
-         }
-       }
-       
-       console.log('Database node clicked:', { tableName, referenceLink, hasReferenceLink: !!referenceLink });
-       
-       setPopupDatabaseNode({
-         name: tableName,
-         type: nodeData.type,
-         data: tableData,
-         referenceLink
-       });
-       return;
+      const tableName = nodeData.label;
+      const tableData = (systemView.field_matrix && systemView.field_matrix[tableName]) || {
+        business_context: "No field details available.",
+        fields: []
+      };
+
+      // Extract reference_link - search in clusterData sub_cuts data_domain
+      let referenceLink = null;
+      const clusters = Array.isArray(clusterData.clusters)
+        ? clusterData.clusters
+        : Object.values(clusterData.clusters);
+
+      for (const cluster of clusters) {
+        if (cluster.sub_cuts) {
+          for (const subCut of cluster.sub_cuts) {
+            if (subCut.data_domain) {
+              const masterTable = subCut.data_domain.master_tables?.find(t => t.name === tableName);
+              if (masterTable?.reference_link) {
+                referenceLink = masterTable.reference_link;
+                break;
+              }
+              const refTable = subCut.data_domain.reference_tables?.find(t => t.name === tableName);
+              if (refTable?.reference_link) {
+                referenceLink = refTable.reference_link;
+                break;
+              }
+            }
+          }
+          if (referenceLink) break;
+        }
+      }
+
+      console.log('Database node clicked:', { tableName, referenceLink, hasReferenceLink: !!referenceLink });
+
+      setPopupDatabaseNode({
+        name: tableName,
+        type: nodeData.type,
+        data: tableData,
+        referenceLink
+      });
+      return;
     }
 
     // ASCII popup for other nodes
@@ -1303,14 +1319,14 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         // Find if this table has any active (filtered-in) connections
         const hasActiveConnection = systemView.data_ops.data_connections?.some(conn => {
           if (conn.target !== table.name) return false;
-          
+
           const isReadOp = conn.operation === 'READ';
           const isWriteOp = conn.operation === 'WRITE';
           const isBothOp = conn.operation === 'BOTH';
-          
-          return (isReadOp && connectionFilters.read) || 
-                 (isWriteOp && connectionFilters.write) || 
-                 (isBothOp && connectionFilters.both);
+
+          return (isReadOp && connectionFilters.read) ||
+            (isWriteOp && connectionFilters.write) ||
+            (isBothOp && connectionFilters.both);
         });
 
         if (hasActiveConnection) {
@@ -1405,10 +1421,10 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         const isReadOp = conn.operation === 'READ';
         const isWriteOp = conn.operation === 'WRITE';
         const isBothOp = conn.operation === 'BOTH';
-        
-        const operationAllowed = (isReadOp && connectionFilters.read) || 
-                                 (isWriteOp && connectionFilters.write) || 
-                                 (isBothOp && connectionFilters.both);
+
+        const operationAllowed = (isReadOp && connectionFilters.read) ||
+          (isWriteOp && connectionFilters.write) ||
+          (isBothOp && connectionFilters.both);
 
         if (!operationAllowed) return;
 
@@ -1622,7 +1638,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
             </label>
           )}
 
-        
+
 
           {/* Connection Type Filters */}
           <div style={{ display: 'flex', gap: '6px', background: 'rgba(2, 6, 23, 0.6)', padding: '6px 8px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
@@ -1636,11 +1652,11 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
                 onClick={() => {
                   if (filter.key === 'screenFlow') {
                     const newValue = !connectionFilters.screenFlow;
-                    setConnectionFilters(prev => ({ 
-                      ...prev, 
+                    setConnectionFilters(prev => ({
+                      ...prev,
                       screenFlow: newValue,
                       batchFlow: newValue,
-                      both: newValue 
+                      both: newValue
                     }));
                   } else {
                     setConnectionFilters(prev => ({ ...prev, [filter.key]: !prev[filter.key] }));
@@ -3157,6 +3173,115 @@ function DataTab({ data }) {
   );
 }
 
+function TestsTab({ data }) {
+  const testScenarios = data?.test_scenarios;
+
+  if (!testScenarios) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+        No test scenarios available for this cut.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      background: '#fff',
+      borderRadius: '24px',
+      border: '4px solid #6366f1',
+      padding: '40px',
+      color: '#1e293b',
+      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+      maxWidth: '1000px',
+      margin: '0 auto'
+    }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: '40px'
+      }}>
+        <div>
+          <h2 style={{
+            fontSize: '14px',
+            fontWeight: '900',
+            color: '#1e293b',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            margin: '0 0 8px 0'
+          }}>
+            TEST SPECIFICATION BASIS
+          </h2>
+          <p style={{
+            fontSize: '12px',
+            color: '#94a3b8',
+            margin: 0
+          }}>
+            Basis: {testScenarios.basis || "Automated Gherkin definitions extracted from execution paths"}
+          </p>
+        </div>
+        <div style={{
+          background: 'rgba(99, 102, 241, 0.1)',
+          padding: '8px 16px',
+          borderRadius: '12px',
+          border: '1px solid rgba(99, 102, 241, 0.2)',
+          fontSize: '12px',
+          fontWeight: '700',
+          color: '#6366f1'
+        }}>
+          {testScenarios.total_scenarios || testScenarios.scenarios?.length || 0} SCENARIOS
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        {testScenarios.scenarios?.map((scenario, idx) => (
+          <div key={idx} style={{
+            borderLeft: '4px solid #6366f1',
+            paddingLeft: '24px',
+            position: 'relative'
+          }}>
+            <h3 style={{
+              fontSize: '14px',
+              fontWeight: '800',
+              color: '#1e293b',
+              marginBottom: '16px',
+              fontFamily: 'monospace'
+            }}>
+              <span style={{ color: '#94a3b8', fontWeight: '500' }}>Scenario: </span>
+              {scenario.name}
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {scenario.steps?.map((step, sIdx) => (
+                <div key={sIdx} style={{ display: 'flex', gap: '24px', alignItems: 'baseline' }}>
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: '900',
+                    color: '#6366f1',
+                    textTransform: 'uppercase',
+                    width: '60px',
+                    textAlign: 'left',
+                    fontFamily: 'monospace'
+                  }}>
+                    {step.keyword}
+                  </span>
+                  <span style={{
+                    fontSize: '14px',
+                    color: '#64748b',
+                    fontFamily: 'monospace',
+                    lineHeight: '1.4'
+                  }}>
+                    {step.step}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function DeepDiveOverview({ data, cutId, clusterId }) {
   const cluster = clusterData.clusters.find(c => c.id === clusterId);
   const stats = cluster?.stats || data.stats;
@@ -3527,6 +3652,7 @@ export function CutExplorer({ clusterId, onClose }) {
     { id: 'dependencies', label: 'Dependencies', icon: <DependenciesIcon /> },
     { id: 'flow', label: 'Flows', icon: <FlowIcon /> },
     { id: 'data', label: 'Data', icon: <DataIcon /> },
+    { id: 'tests', label: 'Tests', icon: <TestsIcon /> },
     // { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
   ];
 
@@ -3673,6 +3799,7 @@ export function CutExplorer({ clusterId, onClose }) {
         {activeTab === 'dependencies' && <DependenciesTab data={cutData} currentCutName={data.name} />}
         {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} cutData={cutData} />}
         {activeTab === 'data' && <DataTab data={cutData} />}
+        {activeTab === 'tests' && <TestsTab data={cutData} />}
         {activeTab === 'ascii' && <ASCIIChart data={data} cutId={cutId} />}
       </div>
 
