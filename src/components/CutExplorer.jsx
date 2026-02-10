@@ -594,7 +594,7 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
   );
 };
 
-const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
+const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic, onNext, onPrev, hasNext, hasPrev }) => {
   if (!isOpen) return null;
 
   // Clean up the ASCII string if it's formatted as a JSON string array
@@ -735,32 +735,116 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic }) => {
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           background: 'rgba(2, 6, 23, 0.8)',
           display: 'flex',
-          justifyContent: 'flex-end',
+          justifyContent: 'space-between',
           alignItems: 'center',
           gap: '24px'
         }}>
           <div style={{ color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
             Press <kbd style={{ background: '#334155', padding: '2px 6px', borderRadius: '4px', color: '#fff' }}>ESC</kbd> or click outside to dismiss
           </div>
-          <button 
-            onClick={onClose}
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              border: 'none',
-              color: '#fff',
-              padding: '12px 32px',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              fontSize: '15px',
-              fontWeight: '800',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            CLOSE PREVIEW
-          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Previous Button */}
+            <button 
+              onClick={onPrev}
+              disabled={!hasPrev}
+              style={{
+                background: hasPrev ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: hasPrev ? '#fff' : '#64748b',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: hasPrev ? 'pointer' : 'not-allowed',
+                fontSize: '13px',
+                fontWeight: '700',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                opacity: hasPrev ? 1 : 0.5,
+              }}
+              onMouseEnter={e => {
+                if (hasPrev) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                  e.currentTarget.style.transform = 'translateX(-2px)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (hasPrev) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.transform = 'translateX(0)';
+                }
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 19l-7-7 7-7" />
+              </svg>
+              PREV
+            </button>
+
+            {/* Next Button */}
+            <button 
+              onClick={onNext}
+              disabled={!hasNext}
+              style={{
+                background: hasNext ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : 'rgba(255, 255, 255, 0.03)',
+                border: hasNext ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: hasNext ? 'pointer' : 'not-allowed',
+                fontSize: '13px',
+                fontWeight: '700',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                opacity: hasNext ? 1 : 0.5,
+                boxShadow: hasNext ? '0 4px 12px rgba(37, 99, 235, 0.3)' : 'none',
+              }}
+              onMouseEnter={e => {
+                if (hasNext) {
+                  e.currentTarget.style.transform = 'translateX(2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(37, 99, 235, 0.5)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (hasNext) {
+                  e.currentTarget.style.transform = 'translateX(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.3)';
+                }
+              }}
+            >
+              NEXT
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Close Button */}
+            <button 
+              onClick={onClose}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '700',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              }}
+            >
+              CLOSE
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -859,7 +943,7 @@ const CustomScreenNode = ({ data }) => (
       </div>
     </div>
     <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
-    <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
+    <div style={{ fontSize: '12px', color: '#fff', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
   </div>
 );
 
@@ -916,10 +1000,68 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   const [focusMode, setFocusMode] = useState(false);
   const [focusedNodeId, setFocusedNodeId] = useState(null);
   const [popupDatabaseNode, setPopupDatabaseNode] = useState(null);
+  const [screenOrder, setScreenOrder] = useState([]);
+  const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
 
   if (!systemView || !systemView.screens || !systemView.flow_connections) {
     return null;
   }
+
+  // Build screen order from flow connections
+  useMemo(() => {
+    const orderedScreenNames = [];
+    const connections = systemView.flow_connections;
+    if (connections && connections.length > 0) {
+      const targets = new Set(connections.map(c => c.target));
+      const startConn = connections.find(c => !targets.has(c.source)) || connections[0];
+      let current = startConn.source;
+      orderedScreenNames.push(current);
+      
+      let safetyCounter = 0;
+      while (safetyCounter < systemView.screens.length * 2) {
+          const nextConn = connections.find(c => c.source === current);
+          if (nextConn && !orderedScreenNames.includes(nextConn.target)) {
+              current = nextConn.target;
+              orderedScreenNames.push(current);
+          } else {
+              break;
+          }
+          safetyCounter++;
+      }
+    }
+    
+    // Fallback for screens not in connections
+    const missingScreens = systemView.screens
+      .map(s => s.name)
+      .filter(name => !orderedScreenNames.includes(name));
+    const finalOrderedScreenNames = [...orderedScreenNames, ...missingScreens];
+    
+    setScreenOrder(finalOrderedScreenNames);
+  }, [systemView]);
+
+  const handleNavigateNext = () => {
+    if (currentScreenIndex < screenOrder.length - 1) {
+      const nextScreenName = screenOrder[currentScreenIndex + 1];
+      setCurrentScreenIndex(currentScreenIndex + 1);
+      // Trigger click on next screen
+      const nextScreen = systemView.screens.find(s => s.name === nextScreenName);
+      if (nextScreen) {
+        handleNodeClick({ label: nextScreenName, sublabel: nextScreen.topic }, `screen-${nextScreenName}`);
+      }
+    }
+  };
+
+  const handleNavigatePrev = () => {
+    if (currentScreenIndex > 0) {
+      const prevScreenName = screenOrder[currentScreenIndex - 1];
+      setCurrentScreenIndex(currentScreenIndex - 1);
+      // Trigger click on previous screen
+      const prevScreen = systemView.screens.find(s => s.name === prevScreenName);
+      if (prevScreen) {
+        handleNodeClick({ label: prevScreenName, sublabel: prevScreen.topic }, `screen-${prevScreenName}`);
+      }
+    }
+  };
 
   const handleNodeClick = (nodeData, nodeId) => {
     if (focusMode) {
@@ -946,6 +1088,12 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
     // ASCII popup for other nodes
     if (!nodeData.label) {
       return;
+    }
+
+    // Track current screen index for navigation
+    const screenIndex = screenOrder.indexOf(nodeData.label);
+    if (screenIndex >= 0) {
+      setCurrentScreenIndex(screenIndex);
     }
 
     // Attempt to find ASCII art in multiple locations
@@ -1511,6 +1659,10 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         nodeName={popupNode?.name}
         asciiArt={popupNode?.asciiArt}
         topic={popupNode?.topic}
+        onNext={handleNavigateNext}
+        onPrev={handleNavigatePrev}
+        hasNext={currentScreenIndex < screenOrder.length - 1}
+        hasPrev={currentScreenIndex > 0}
       />
       
       <DatabasePopup 
