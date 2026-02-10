@@ -10,6 +10,8 @@ import ReactFlow, {
   useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { clusterData } from '../data/clusterData';
 import { cutExplorerData } from '../data/cutExplorerData';
 
@@ -167,6 +169,25 @@ const DBInteractionIcon = () => (
     <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
     <line x1="12" y1="8" x2="12" y2="12"></line>
     <polyline points="9 11 12 14 15 11"></polyline>
+  </svg>
+);
+
+const SparklesIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+    <path d="m5 3 1 2"></path>
+    <path d="m19 21 1-2"></path>
+    <path d="m5 21 1-2"></path>
+    <path d="m19 3 1-2"></path>
   </svg>
 );
 
@@ -3373,6 +3394,160 @@ function TestsTab({ data }) {
   );
 }
 
+function ModernPossibilitiesTab({ cutId }) {
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      setLoading(true);
+      try {
+        const modules = import.meta.glob('../data/modern_possibilities/*.md', { query: '?raw', import: 'default' });
+        const filePath = Object.keys(modules).find(path => path.includes(`Cut_${cutId}_`));
+        if (filePath) {
+          const mod = await modules[filePath]();
+          setContent(mod);
+        } else {
+          setContent('# No Modern Possibilities\n\nNo modern possibilities documented for this cut yet.');
+        }
+      } catch (err) {
+        console.error('Error loading markdown:', err);
+        setContent('# Error\n\nFailed to load modern possibilities for this cut.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadContent();
+  }, [cutId]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px', color: '#94a3b8' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid rgba(59, 130, 246, 0.1)',
+            borderTopColor: '#3b82f6',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <div style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '2px', color: '#3b82f6' }}>ANALYZING MODERN POSSIBILITIES...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      background: 'rgba(15, 23, 42, 0.3)',
+      borderRadius: '32px',
+      padding: '60px',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+      color: '#e2e8f0',
+      lineHeight: '1.7',
+      maxWidth: '1100px',
+      margin: '0 auto',
+      animation: 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+    }}>
+      <div className="markdown-content">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            h1: ({ node, ...props }) => <h1 style={{ fontSize: '36px', fontWeight: '900', marginBottom: '32px', color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '16px', letterSpacing: '-1px' }} {...props} />,
+            h2: ({ node, ...props }) => <h2 style={{ fontSize: '24px', fontWeight: '800', marginTop: '48px', marginBottom: '20px', color: '#3b82f6', letterSpacing: '-0.5px', textTransform: 'uppercase' }} {...props} />,
+            h3: ({ node, ...props }) => <h3 style={{ fontSize: '20px', fontWeight: '700', marginTop: '32px', marginBottom: '16px', color: '#60a5fa' }} {...props} />,
+            p: ({ node, ...props }) => <p style={{ marginBottom: '20px', fontSize: '17px', color: '#cbd5e1' }} {...props} />,
+            ul: ({ node, ...props }) => <ul style={{ marginBottom: '24px', paddingLeft: '0', listStyleType: 'none' }} {...props} />,
+            li: ({ node, ...props }) => (
+              <li style={{ marginBottom: '16px', color: '#cbd5e1', position: 'relative', paddingLeft: '28px', fontSize: '16px' }}>
+                <span style={{ position: 'absolute', left: 0, top: '10px', width: '8px', height: '8px', background: '#3b82f6', borderRadius: '2px', boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}></span>
+                {props.children}
+              </li>
+            ),
+            code: ({ node, className, children, ...props }) => {
+              const match = /language-(\w+)/.exec(className || '');
+              const isBlock = !node.properties?.inline && (match || children?.toString().includes('\n'));
+
+              if (!isBlock) {
+                return <code style={{
+                  background: 'rgba(59, 130, 246, 0.25)',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontFamily: "'Fira Code', monospace",
+                  fontSize: '0.9em',
+                  fontWeight: '700',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }} {...props}>{children}</code>;
+              }
+
+              return (
+                <div style={{ position: 'relative', margin: '40px 0' }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '-14px',
+                    right: '24px',
+                    background: '#3b82f6',
+                    color: '#fff',
+                    fontSize: '10px',
+                    fontWeight: '900',
+                    padding: '6px 16px',
+                    borderRadius: '20px',
+                    letterSpacing: '1.5px',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+                    zIndex: 10
+                  }}>PROPOSED ARCHITECTURE</div>
+                  <pre style={{
+                    background: 'rgba(2, 6, 23, 0.8)',
+                    padding: '40px 32px 32px',
+                    borderRadius: '24px',
+                    overflowX: 'auto',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                    backdropFilter: 'blur(12px)'
+                  }}>
+                    <code style={{
+                      fontFamily: "'Fira Code', monospace",
+                      fontSize: '14px',
+                      color: '#94a3b8',
+                      lineHeight: '1.6'
+                    }} className={className} {...props}>
+                      {children}
+                    </code>
+                  </pre>
+                </div>
+              );
+            },
+            table: ({ node, ...props }) => (
+              <div style={{
+                overflowX: 'auto',
+                marginBottom: '48px',
+                marginTop: '32px',
+                borderRadius: '24px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(2, 6, 23, 0.4)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+              }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }} {...props} />
+              </div>
+            ),
+            th: ({ node, ...props }) => <th style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '24px', textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#3b82f6', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '11px' }} {...props} />,
+            td: ({ node, ...props }) => <td style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)', color: '#94a3b8' }} {...props} />,
+            strong: ({ node, ...props }) => <strong style={{ color: '#fff', fontWeight: '900', letterSpacing: '0.2px' }} {...props} />,
+            hr: () => <hr style={{ border: 'none', borderTop: '2px solid rgba(255,255,255,0.05)', margin: '60px 0' }} />,
+            blockquote: ({ node, ...props }) => <blockquote style={{ borderLeft: '6px solid #3b82f6', background: 'rgba(59, 130, 246, 0.05)', padding: '32px 40px', margin: '40px 0', borderRadius: '0 24px 24px 0', fontStyle: 'italic', color: '#60a5fa', fontSize: '20px' }} {...props} />,
+          }}
+        >
+          {content}
+        </ReactMarkdown>
+      </div>
+    </div>
+  );
+}
+
 function DeepDiveOverview({ data, cutId, clusterId }) {
   const cluster = clusterData.clusters.find(c => c.id === clusterId);
   const stats = cluster?.stats || data.stats;
@@ -3744,6 +3919,7 @@ export function CutExplorer({ clusterId, onClose }) {
     { id: 'flow', label: 'Flows', icon: <FlowIcon /> },
     { id: 'data', label: 'Data', icon: <DataIcon /> },
     { id: 'tests', label: 'Tests', icon: <TestsIcon /> },
+    { id: 'modern', label: 'Modern Possibilities', icon: <SparklesIcon /> },
     // { id: 'ascii', label: 'ASCII Chart', icon: <CodeIcon /> }
   ];
 
@@ -3890,6 +4066,7 @@ export function CutExplorer({ clusterId, onClose }) {
         {activeTab === 'dependencies' && <DependenciesTab data={cutData} currentCutName={data.name} />}
         {activeTab === 'flow' && <FlowDiagram data={data} cutId={cutId} cutData={cutData} />}
         {activeTab === 'data' && <DataTab data={cutData} />}
+        {activeTab === 'modern' && <ModernPossibilitiesTab cutId={cutId} />}
         {activeTab === 'tests' && <TestsTab data={cutData} />}
         {activeTab === 'ascii' && <ASCIIChart data={data} cutId={cutId} />}
       </div>
