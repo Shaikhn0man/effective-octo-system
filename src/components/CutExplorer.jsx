@@ -1044,6 +1044,21 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   const [popupDatabaseNode, setPopupDatabaseNode] = useState(null);
   const [screenOrder, setScreenOrder] = useState([]);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+  
+  // Filter states
+  const [nodeFilters, setNodeFilters] = useState({
+    screens: true,
+    batches: true,
+    tables: true,
+  });
+  const [connectionFilters, setConnectionFilters] = useState({
+    screenFlow: true,
+    batchFlow: true,
+    dataOps: true,
+    read: true,
+    write: true,
+    both: true,
+  });
 
   if (!systemView || !systemView.screens || !systemView.flow_connections) {
     return null;
@@ -1282,8 +1297,8 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       .filter(name => !orderedScreenNames.includes(name));
     const finalOrderedScreenNames = [...orderedScreenNames, ...missingScreens];
 
-    // 1. Process Database Tables (Top Layer) - Only if showDataOps is true
-    if (showDataOps && systemView.data_ops && systemView.data_ops.database_tables) {
+    // 1. Process Database Tables (Top Layer) - Only if showDataOps and tables filter is true
+    if (showDataOps && nodeFilters.tables && systemView.data_ops && systemView.data_ops.database_tables) {
       systemView.data_ops.database_tables.forEach((table, idx) => {
         nodes.push({
           id: `table-${table.name}`,
@@ -1298,21 +1313,23 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
     const screenMap = {};
     systemView.screens.forEach(s => screenMap[s.name] = s);
 
-    // 2. Process Screens (Bottom Layer) in correct order
-    finalOrderedScreenNames.forEach((name, idx) => {
-      const screen = screenMap[name];
-      if (screen) {
-        nodes.push({
-          id: `screen-${name}`,
-          type: 'screen',
-          data: { label: name, sublabel: screen.topic, onNodeClick: handleNodeClick, nodeId: `screen-${name}` },
-          position: { x: idx * 300, y: 350 },
-        });
-      }
-    });
+    // 2. Process Screens (Bottom Layer) in correct order - Only if screens filter is true
+    if (nodeFilters.screens) {
+      finalOrderedScreenNames.forEach((name, idx) => {
+        const screen = screenMap[name];
+        if (screen) {
+          nodes.push({
+            id: `screen-${name}`,
+            type: 'screen',
+            data: { label: name, sublabel: screen.topic, onNodeClick: handleNodeClick, nodeId: `screen-${name}` },
+            position: { x: idx * 300, y: 350 },
+          });
+        }
+      });
+    }
 
-    // 3. Process Batch Processes (Bottom Layer, after screens)
-    if (systemView.batch_processes) {
+    // 3. Process Batch Processes (Bottom Layer, after screens) - Only if batches filter is true
+    if (nodeFilters.batches && systemView.batch_processes) {
       systemView.batch_processes.forEach((batch, idx) => {
         nodes.push({
           id: `batch-${batch.name}`,
@@ -1323,21 +1340,22 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       });
     }
 
-    // 4. Horizontal Sequence Connections (Bottom Layer)
-    // Connect consecutive screens
-    for (let i = 0; i < finalOrderedScreenNames.length - 1; i++) {
-      edges.push({
-        id: `seq-screen-${i}`,
-        source: `screen-${finalOrderedScreenNames[i]}`,
-        target: `screen-${finalOrderedScreenNames[i + 1]}`,
-        type: 'straight',
-        style: { stroke: '#3b82f6', strokeWidth: 3, opacity: 0.6 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-      });
+    // 4. Horizontal Sequence Connections (Bottom Layer) - Only if screenFlow filter is true
+    if (connectionFilters.screenFlow && nodeFilters.screens) {
+      for (let i = 0; i < finalOrderedScreenNames.length - 1; i++) {
+        edges.push({
+          id: `seq-screen-${i}`,
+          source: `screen-${finalOrderedScreenNames[i]}`,
+          target: `screen-${finalOrderedScreenNames[i + 1]}`,
+          type: 'straight',
+          style: { stroke: '#3b82f6', strokeWidth: 3, opacity: 0.6 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+        });
+      }
     }
 
-    // Connect last screen to first batch if both exist
-    if (finalOrderedScreenNames.length > 0 && systemView.batch_processes && systemView.batch_processes.length > 0) {
+    // Connect last screen to first batch if both exist and filters allow
+    if (connectionFilters.screenFlow && nodeFilters.screens && nodeFilters.batches && finalOrderedScreenNames.length > 0 && systemView.batch_processes && systemView.batch_processes.length > 0) {
       edges.push({
         id: `seq-screen-batch`,
         source: `screen-${finalOrderedScreenNames[finalOrderedScreenNames.length - 1]}`,
@@ -1348,8 +1366,8 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       });
     }
 
-    // Connect consecutive batch processes
-    if (systemView.batch_processes && systemView.batch_processes.length > 1) {
+    // Connect consecutive batch processes - Only if batchFlow filter is true
+    if (connectionFilters.batchFlow && nodeFilters.batches && systemView.batch_processes && systemView.batch_processes.length > 1) {
       for (let i = 0; i < systemView.batch_processes.length - 1; i++) {
         edges.push({
           id: `seq-batch-${i}`,
@@ -1362,20 +1380,30 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       }
     }
 
-    // 5. Process Data Connections (Edges) - Only if showDataOps is true
-    if (showDataOps && systemView.data_ops && systemView.data_ops.data_connections) {
+    // 5. Process Data Connections (Edges) - Only if showDataOps and dataOps filter is true
+    if (showDataOps && connectionFilters.dataOps && systemView.data_ops && systemView.data_ops.data_connections) {
       systemView.data_ops.data_connections.forEach((conn, idx) => {
         const sourceId = conn.source_type === 'BATCH' ? `batch-${conn.source}` : `screen-${conn.source}`;
         const targetId = `table-${conn.target}`;
 
-        // Verify that target node exists (it might not if showDataOps was just toggled)
+        // Check if operation type is filtered
+        const isReadOp = conn.operation === 'READ';
+        const isWriteOp = conn.operation === 'WRITE';
+        const isBothOp = conn.operation === 'BOTH';
+        
+        const operationAllowed = (isReadOp && connectionFilters.read) || 
+                                 (isWriteOp && connectionFilters.write) || 
+                                 (isBothOp && connectionFilters.both);
+
+        if (!operationAllowed) return;
+
         edges.push({
           id: `data-edge-${idx}`,
           source: sourceId,
           target: targetId,
           label: conn.operation,
           animated: true,
-          type: 'default', // Curved default edge
+          type: 'default',
           style: {
             stroke: conn.operation === 'READ' ? '#22c55e' : conn.operation === 'WRITE' ? '#ef4444' : '#3b82f6',
             strokeWidth: 2,
@@ -1392,7 +1420,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
     }
 
     return { initialNodes: nodes, initialEdges: edges };
-  }, [systemView, showDataOps]);
+  }, [systemView, showDataOps, nodeFilters, connectionFilters]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -1579,41 +1607,51 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
             </label>
           )}
 
-          {/* Focus Mode Toggle */}
-          <button
-            onClick={() => {
-              setFocusMode(!focusMode);
-              setFocusedNodeId(null);
-            }}
-            style={{
-              background: focusMode ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.03)',
-              border: focusMode ? '1px solid rgba(168, 85, 247, 0.5)' : '1px solid rgba(255,255,255,0.08)',
-              color: focusMode ? '#a855f7' : '#94a3b8',
-              padding: isFullscreen ? '8px 16px' : '6px 12px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: isFullscreen ? '11px' : '10px',
-              fontWeight: '700',
-              transition: 'all 0.2s ease',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              whiteSpace: 'nowrap'
-            }}
-            onMouseEnter={(e) => {
-              if (!focusMode) {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!focusMode) {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-              }
-            }}
-          >
-            {focusMode ? '✓ FOCUS' : 'FOCUS'}
-          </button>
+        
+
+          {/* Connection Type Filters */}
+          <div style={{ display: 'flex', gap: '6px', background: 'rgba(2, 6, 23, 0.6)', padding: '6px 8px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+            {[
+              { key: 'screenFlow', label: 'FLOW', color: '#3b82f6' },
+              { key: 'read', label: 'READ', color: '#22c55e' },
+              { key: 'write', label: 'WRITE', color: '#ef4444' }
+            ].map(filter => (
+              <button
+                key={filter.key}
+                onClick={() => setConnectionFilters(prev => ({ ...prev, [filter.key]: !prev[filter.key] }))}
+                style={{
+                  background: connectionFilters[filter.key] ? `${filter.color}20` : 'rgba(255,255,255,0.02)',
+                  border: connectionFilters[filter.key] ? `1px solid ${filter.color}40` : '1px solid rgba(255,255,255,0.08)',
+                  color: connectionFilters[filter.key] ? filter.color : '#64748b',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '9px',
+                  fontWeight: '700',
+                  transition: 'all 0.2s ease',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={(e) => {
+                  if (connectionFilters[filter.key]) {
+                    e.currentTarget.style.opacity = '0.8';
+                  } else {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (connectionFilters[filter.key]) {
+                    e.currentTarget.style.opacity = '1';
+                  } else {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                  }
+                }}
+              >
+                {connectionFilters[filter.key] ? '✓' : '○'} {filter.label}
+              </button>
+            ))}
+          </div>
 
           {/* Legend */}
           <div style={{
