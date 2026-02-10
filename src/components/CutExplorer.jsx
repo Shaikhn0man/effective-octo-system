@@ -445,8 +445,10 @@ function FlowsTabHeader({
     </div>
   );
 }
-const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => {
+const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData, referenceLink }) => {
   if (!isOpen) return null;
+
+  console.log('DatabasePopup rendered with:', { tableName, referenceLink, hasReferenceLink: !!referenceLink });
 
   return (
     <div style={{
@@ -480,15 +482,15 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          background: '#fffdf5' // Slight off-white/yellow tint for header as in image? Image header looks white but maybe warm.
+          background: '#fffdf5'
         }}>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
               <div style={{ 
                 background: '#fcd34d', 
                 color: '#78350f', 
                 padding: '4px 12px', 
-                borderRadius: '9999px', // Pill shape
+                borderRadius: '9999px',
                 fontSize: '12px', 
                 fontWeight: '700',
                 textTransform: 'uppercase'
@@ -508,6 +510,45 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
               }}>
                 {tableType || 'MASTER'}
               </div>
+              {referenceLink && (
+                <a
+                  href={referenceLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    background: '#3b82f6',
+                    color: '#fff',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontSize: '10px',
+                    fontWeight: '800',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    transition: 'all 0.2s',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = '#2563eb';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = '#3b82f6';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                  VIEW
+                </a>
+              )}
             </div>
             <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: '500' }}>
                {tableData.business_context || "Database Table Information"}
@@ -526,7 +567,8 @@ const DatabasePopup = ({ isOpen, onClose, tableName, tableType, tableData }) => 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'color 0.2s'
+              transition: 'color 0.2s',
+              flexShrink: 0
             }}
             onMouseEnter={e => e.target.style.color = '#0f172a'}
             onMouseLeave={e => e.target.style.color = '#94a3b8'}
@@ -1077,10 +1119,39 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
          fields: [] 
        };
        
+       // Extract reference_link - search in clusterData sub_cuts data_domain
+       let referenceLink = null;
+       const clusters = Array.isArray(clusterData.clusters) 
+         ? clusterData.clusters 
+         : Object.values(clusterData.clusters);
+       
+       for (const cluster of clusters) {
+         if (cluster.sub_cuts) {
+           for (const subCut of cluster.sub_cuts) {
+             if (subCut.data_domain) {
+               const masterTable = subCut.data_domain.master_tables?.find(t => t.name === tableName);
+               if (masterTable?.reference_link) {
+                 referenceLink = masterTable.reference_link;
+                 break;
+               }
+               const refTable = subCut.data_domain.reference_tables?.find(t => t.name === tableName);
+               if (refTable?.reference_link) {
+                 referenceLink = refTable.reference_link;
+                 break;
+               }
+             }
+           }
+           if (referenceLink) break;
+         }
+       }
+       
+       console.log('Database node clicked:', { tableName, referenceLink, hasReferenceLink: !!referenceLink });
+       
        setPopupDatabaseNode({
          name: tableName,
          type: nodeData.type,
-         data: tableData
+         data: tableData,
+         referenceLink
        });
        return;
     }
@@ -1671,6 +1742,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
         tableName={popupDatabaseNode?.name}
         tableType={popupDatabaseNode?.type}
         tableData={popupDatabaseNode?.data}
+        referenceLink={popupDatabaseNode?.referenceLink}
       />
     </div>
   );
