@@ -3220,63 +3220,154 @@ function TestsTab({ data }) {
             Basis: {testScenarios.basis || "Automated Gherkin definitions extracted from execution paths"}
           </p>
         </div>
-        <div style={{
-          background: 'rgba(99, 102, 241, 0.1)',
-          padding: '8px 16px',
-          borderRadius: '12px',
-          border: '1px solid rgba(99, 102, 241, 0.2)',
-          fontSize: '12px',
-          fontWeight: '700',
-          color: '#6366f1'
-        }}>
-          {testScenarios.total_scenarios || testScenarios.scenarios?.length || 0} SCENARIOS
+        <div style={{ display: 'flex', gap: '12px' }}>
+          {testScenarios.total_features && (
+            <div style={{
+              background: 'rgba(59, 130, 246, 0.1)',
+              padding: '8px 16px',
+              borderRadius: '12px',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+              fontSize: '12px',
+              fontWeight: '700',
+              color: '#3b82f6'
+            }}>
+              {testScenarios.total_features} FEATURES
+            </div>
+          )}
+          <div style={{
+            background: 'rgba(99, 102, 241, 0.1)',
+            padding: '8px 16px',
+            borderRadius: '12px',
+            border: '1px solid rgba(99, 102, 241, 0.2)',
+            fontSize: '12px',
+            fontWeight: '700',
+            color: '#6366f1'
+          }}>
+            {testScenarios.total_scenarios || testScenarios.scenarios?.length || 0} SCENARIOS
+          </div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        {testScenarios.scenarios?.map((scenario, idx) => (
-          <div key={idx} style={{
-            borderLeft: '4px solid #6366f1',
-            paddingLeft: '24px',
-            position: 'relative'
-          }}>
-            <h3 style={{
-              fontSize: '14px',
-              fontWeight: '800',
-              color: '#1e293b',
-              marginBottom: '16px',
-              fontFamily: 'monospace'
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+        {testScenarios.scenarios?.map((scenario, idx) => {
+          const scenarioName = scenario.scenario || scenario.name;
+          const prevScenario = testScenarios.scenarios[idx - 1];
+          const showFeature = scenario.feature && (!prevScenario || prevScenario.feature !== scenario.feature);
+
+          return (
+            <div key={idx} style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
             }}>
-              <span style={{ color: '#94a3b8', fontWeight: '500' }}>Scenario: </span>
-              {scenario.name}
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {scenario.steps?.map((step, sIdx) => (
-                <div key={sIdx} style={{ display: 'flex', gap: '24px', alignItems: 'baseline' }}>
-                  <span style={{
-                    fontSize: '12px',
-                    fontWeight: '900',
-                    color: '#6366f1',
-                    textTransform: 'uppercase',
-                    width: '60px',
-                    textAlign: 'left',
-                    fontFamily: 'monospace'
-                  }}>
-                    {step.keyword}
-                  </span>
-                  <span style={{
-                    fontSize: '14px',
-                    color: '#64748b',
-                    fontFamily: 'monospace',
-                    lineHeight: '1.4'
-                  }}>
-                    {step.step}
-                  </span>
+              {showFeature && (
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  color: '#6366f1',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  background: 'rgba(99, 102, 241, 0.05)',
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(99, 102, 241, 0.1)'
+                }}>
+                  <div style={{ width: '4px', height: '16px', background: '#6366f1', borderRadius: '2px' }} />
+                  FEATURE: {scenario.feature}
                 </div>
-              ))}
+              )}
+
+              <div style={{
+                borderLeft: '4px solid #6366f1',
+                paddingLeft: '24px',
+                position: 'relative',
+                marginLeft: scenario.feature ? '12px' : '0'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '16px',
+                  flexWrap: 'wrap',
+                  gap: '12px'
+                }}>
+                  <h3 style={{
+                    fontSize: '14px',
+                    fontWeight: '800',
+                    color: '#1e293b',
+                    margin: 0,
+                    fontFamily: 'monospace',
+                    lineHeight: '1.4',
+                    maxWidth: '70%'
+                  }}>
+                    <span style={{ color: '#94a3b8', fontWeight: '500' }}>Scenario: </span>
+                    {scenarioName}
+                  </h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'flex-end' }}>
+                    {scenario.tags?.map((tag, tIdx) => (
+                      <span key={tIdx} style={{
+                        fontSize: '10px',
+                        background: 'rgba(99, 102, 241, 0.05)',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        color: '#6366f1',
+                        fontWeight: '700',
+                        border: '1px solid rgba(99, 102, 241, 0.1)',
+                        letterSpacing: '0.5px'
+                      }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {scenario.steps?.map((step, sIdx) => {
+                    let keyword = "";
+                    let stepText = "";
+
+                    if (typeof step === 'string') {
+                      const parts = step.trim().split(/\s+/);
+                      keyword = parts[0];
+                      stepText = parts.slice(1).join(' ');
+                    } else {
+                      keyword = step.keyword;
+                      stepText = step.step;
+                    }
+
+                    return (
+                      <div key={sIdx} style={{ display: 'flex', gap: '24px', alignItems: 'baseline' }}>
+                        <span style={{
+                          fontSize: '12px',
+                          fontWeight: '900',
+                          color: '#6366f1',
+                          textTransform: 'uppercase',
+                          width: '60px',
+                          textAlign: 'left',
+                          fontFamily: 'monospace'
+                        }}>
+                          {keyword}
+                        </span>
+                        <span style={{
+                          fontSize: '14px',
+                          color: '#64748b',
+                          fontFamily: 'monospace',
+                          lineHeight: '1.4',
+                          flex: 1
+                        }}>
+                          {stepText}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
