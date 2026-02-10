@@ -17,7 +17,7 @@ export const cutExplorerData = {
         { name: "CARD-UPDATE-RECORD", writes: "CCRDUPA", reads: "" },
         { name: "CUST-UPDATE-RECORD", writes: "COMEN1A, CACTUPA", reads: "" },
         { name: "CUSTOMER-RECORD", writes: "COMEN1A, CACTUPA", reads: "CACTVWA, CACTUPA, COMEN1A" },
-        { name: "TRAN-RECORD", writes: "COTRN2A", reads: "COTRN0A, COTRN1A, CORPT0A" },
+        { name: "TRANSACTION-RECORD", writes: "COTRN2A", reads: "COTRN0A, COTRN1A, CORPT0A" },
         { name: "TRANSACTION_TYPE", writes: "CTRTUPA, CTRTLIA", reads: "Multiple Screens" }
       ],
       reference: [
@@ -28,12 +28,12 @@ export const cutExplorerData = {
     },
     interactions: [
       { screen: "CCRDLIA", reads: ["CARD-RECORD", "ACCOUNT-RECORD", "CARD-XREF-RECORD"], writes: ["CARD-UPDATE-RECORD"] },
-      { screen: "COTRN0A", reads: ["TRAN-RECORD", "TRANSACTION_TYPE"], writes: [] },
+      { screen: "COTRN0A", reads: ["TRANSACTION-RECORD", "TRANSACTION_TYPE"], writes: [] },
       { screen: "CTRTUPA", reads: ["TRANSACTION_TYPE"], writes: ["TRANSACTION_TYPE"] },
       { screen: "CACTVWA", reads: ["ACCOUNT-RECORD", "CUSTOMER-RECORD", "CARD-RECORD"], writes: [] },
-      { screen: "COBIL0A", reads: ["ACCOUNT-RECORD"], writes: ["ACCOUNT-RECORD", "ACCT-UPDATE-RECORD", "TRAN-RECORD"] },
+      { screen: "COBIL0A", reads: ["ACCOUNT-RECORD"], writes: ["ACCOUNT-RECORD", "ACCT-UPDATE-RECORD", "TRANSACTION-RECORD"] },
       { screen: "COSGN0A", reads: ["SEC-USER-DATA (from Cut 2)"], writes: [] },
-      { screen: "COTRN2A", reads: ["ACCOUNT-RECORD", "TRANSACTION_TYPE"], writes: ["TRAN-RECORD", "ACCOUNT-RECORD", "ACCT-UPDATE-RECORD"] },
+      { screen: "COTRN2A", reads: ["ACCOUNT-RECORD", "TRANSACTION_TYPE"], writes: ["TRANSACTION-RECORD", "ACCOUNT-RECORD", "ACCT-UPDATE-RECORD"] },
       { screen: "CACTUPA", reads: ["ACCOUNT-RECORD", "CUSTOMER-RECORD"], writes: ["ACCOUNT-RECORD", "ACCT-UPDATE-RECORD", "CUSTOMER-RECORD", "CUST-UPDATE-RECORD"] }
     ],
     dependencies: { readsFrom: "Cut 2 (SEC-USER-DATA)" },
