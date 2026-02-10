@@ -3444,7 +3444,7 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
           <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
-          {Array.from(new Set([...(data.tables?.master || []), ...(data.tables?.reference || [])].map(table => table.name.split('-').shift()))).map((entityName, i) => (
+          {(cluster?.system_view?.data_ops?.database_tables || []).map((table, i) => (
             <div key={i} style={{
               background: 'rgba(255, 255, 255, 0.03)',
               borderRadius: '30px',
@@ -3459,7 +3459,7 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }}>
               <span style={{ color: '#3b82f6' }}><DatabaseIcon /></span>
-              {entityName}
+              {table.name}
             </div>
           ))}
         </div>
@@ -3505,7 +3505,7 @@ function DeepDiveOverview({ data, cutId, clusterId }) {
             {[
               { label: 'SCREENS', value: stats.screen_count || stats.flows || 0 },
               { label: 'PROGRAMS', value: stats.program_count || 17 },
-              { label: 'TABLES', value: (data.tables?.master?.length || 0) + (data.tables?.reference?.length || 0) },
+              { label: 'TABLES', value: cluster?.system_view?.data_ops?.database_tables?.length || 0 },
               { label: 'DB CALLS', value: '511' }
             ].map((stat, i) => (
               <div key={i} style={{
