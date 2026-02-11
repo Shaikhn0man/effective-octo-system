@@ -12,11 +12,11 @@ export const screenFlowData = {
     %% ============ DATA FOUNDATION LAYER ============
     subgraph DATA_FOUNDATION["💾 DATA FOUNDATION LAYER"]
         direction LR
-        B7["🔄 Cut 7: Data Import<br/>CBIMPORT<br/>Import customer data"]
+        B11["🔄 Cut 11: Data Import<br/>CBIMPORT<br/>Import customer data"]
         
-        B5["🔄 Cut 5: Customer Records<br/>CBCUS01C<br/>Customer data management"]
+        B9["🔄 Cut 9: Customer Records<br/>CBCUS01C<br/>Customer data management"]
         
-        B6["🔄 Cut 6: Data Export<br/>CBEXPORT<br/>Export financial data"]
+        B10["🔄 Cut 10: Data Export<br/>CBEXPORT<br/>Export financial data"]
         
         DB_FOUNDATION[("🗄️ VSAM Files<br/>CUSTFILE<br/>ACCTDATA<br/>CARDDATA")]
     end
@@ -25,11 +25,11 @@ export const screenFlowData = {
     subgraph CORE_PROCESSING["🔄 CORE PROCESSING LAYER"]
         direction LR
         
-        B1["🔄 Cut 1: Account Records<br/>CBACT01C<br/>Multi-format output"]
+        B7["🔄 Cut 7: Account Records<br/>CBACT01C<br/>Multi-format output"]
         
-        B2["🔄 Cut 2: Cardholder Records<br/>CBACT02C<br/>Sequential processing"]
+        B4["🔄 Cut 4: Cardholder Records<br/>CBACT02C<br/>Sequential processing"]
         
-        B3["🔄 Cut 3: Cross-Reference<br/>CBACT03C<br/>Data linking & tracking"]
+        B5["🔄 Cut 5: Cross-Reference<br/>CBACT03C<br/>Data linking & tracking"]
         
         DB_CORE[("🗄️ Processing Files<br/>ACCTFILE<br/>CARDFILE<br/>XREFFILE")]
     end
@@ -38,11 +38,11 @@ export const screenFlowData = {
     subgraph BUSINESS_LOGIC["💰 BUSINESS LOGIC LAYER"]
         direction LR
         
-        B4["🔄 Cut 4: Interest Accrual<br/>CBACT04C<br/>Monthly calculations"]
+        B8["🔄 Cut 8: Interest Accrual<br/>CBACT04C<br/>Monthly calculations"]
         
-        S9["💻 Cut 9: Transaction Validation<br/>COTRN00C (CT00)<br/>Real-time validation"]
+        S1["💻 Cut 1: Transaction Validation<br/>COTRN00C (CT00)<br/>Real-time validation"]
         
-        B10["🔄 Cut 10: Loan Management<br/>CBTRN01C/02C/03C<br/>Transaction processing"]
+        B3["🔄 Cut 3: Daily Transactions<br/>CBTRN01C/02C/03C<br/>Transaction processing"]
         
         DB_BUSINESS[("🗄️ Transaction Data<br/>TRANSACT<br/>DALYTRAN<br/>TCATBALF")]
     end
@@ -51,9 +51,11 @@ export const screenFlowData = {
     subgraph REPORTING_CONTROL["📋 REPORTING & CONTROL LAYER"]
         direction LR
         
-        B8["🔄 Cut 8: Entity Updates<br/>CBSTM03A/B<br/>Statement processing"]
+        B12["🔄 Cut 12: Entity Updates<br/>CBSTM03A/B<br/>Statement processing"]
         
-        B11["🔄 Cut 11: Execution Control<br/>COBSWAIT/MVSWAIT<br/>Batch synchronization"]
+        B6["🔄 Cut 6: Execution Control<br/>COBSWAIT/MVSWAIT<br/>Batch synchronization"]
+        
+        B13["🔄 Cut 13: Daily Card Transactions<br/>CBTRN03C<br/>Transaction verification"]
         
         DB_REPORTS[("🗄️ Report Data<br/>STATEMENTS<br/>REPORTS<br/>INDEXES")]
     end
@@ -62,22 +64,22 @@ export const screenFlowData = {
     subgraph EXTENSIONS["🔀 MODULAR EXTENSIONS"]
         direction TB
         
-        subgraph AUTH_MODULE["🔐 Cut 12: Authorization Module"]
+        subgraph AUTH_MODULE["🔐 Cut 2: Authorization Module"]
             direction LR
-            M12_SCREEN["💻 Auth Screens<br/>CP00: Process Auth MQ<br/>CPVS: Auth Summary<br/>CPVD: Auth Details<br/>CPVF: Mark Fraud"]
+            M2_SCREEN["💻 Auth Screens<br/>CP00: Process Auth MQ<br/>CPVS: Auth Summary<br/>CPVD: Auth Details<br/>CPVF: Mark Fraud"]
             
-            M12_BATCH["🔄 Auth Batch<br/>CBPAUP0C<br/>Purge Expired Auth"]
+            M2_BATCH["🔄 Auth Batch<br/>CBPAUP0C<br/>Purge Expired Auth"]
             
-            M12_DATA[("🗄️ Multi-Tech Store<br/>IMS: DBPAUTP0<br/>DB2: AUTHFRDS<br/>MQ: Queues<br/>VSAM: Account/Card")]
+            M2_DATA[("🗄️ Multi-Tech Store<br/>IMS: DBPAUTP0<br/>DB2: AUTHFRDS<br/>MQ: Queues<br/>VSAM: Account/Card")]
         end
         
-        subgraph TRANTYPE_MODULE["📋 Cut 13: Transaction Type Module"]
+        subgraph TRANTYPE_MODULE["📋 Cut 1: Transaction Type Module"]
             direction LR
-            M13_SCREEN["💻 TranType Screens<br/>CTLI: List/Update/Delete<br/>CTTU: Add/Edit Types"]
+            M1_SCREEN["💻 TranType Screens<br/>CTLI: List/Update/Delete<br/>CTTU: Add/Edit Types"]
             
-            M13_BATCH["🔄 TranType Batch<br/>DSNTEP4: Create DB2<br/>COBTUPDT: Maintenance<br/>DSNTIAUL: Extract VSAM"]
+            M1_BATCH["🔄 TranType Batch<br/>DSNTEP4: Create DB2<br/>COBTUPDT: Maintenance<br/>DSNTIAUL: Extract VSAM"]
             
-            M13_DATA[("🗄️ Dual Storage<br/>DB2: TRNTYPE<br/>VSAM: TRANTYPE<br/>Synchronized")]
+            M1_DATA[("🗄️ Dual Storage<br/>DB2: TRNTYPE<br/>VSAM: TRANTYPE<br/>Synchronized")]
         end
     end
     
@@ -86,41 +88,42 @@ export const screenFlowData = {
     
     %% ============ FLOW CONNECTIONS ============
     %% Data Foundation Flow
-    B7 -->|imports data| DB_FOUNDATION
-    B5 <-->|manages| DB_FOUNDATION
-    B6 -->|exports from| DB_FOUNDATION
+    B11 -->|imports data| DB_FOUNDATION
+    B9 <-->|manages| DB_FOUNDATION
+    B10 -->|exports from| DB_FOUNDATION
     
     %% Core Processing Flow
-    DB_FOUNDATION -->|feeds| B1
-    B1 -->|processes| DB_CORE
-    B2 <-->|manages| DB_CORE
-    B3 <-->|links| DB_CORE
+    DB_FOUNDATION -->|feeds| B7
+    B7 -->|processes| DB_CORE
+    B4 <-->|manages| DB_CORE
+    B5 <-->|links| DB_CORE
     
     %% Business Logic Flow
-    DB_CORE -->|account data| B4
-    DB_CORE -->|validates| S9
-    B4 -->|interest updates| DB_BUSINESS
-    S9 -->|validated transactions| DB_BUSINESS
-    B10 <-->|processes| DB_BUSINESS
+    DB_CORE -->|account data| B8
+    DB_CORE -->|validates| S1
+    B8 -->|interest updates| DB_BUSINESS
+    S1 -->|validated transactions| DB_BUSINESS
+    B3 <-->|processes| DB_BUSINESS
     
     %% Reporting Flow
-    DB_BUSINESS -->|transaction data| B8
-    B8 -->|statements| DB_REPORTS
-    B11 -->|controls| DB_REPORTS
+    DB_BUSINESS -->|transaction data| B12
+    B12 -->|statements| DB_REPORTS
+    B6 -->|controls| DB_REPORTS
+    B13 -->|verifies| DB_REPORTS
     
     %% Extension Integration
-    DB_CORE -.->|account/card data| M12_DATA
-    M12_SCREEN <-->|processes| M12_DATA
-    M12_BATCH -->|purges| M12_DATA
+    DB_CORE -.->|account/card data| M2_DATA
+    M2_SCREEN <-->|processes| M2_DATA
+    M2_BATCH -->|purges| M2_DATA
     
-    DB_BUSINESS -.->|transaction types| M13_DATA
-    M13_SCREEN <-->|maintains| M13_DATA
-    M13_BATCH -->|synchronizes| M13_DATA
+    DB_BUSINESS -.->|transaction types| M1_DATA
+    M1_SCREEN <-->|maintains| M1_DATA
+    M1_BATCH -->|synchronizes| M1_DATA
     
     %% Control Flow
-    B11 -.->|controls timing| B1
-    B11 -.->|controls timing| B4
-    B11 -.->|controls timing| B8
+    B6 -.->|controls timing| B7
+    B6 -.->|controls timing| B8
+    B6 -.->|controls timing| B12
     
     %% Statistics Connection
     EXTENSIONS -.->|extends| STATS
@@ -134,9 +137,9 @@ export const screenFlowData = {
     classDef legend fill:#FAFAFA,stroke:#424242,stroke-width:2px,color:#212121,font-weight:bold
     
     %% Apply consistent styles
-    class B1,B2,B3,B4,B5,B6,B7,B8,B10,B11,M12_BATCH,M13_BATCH batchProcess
-    class S9,M12_SCREEN,M13_SCREEN screenProcess
-    class DB_FOUNDATION,DB_CORE,DB_BUSINESS,DB_REPORTS,M12_DATA,M13_DATA dataStore
+    class B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B13,M2_BATCH,M1_BATCH batchProcess
+    class S1,M2_SCREEN,M1_SCREEN screenProcess
+    class DB_FOUNDATION,DB_CORE,DB_BUSINESS,DB_REPORTS,M2_DATA,M1_DATA dataStore
     class STATS systemStats
     class L1,L2,L3,L4 legend`,
 
