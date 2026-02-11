@@ -1,7 +1,7 @@
 export const cutExplorerData = {
   1: {
     id: 1,
-    name: "Collect User Data for Credit Card Demo",
+    name: "Manage Accounts, Cards, Transactions, and Bill Payments",
     type: "CLEAN_CUT",
     stats: { flows: 14, batch: 0, screen: 14, tables: 11 },
     sequence: [
