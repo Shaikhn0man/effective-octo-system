@@ -1,7 +1,7 @@
 export const cutExplorerData = {
   1: {
     id: 1,
-    name: "Manage Credit Card Account Operations",
+    name: "Collect User Data for Credit Card Demo",
     type: "CLEAN_CUT",
     stats: { flows: 14, batch: 0, screen: 14, tables: 11 },
     sequence: [
@@ -74,7 +74,7 @@ SCREEN FLOW SEQUENCE:
 │    <CUSTOMER-RECORD>       ◄══ WRITE ══ COMEN1A, CACTUPA               │
 │                            ──► READ  ──► CACTVWA, CACTUPA, COMEN1A     │
 │                                                                         │
-│    <TRAN-RECORD>           ◄══ WRITE ══ COTRN2A                        │
+│    <TRANSACTION-RECORD>    ◄══ WRITE ══ COTRN2A                        │
 │                            ──► READ  ──► COTRN0A, COTRN1A, CORPT0A     │
 │                                                                         │
 │    <<CARDDEMO.TRANSACTION_TYPE>>  (Temporary)                          │
@@ -95,7 +95,7 @@ KEY SCREENS & THEIR DATABASE INTERACTIONS:
     └─► WRITE: CARD-UPDATE-RECORD
 
 [COTRN0A - Display Transaction Listings]
-    └─► READ:  TRAN-RECORD, CARDDEMO.TRANSACTION_TYPE
+    └─► READ:  TRANSACTION-RECORD, CARDDEMO.TRANSACTION_TYPE
 
 [CTRTUPA - Maintain Transaction Type]
     ├─► READ:  CARDDEMO.TRANSACTION_TYPE
@@ -106,14 +106,14 @@ KEY SCREENS & THEIR DATABASE INTERACTIONS:
 
 [COBIL0A - Bill Payment]
     ├─► READ:  ACCOUNT-RECORD
-    └─► WRITE: ACCOUNT-RECORD, ACCT-UPDATE-RECORD, TRAN-RECORD
+    └─► WRITE: ACCOUNT-RECORD, ACCT-UPDATE-RECORD, TRANSACTION-RECORD
 
 [COSGN0A - User Sign-on]
     └─► READ:  SEC-USER-DATA (from Cut 2)
 
 [COTRN2A - Capture Financial Transaction]
     ├─► READ:  ACCOUNT-RECORD, CARDDEMO.TRANSACTION_TYPE
-    └─► WRITE: TRAN-RECORD, ACCOUNT-RECORD, ACCT-UPDATE-RECORD
+    └─► WRITE: TRANSACTION-RECORD, ACCOUNT-RECORD, ACCT-UPDATE-RECORD
 
 [CACTUPA - Update Account Information]
     ├─► READ:  ACCOUNT-RECORD, CUSTOMER-RECORD
@@ -124,11 +124,11 @@ DEPENDENCIES:
   },
   2: {
     id: 2,
-    name: "Manage User Access Security and Permissions",
+    name: "User access security and permission management",
     type: "CLEAN_CUT",
-    stats: { flows: 7, batch: 0, screen: 7, tables: 5 },
+    stats: { flows: 7, batch: 0, screen: 8, tables: 5 },
     sequence: [
-      ["COADM1A", "COUSR2A", "COPAU1A", "COSGN0A", "COUSR0A"],
+      ["COADM1A", "COUSR2A", "COPAU1A", "COSGN0A", "COUSR0A", "COUSR1A"],
       ["COUSR3A", "COPAU0A"]
     ],
     tables: {
@@ -147,7 +147,8 @@ DEPENDENCIES:
       { screen: "COUSR0A", reads: ["SEC-USER-DATA"], writes: [] },
       { screen: "COUSR3A", reads: [], writes: ["SEC-USER-DATA"] },
       { screen: "COPAU0A", reads: ["SEC-USER-DATA"], writes: [] },
-      { screen: "COSGN0A", reads: ["SEC-USER-DATA"], writes: [] }
+      { screen: "COSGN0A", reads: ["SEC-USER-DATA"], writes: [] },
+      { screen: "COUSR1A", reads: [], writes: ["SEC-USER-DATA"] }
     ],
     dependencies: { readsFrom: "Cut 1 (ACCOUNT-RECORD, CUSTOMER-RECORD)", providesTo: "Cut 1 (SEC-USER-DATA)" },
     asciiChart: `================================================================================
@@ -158,7 +159,7 @@ TABLES: 5 (1 Master/Write-Heavy, 4 Reference/Read-Heavy)
 
 SCREEN FLOW SEQUENCE:
 ┌────────────────────────────────────────────────────────────────────────┐
-│  [COADM1A] → [COUSR2A] → [COPAU1A] → [COSGN0A] → [COUSR0A]            │
+│  [COADM1A] → [COUSR2A] → [COPAU1A] → [COSGN0A] → [COUSR0A] → [COUSR1A]│
 │      ↓                                                                  │
 │  [COUSR3A] → [COPAU0A]                                                 │
 └────────────────────────────────────────────────────────────────────────┘
@@ -202,13 +203,16 @@ KEY SCREENS:
 [COSGN0A - User Sign-on]
     └─► READ:  SEC-USER-DATA
 
+[COUSR1A - Add User Records]
+    └─► WRITE: SEC-USER-DATA
+
 DEPENDENCIES:
   ◄── Reads from: Cut_1 (ACCOUNT-RECORD, CUSTOMER-RECORD)
   ──► Provides to: Cut_1 (SEC-USER-DATA)`
   },
   3: {
     id: 3,
-    name: "Manage Customer Loan Accounts and Processing",
+    name: "Process Daily Transactions and Generate Financial Reports",
     type: "READ_ONLY_CUT",
     stats: { flows: 2, batch: 2, screen: 0, tables: 10 },
     batchFlow: ["CBTRN03C", "Loan Account Processing"],
@@ -221,7 +225,7 @@ DEPENDENCIES:
         { name: "REPORT-FILE", reads: "CBTRN03C (output)" },
         { name: "TCATBAL-FILE", reads: "CBTRN03C" },
         { name: "TRANCATG-FILE", reads: "CBTRN03C" },
-        { name: "TRANSACT-FILE", reads: "CBTRN03C" },
+        { name: "TRANSACTION-RECORD", reads: "CBTRN03C" },
         { name: "TRANTYPE-FILE", reads: "CBTRN03C" },
         { name: "XREF-FILE", reads: "CBTRN03C" }
       ]
@@ -255,7 +259,7 @@ BATCH FLOW:
 │    {REPORT-FILE}           ──► READ  ──► CBTRN03C (output)             │
 │    {TCATBAL-FILE}          ──► READ  ──► CBTRN03C                      │
 │    {TRANCATG-FILE}         ──► READ  ──► CBTRN03C                      │
-│    {TRANSACT-FILE}         ──► READ  ──► CBTRN03C                      │
+│    {TRANSACTION-RECORD}    ──► READ  ──► CBTRN03C                      │
 │    {TRANTYPE-FILE}         ──► READ  ──► CBTRN03C                      │
 │    {XREF-FILE}             ──► READ  ──► CBTRN03C                      │
 │                                                                         │
@@ -269,7 +273,7 @@ Batch 1: CBTRN03C
   Step 3: 1111-WRITE-REPORT-REC
   Step 4: 9910-DISPLAY-IO-STATUS
 
-  Reads: TRANSACT-FILE, XREF-FILE, TRANTYPE-FILE, TRANCATG-FILE,
+  Reads: TRANSACTION-RECORD, XREF-FILE, TRANTYPE-FILE, TRANCATG-FILE,
          DATE-PARMS-FILE
   Writes: REPORT-FILE (report output)`
   },
@@ -403,7 +407,7 @@ COBSWAIT
   },
   7: {
     id: 7,
-    name: "Process Account Records for Multi-Format Output",
+    name: "Batch Process Account Records for Multi Format Output",
     type: "READ_ONLY_CUT",
     stats: { flows: 1, batch: 1, screen: 0, tables: 4 },
     batchFlow: ["CBACT01C (Multi-Format Account Output)"],
@@ -468,7 +472,7 @@ CBACT01C
         { name: "ACCOUNT-FILE", reads: "CBACT04C" },
         { name: "DISCGRP-FILE", reads: "CBACT04C" },
         { name: "TCATBAL-FILE", reads: "CBACT04C" },
-        { name: "TRANSACT-FILE", reads: "CBACT04C" },
+        { name: "TRANSACTION-RECORD", reads: "CBACT04C" },
         { name: "XREF-FILE", reads: "CBACT04C" }
       ]
     },
@@ -496,7 +500,7 @@ BATCH FLOW:
 │    {ACCOUNT-FILE}          ──► READ  ──► CBACT04C                      │
 │    {DISCGRP-FILE}          ──► READ  ──► CBACT04C (discount groups)    │
 │    {TCATBAL-FILE}          ──► READ  ──► CBACT04C (category balances)  │
-│    {TRANSACT-FILE}         ──► READ  ──► CBACT04C                      │
+│    {TRANSACTION-RECORD}    ──► READ  ──► CBACT04C                      │
 │    {XREF-FILE}             ──► READ  ──► CBACT04C                      │
 │                                                                         │
 └────────────────────────────────────────────────────────────────────────┘
@@ -513,7 +517,7 @@ CBACT04C
   Step 7: 1300-COMPUTE-INTEREST
   Step 8: 1300-B-WRITE-TX → Z-GET-DB2-FORMAT-TIMESTAMP
 
-  Reads: TCATBAL-FILE, ACCOUNT-FILE, XREF-FILE, DISCGRP-FILE, TRANSACT-FILE
+  Reads: TCATBAL-FILE, ACCOUNT-FILE, XREF-FILE, DISCGRP-FILE, TRANSACTION-RECORD
   Writes: Transaction records with computed interest`
   },
   9: {
@@ -760,7 +764,7 @@ CBSTM03A
         { name: "XREF-FILE", reads: "CBTRN01C" },
         { name: "CARD-FILE", reads: "CBTRN01C" },
         { name: "ACCOUNT-FILE", reads: "CBTRN01C" },
-        { name: "TRANSACT-FILE", reads: "CBTRN01C" }
+        { name: "TRANSACTION-RECORD", reads: "CBTRN01C" }
       ]
     },
     steps: [
@@ -789,7 +793,7 @@ SCREEN/BATCH FLOW:
 │    {XREF-FILE}             ──► READ  ──► CBTRN01C                      │
 │    {CARD-FILE}             ──► READ  ──► CBTRN01C                      │
 │    {ACCOUNT-FILE}          ──► READ  ──► CBTRN01C                      │
-│    {TRANSACT-FILE}         ──► READ  ──► CBTRN01C                      │
+│    {TRANSACTION-RECORD}    ──► READ  ──► CBTRN01C                      │
 │                                                                         │
 └────────────────────────────────────────────────────────────────────────┘
 
@@ -807,7 +811,7 @@ CBTRN01C
   Step 9: 9000-DALYTRAN-CLOSE
 
   Reads: DALYTRAN-FILE, CUSTOMER-FILE, XREF-FILE, CARD-FILE,
-         ACCOUNT-FILE, TRANSACT-FILE
+         ACCOUNT-FILE, TRANSACTION-RECORD
   Writes: None (verification only)`
   }
 };
