@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import ReactFlow, {
-  Background,
-  Controls,
-  Handle,
-  MarkerType,
-  Position,
-  useEdgesState,
-  useNodesState,
-  useReactFlow
+    Background,
+    Controls,
+    Handle,
+    MarkerType,
+    Position,
+    useEdgesState,
+    useNodesState,
+    useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import remarkGfm from 'remark-gfm';
@@ -986,47 +986,51 @@ const CustomDatabaseNode = ({ data }) => (
   </div>
 );
 
-const CustomScreenNode = ({ data }) => (
-  <div
-    onClick={() => data.onNodeClick && data.onNodeClick(data, data.nodeId)}
-    style={{
-      background: 'rgba(30, 41, 59, 0.8)',
-      border: '3px solid #3b82f6',
-      borderRadius: '16px',
-      padding: '20px',
-      width: '240px',
-      boxShadow: '0 12px 48px rgba(0, 0, 0, 0.5)',
-      backdropFilter: 'blur(12px)',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-    }}
-    onMouseEnter={e => {
-      e.currentTarget.style.transform = 'translateY(-5px)';
-      e.currentTarget.style.borderColor = '#60a5fa';
-      e.currentTarget.style.boxShadow = '0 20px 60px rgba(59, 130, 246, 0.3)';
-    }}
-    onMouseLeave={e => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.borderColor = '#3b82f6';
-      e.currentTarget.style.boxShadow = '0 12px 48px rgba(0, 0, 0, 0.5)';
-    }}
-  >
-    <Handle type="source" position={Position.Top} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
-    <Handle type="target" position={Position.Left} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
-    <Handle type="source" position={Position.Right} style={{ background: '#3b82f6', border: 'none', width: '10px', height: '10px' }} />
+const CustomScreenNode = ({ data }) => {
+  const color = data.domainColor || '#3b82f6';
+  
+  return (
+    <div
+      onClick={() => data.onNodeClick && data.onNodeClick(data, data.nodeId)}
+      style={{
+        background: 'rgba(30, 41, 59, 0.8)',
+        border: `3px solid ${color}`,
+        borderRadius: '16px',
+        padding: '20px',
+        width: '240px',
+        boxShadow: `0 12px 48px rgba(0, 0, 0, 0.5)`,
+        backdropFilter: 'blur(12px)',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = 'translateY(-5px)';
+        e.currentTarget.style.borderColor = color;
+        e.currentTarget.style.boxShadow = `0 20px 60px ${color}40`;
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.borderColor = color;
+        e.currentTarget.style.boxShadow = '0 12px 48px rgba(0, 0, 0, 0.5)';
+      }}
+    >
+      <Handle type="source" position={Position.Top} style={{ background: color, border: 'none', width: '10px', height: '10px' }} />
+      <Handle type="target" position={Position.Left} style={{ background: color, border: 'none', width: '10px', height: '10px' }} />
+      <Handle type="source" position={Position.Right} style={{ background: color, border: 'none', width: '10px', height: '10px' }} />
 
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-      <div style={{ color: '#60a5fa', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>
-        CICS SCREEN
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <div style={{ color: color, fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>
+          CICS SCREEN
+        </div>
+        <div style={{ color: color, background: `${color}10`, padding: '2px 6px', borderRadius: '4px', fontSize: '8px', fontWeight: '800', border: `1px solid ${color}30` }}>
+          VIEW UI
+        </div>
       </div>
-      <div style={{ color: '#3b82f6', background: 'rgba(59, 130, 246, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '8px', fontWeight: '800' }}>
-        VIEW UI
-      </div>
+      <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
+      <div style={{ fontSize: '12px', color: '#fff', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
     </div>
-    <div style={{ fontSize: '18px', fontWeight: '900', color: '#fff', letterSpacing: '0.5px' }}>{data.label}</div>
-    <div style={{ fontSize: '12px', color: '#fff', marginTop: '6px', fontWeight: '700' }}>{data.sublabel}</div>
-  </div>
-);
+  );
+};
 
 const CustomBatchNode = ({ data }) => (
   <div
@@ -1162,11 +1166,122 @@ const CustomEntityNode = ({ data }) => {
   );
 };
 
+const DomainGroupNode = ({ data, isFullscreen }) => {
+  return (
+    <div style={{
+      padding: isFullscreen ? '40px' : '30px',
+      borderRadius: '24px',
+      border: `2px dashed ${data.color}80`,
+      background: `linear-gradient(135deg, ${data.color}08, ${data.color}15)`,
+      minWidth: data.width,
+      minHeight: data.height,
+      position: 'relative',
+      boxShadow: `0 20px 50px -12px ${data.color}10`,
+      pointerEvents: 'none',
+      transition: 'all 0.3s ease'
+    }}>
+      <div style={{
+        position: 'absolute',
+        top: isFullscreen ? '-45px' : '-35px',
+        left: '10px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '10px 20px',
+        background: 'rgba(15, 23, 42, 0.9)',
+        backdropFilter: 'blur(8px)',
+        borderRadius: '12px',
+        border: `1px solid ${data.color}40`,
+        boxShadow: `0 10px 20px -5px rgba(0,0,0,0.5)`,
+        zIndex: 10
+      }}>
+        <div style={{
+          width: '12px',
+          height: '12px',
+          background: data.color,
+          borderRadius: '3px',
+          boxShadow: `0 0 10px ${data.color}`
+        }} />
+        <span style={{
+          fontSize: isFullscreen ? '16px' : '14px',
+          fontWeight: '900',
+          color: '#fff',
+          textTransform: 'uppercase',
+          letterSpacing: '1.5px'
+        }}>
+          {data.label}
+        </span>
+        <div style={{
+          background: `${data.color}20`,
+          padding: '2px 8px',
+          borderRadius: '6px',
+          fontSize: '10px',
+          fontWeight: '900',
+          color: data.color,
+          border: `1px solid ${data.color}30`
+        }}>
+          {data.screenCount} screens
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const nodeTypes = {
   database: CustomDatabaseNode,
   screen: CustomScreenNode,
   batch: CustomBatchNode,
   entity: CustomEntityNode,
+  domainGroup: DomainGroupNode,
+};
+
+const SCREEN_DOMAINS = {
+  // Card Management
+  'CCRDLIA': 'Card Management',
+  'CCRDUPA': 'Card Management',
+  'CCRDSLA': 'Card Management',
+  'COCRDLIC': 'Card Management',
+  'COCRDUPC': 'Card Management',
+  'COCRDSLC': 'Card Management',
+
+  // Transaction Processing
+  'COTRN0A': 'Transaction Processing',
+  'COTRN1A': 'Transaction Processing',
+  'COTRN2A': 'Transaction Processing',
+  'CTRTUPA': 'Transaction Processing',
+  'CTRTLIA': 'Transaction Processing',
+  'COTRN00C': 'Transaction Processing',
+  'COTRTUPC': 'Transaction Processing',
+  'COTRTLIC': 'Transaction Processing',
+  'COTRN02C': 'Transaction Processing',
+  'COTRN01C': 'Transaction Processing',
+
+  // Account Management
+  'CACTVWA': 'Account Management',
+  'COBIL0A': 'Account Management',
+  'CACTUPA': 'Account Management',
+  'COACTVWC': 'Account Management',
+  'COBIL00C': 'Account Management',
+  'COACTUPC': 'Account Management',
+
+  // Customer Management
+  'COMEN1A': 'Customer Management',
+  'COMEN01C': 'Customer Management',
+
+  // Security & Admin
+  'COSGN0A': 'Security & Admin',
+  'CORPT0A': 'Security & Admin',
+  'COSGN00C': 'Security & Admin',
+  'CORPT00C': 'Security & Admin',
+};
+
+const DOMAIN_STYLES = {
+  'Card Management': { color: '#3b82f6', background: 'rgba(59, 130, 246, 0.05)' },
+  'Transaction Processing': { color: '#a855f7', background: 'rgba(168, 85, 247, 0.05)' },
+  'Account Management': { color: '#22c55e', background: 'rgba(34, 197, 94, 0.05)' },
+  'Customer Management': { color: '#f59e0b', background: 'rgba(245, 158, 11, 0.05)' },
+  'Security & Admin': { color: '#ef4444', background: 'rgba(239, 68, 68, 0.05)' },
+  'Default': { color: '#94a3b8', background: 'rgba(148, 163, 184, 0.05)' }
 };
 
 const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen = false, onExitFullscreen, onEnterFullscreen, flows = [] }) => {
@@ -1198,7 +1313,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   }
 
   // Build screen order from flow connections
-  useMemo(() => {
+  useEffect(() => {
     const orderedScreenNames = [];
     const connections = systemView.flow_connections;
     if (connections && connections.length > 0) {
@@ -1430,17 +1545,14 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       .filter(name => !orderedScreenNames.includes(name));
     const finalOrderedScreenNames = [...orderedScreenNames, ...missingScreens];
 
-    // 1. Process Database Tables (Top Layer) - Only if showDataOps and tables filter is true
+    // 1. Process Database Tables (Top Layer)
     if (showDataOps && nodeFilters.tables && systemView.data_ops && systemView.data_ops.database_tables) {
       systemView.data_ops.database_tables.forEach((table, idx) => {
-        // Find if this table has any active (filtered-in) connections
         const hasActiveConnection = systemView.data_ops.data_connections?.some(conn => {
           if (conn.target !== table.name) return false;
-
           const isReadOp = conn.operation === 'READ';
           const isWriteOp = conn.operation === 'WRITE';
           const isBothOp = conn.operation === 'BOTH';
-
           return (isReadOp && connectionFilters.read) ||
             (isWriteOp && connectionFilters.write) ||
             (isBothOp && connectionFilters.both);
@@ -1451,18 +1563,68 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
             id: `table-${table.name}`,
             type: 'database',
             data: { label: table.name, sublabel: table.name, type: table.type || 'MASTER', onNodeClick: handleNodeClick, nodeId: `table-${table.name}` },
-            position: { x: idx * 300, y: 0 },
+            position: { x: idx * 350, y: groupByDomain ? -100 : 0 },
           });
         }
       });
     }
 
-    // Map screen data for easy access
-    const screenMap = {};
-    systemView.screens.forEach(s => screenMap[s.name] = s);
+    // 2. Process Domain Groups and Screens
+    if (groupByDomain && nodeFilters.screens) {
+      const screensByDomain = {};
+      finalOrderedScreenNames.forEach(name => {
+        const screen = screenMap[name];
+        if (screen) {
+          const domain = SCREEN_DOMAINS[name] || screen.domain || 'Default';
+          if (!screensByDomain[domain]) screensByDomain[domain] = [];
+          screensByDomain[domain].push({ name, screen });
+        }
+      });
 
-    // 2. Process Screens (Bottom Layer) in correct order - Only if screens filter is true
-    if (nodeFilters.screens) {
+      let currentX = 0;
+      Object.entries(screensByDomain).forEach(([domain, screens], groupIdx) => {
+        const style = DOMAIN_STYLES[domain] || DOMAIN_STYLES.Default;
+        const groupWidth = Math.max(400, screens.length * 320);
+        const groupId = `group-${domain.replace(/\s+/g, '-')}`;
+
+        // Add parent group node
+        nodes.push({
+          id: groupId,
+          type: 'domainGroup',
+          data: {
+            label: domain,
+            color: style.color,
+            screenCount: screens.length,
+            width: groupWidth,
+            height: 250
+          },
+          position: { x: currentX, y: 350 },
+          style: { width: groupWidth, height: 250, zIndex: -1 },
+          draggable: true,
+        });
+
+        // Add child screens
+        screens.forEach((item, screenIdx) => {
+          nodes.push({
+            id: `screen-${item.name}`,
+            type: 'screen',
+            data: {
+              label: item.name,
+              sublabel: item.screen.topic,
+              onNodeClick: handleNodeClick,
+              nodeId: `screen-${item.name}`,
+              domainColor: style.color
+            },
+            position: { x: 50 + (screenIdx * 320), y: 60 },
+            parentNode: groupId,
+            extent: 'parent',
+          });
+        });
+
+        currentX += groupWidth + 100;
+      });
+    } else if (nodeFilters.screens) {
+      // Original sequence layout
       finalOrderedScreenNames.forEach((name, idx) => {
         const screen = screenMap[name];
         if (screen) {
@@ -1470,25 +1632,26 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
             id: `screen-${name}`,
             type: 'screen',
             data: { label: name, sublabel: screen.topic, onNodeClick: handleNodeClick, nodeId: `screen-${name}` },
-            position: { x: idx * 300, y: 350 },
+            position: { x: idx * 350, y: 400 },
           });
         }
       });
     }
 
-    // 3. Process Batch Processes (Bottom Layer, after screens) - Only if batches filter is true
+    // 3. Process Batch Processes
     if (nodeFilters.batches && systemView.batch_processes) {
       systemView.batch_processes.forEach((batch, idx) => {
+        const xPos = groupByDomain ? nodes.filter(n => n.type === 'domainGroup').reduce((acc, n) => acc + (n.data.width || 0) + 100, 0) + (idx * 350) : (finalOrderedScreenNames.length + idx) * 350;
         nodes.push({
           id: `batch-${batch.name}`,
           type: 'batch',
           data: { label: batch.name, sublabel: batch.topic, onNodeClick: handleNodeClick, nodeId: `batch-${batch.name}` },
-          position: { x: (finalOrderedScreenNames.length + idx) * 300, y: 350 },
+          position: { x: xPos, y: 400 },
         });
       });
     }
 
-    // 4. Horizontal Sequence Connections (Bottom Layer) - Only if screenFlow filter is true
+    // 4. Sequence Connections
     if (connectionFilters.screenFlow && nodeFilters.screens) {
       for (let i = 0; i < finalOrderedScreenNames.length - 1; i++) {
         edges.push({
@@ -1502,7 +1665,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       }
     }
 
-    // Connect last screen to first batch if both exist and filters allow
+    // Batch and other connections...
     if (connectionFilters.screenFlow && nodeFilters.screens && nodeFilters.batches && finalOrderedScreenNames.length > 0 && systemView.batch_processes && systemView.batch_processes.length > 0) {
       edges.push({
         id: `seq-screen-batch`,
@@ -1514,7 +1677,6 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       });
     }
 
-    // Connect consecutive batch processes - Only if batchFlow filter is true
     if (connectionFilters.batchFlow && nodeFilters.batches && systemView.batch_processes && systemView.batch_processes.length > 1) {
       for (let i = 0; i < systemView.batch_processes.length - 1; i++) {
         edges.push({
@@ -1528,20 +1690,15 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
       }
     }
 
-    // 5. Process Data Connections (Edges) - Only if showDataOps and dataOps filter is true
+    // 5. Data Connections
     if (showDataOps && connectionFilters.dataOps && systemView.data_ops && systemView.data_ops.data_connections) {
       systemView.data_ops.data_connections.forEach((conn, idx) => {
         const sourceId = conn.source_type === 'BATCH' ? `batch-${conn.source}` : `screen-${conn.source}`;
         const targetId = `table-${conn.target}`;
-
-        // Check if operation type is filtered
         const isReadOp = conn.operation === 'READ';
         const isWriteOp = conn.operation === 'WRITE';
         const isBothOp = conn.operation === 'BOTH';
-
-        const operationAllowed = (isReadOp && connectionFilters.read) ||
-          (isWriteOp && connectionFilters.write) ||
-          (isBothOp && connectionFilters.both);
+        const operationAllowed = (isReadOp && connectionFilters.read) || (isWriteOp && connectionFilters.write) || (isBothOp && connectionFilters.both);
 
         if (!operationAllowed) return;
 
@@ -1559,16 +1716,13 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
           },
           labelStyle: { fill: '#fff', fontSize: 10, fontWeight: 900 },
           labelBgStyle: { fill: '#1e293b', fillOpacity: 0.8 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            color: conn.operation === 'READ' ? '#22c55e' : conn.operation === 'WRITE' ? '#ef4444' : '#3b82f6',
-          },
+          markerEnd: { type: MarkerType.ArrowClosed, color: conn.operation === 'READ' ? '#22c55e' : conn.operation === 'WRITE' ? '#ef4444' : '#3b82f6' },
         });
       });
     }
 
     return { initialNodes: nodes, initialEdges: edges };
-  }, [systemView, showDataOps, nodeFilters, connectionFilters]);
+  }, [systemView, showDataOps, nodeFilters, connectionFilters, groupByDomain]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -1755,7 +1909,41 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
             </label>
           )}
 
-
+          {/* Group By Domain Toggle */}
+          <button
+            onClick={() => setGroupByDomain(!groupByDomain)}
+            style={{
+              background: groupByDomain ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.02)',
+              border: groupByDomain ? '1px solid rgba(168, 85, 247, 0.4)' : '1px solid rgba(255,255,255,0.08)',
+              color: groupByDomain ? '#a855f7' : '#64748b',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '10px',
+              fontWeight: '900',
+              transition: 'all 0.2s ease',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+            onMouseEnter={(e) => {
+              if (!groupByDomain) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+            }}
+            onMouseLeave={(e) => {
+              if (!groupByDomain) e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+            }}
+          >
+            <div style={{
+              width: '8px',
+              height: '8px',
+              background: groupByDomain ? '#a855f7' : '#64748b',
+              borderRadius: '2px',
+              boxShadow: groupByDomain ? '0 0 10px #a855f7' : 'none'
+            }} />
+            GROUP BY DOMAIN
+          </button>
 
           {/* Connection Type Filters */}
           <div style={{ display: 'flex', gap: '6px', background: 'rgba(2, 6, 23, 0.6)', padding: '6px 8px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
