@@ -1999,34 +1999,62 @@ function FlowDiagram({ data, cutId, cutData }) {
   const getProgramFlows = () => {
     if (!cutData?.sub_cuts) return <div style={{ color: "#64748b", fontStyle: "italic" }}>No data available</div>;
 
+    // Build a map of method names to reference links
+    const methodLinkMap = {};
+    cutData.sub_cuts.forEach(sc => {
+      sc.flows?.forEach(flow => {
+        flow.programs?.forEach(pgm => {
+          pgm.methods?.forEach(method => {
+            if (method.reference_link) {
+              methodLinkMap[method.name] = method.reference_link;
+            }
+          });
+        });
+      });
+    });
+
     const allFlowsHtml = cutData.sub_cuts
       .flatMap(sc => sc.flows || [])
       .filter(flow => flow.program_flows)
       .map(flow => {
         let text = flow.program_flows;
-        if (showTechDebt) {
-          const debtMap = {};
-          flow.programs?.forEach(pgm => {
-            pgm.methods?.forEach(method => {
-              if (method.method_metadata?.tech_debt) {
-                debtMap[method.name] = method.method_metadata.tech_debt;
-              }
-            });
+        
+        // Build debt map
+        const debtMap = {};
+        flow.programs?.forEach(pgm => {
+          pgm.methods?.forEach(method => {
+            if (method.method_metadata?.tech_debt) {
+              debtMap[method.name] = method.method_metadata.tech_debt;
+            }
           });
+        });
 
-          text = text.split('\n').map(line => {
-            const pgmMatch = line.match(/([A-Z0-9-]+)\[/);
-            if (pgmMatch) {
-              const methodName = pgmMatch[1];
+        text = text.split('\n').map(line => {
+          const pgmMatch = line.match(/([A-Z0-9-]+)\[/);
+          if (pgmMatch) {
+            const methodName = pgmMatch[1];
+            const referenceLink = methodLinkMap[methodName];
+            
+            // Add clickable link if reference exists
+            if (referenceLink) {
+              line = line.replace(
+                methodName,
+                `<a href="${referenceLink}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; cursor: pointer; font-weight: 700;">${methodName}</a>`
+              );
+            }
+            
+            // Add tech debt indicator if enabled
+            if (showTechDebt) {
               const debtKey = debtMap[methodName];
               if (debtKey) {
                 const config = debtColorMap[debtKey] || { label: debtKey, color: "#ef4444" };
-                return `${line}  <span style="color: ${config.color}; font-weight: 800; opacity: 0.9;">!! ${config.label}</span>`;
+                line = `${line}  <span style="color: ${config.color}; font-weight: 800; opacity: 0.9;">!! ${config.label}</span>`;
               }
             }
-            return line;
-          }).join('\n');
-        }
+          }
+          return line;
+        }).join('\n');
+        
         return text;
       })
       .join("\n\n---\n\n");
