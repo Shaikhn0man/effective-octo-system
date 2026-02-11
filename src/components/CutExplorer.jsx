@@ -778,31 +778,33 @@ const ScreenPopup = ({ isOpen, onClose, nodeName, asciiArt, topic, onNext, onPre
 
         {/* Content */}
         <div style={{
-          padding: '60px',
+          padding: '40px',
           overflow: 'auto',
           background: '#000',
           flex: 1,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
           position: 'relative',
           backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 100%)'
         }}>
           <pre style={{
             fontFamily: "'Fira Code', 'Roboto Mono', monospace",
-            fontSize: '15px',
-            lineHeight: '1.45',
+            fontSize: '13px',
+            lineHeight: '1.3',
             color: '#10b981', // Terminal green
             margin: 0,
-            padding: '32px',
+            padding: '24px',
             background: 'rgba(0, 0, 0, 0.6)',
             borderRadius: '16px',
             border: '2px solid rgba(16, 185, 129, 0.25)',
             boxShadow: '0 20px 60px rgba(16, 185, 129, 0.15)',
             textShadow: '0 0 8px rgba(16, 185, 129, 0.4)',
             whiteSpace: 'pre',
-            minWidth: 'fit-content',
-            minHeight: 'fit-content'
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'auto',
+            boxSizing: 'border-box'
           }}>
             {lines.join('\n')}
           </pre>
@@ -1174,6 +1176,7 @@ const SystemViewFlow = ({ systemView, showDataOps, setShowDataOps, isFullscreen 
   const [popupDatabaseNode, setPopupDatabaseNode] = useState(null);
   const [screenOrder, setScreenOrder] = useState([]);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+  const [groupByDomain, setGroupByDomain] = useState(false);
 
   // Filter states
   const [nodeFilters, setNodeFilters] = useState({
