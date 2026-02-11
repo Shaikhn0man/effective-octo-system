@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import ReactFlow, {
-    Background,
-    Controls,
-    Handle,
-    MarkerType,
-    Position,
-    useEdgesState,
-    useNodesState,
-    useReactFlow
+  Background,
+  Controls,
+  Handle,
+  MarkerType,
+  Position,
+  useEdgesState,
+  useNodesState,
+  useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import remarkGfm from 'remark-gfm';
@@ -3902,14 +3902,23 @@ function TestsTab({ data }) {
 function ModernPossibilitiesTab({ cutId }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
-  const [selectedSection, setSelectedSection] = useState(null);
 
   useEffect(() => {
     const loadContent = async () => {
       setLoading(true);
       try {
         const modules = import.meta.glob('../data/modern_possibilities/*.md', { query: '?raw', import: 'default' });
-        const filePath = Object.keys(modules).find(path => path.includes(`Cut_${cutId}_`));
+        console.log('Available modules:', Object.keys(modules));
+        console.log('Looking for cutId:', cutId);
+        
+        // Find the file that starts with Cut_{cutId}_
+        const filePath = Object.keys(modules).find(path => {
+          const filename = path.split('/').pop();
+          return filename.startsWith(`Cut_${cutId}_`);
+        });
+        
+        console.log('Found filePath:', filePath);
+        
         if (filePath) {
           const mod = await modules[filePath]();
           setContent(mod);
@@ -3949,198 +3958,6 @@ function ModernPossibilitiesTab({ cutId }) {
   const title = sections[0]?.split('\n')[0] || 'Modern Possibilities';
   const subtitle = sections[0]?.split('\n')[1]?.replace(/^### /, '') || '';
 
-  const colors = [
-    { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', accent: '#3b82f6', icon: '🏗️' },
-    { bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)', accent: '#10b981', icon: '⚡' },
-    { bg: 'rgba(139, 92, 246, 0.1)', border: 'rgba(139, 92, 246, 0.3)', accent: '#8b5cf6', icon: '🔧' },
-    { bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)', accent: '#f59e0b', icon: '📊' },
-  ];
-
-  const DetailModal = ({ section, index, onClose }) => {
-    if (!section) return null;
-
-    const lines = section.trim().split('\n');
-    const sectionTitle = lines[0]?.replace(/^#+\s/, '') || `Section ${index + 1}`;
-    const sectionContent = lines.slice(1).join('\n').trim();
-    const color = colors[index % colors.length];
-
-    return (
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(2, 6, 23, 0.95)',
-          backdropFilter: 'blur(16px)',
-          zIndex: 10000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px',
-          animation: 'fadeIn 0.3s ease-out'
-        }}
-        onClick={onClose}
-      >
-        <div
-          style={{
-            background: 'rgba(15, 23, 42, 0.8)',
-            borderRadius: '32px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            maxWidth: '900px',
-            maxHeight: '90vh',
-            overflow: 'auto',
-            boxShadow: '0 40px 100px -12px rgba(0, 0, 0, 0.8)',
-            backdropFilter: 'blur(12px)',
-            animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-          onClick={e => e.stopPropagation()}
-        >
-          {/* Modal Header */}
-          <div
-            style={{
-              background: `linear-gradient(135deg, ${color.accent}20 0%, ${color.accent}10 100%)`,
-              borderBottom: `1px solid ${color.border}`,
-              padding: '40px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              gap: '20px',
-              position: 'sticky',
-              top: 0,
-              zIndex: 10
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flex: 1 }}>
-              <span style={{ fontSize: '32px', lineHeight: 1 }}>{color.icon}</span>
-              <div>
-                <h2 style={{
-                  fontSize: '28px',
-                  fontWeight: '900',
-                  color: '#fff',
-                  margin: '0 0 8px 0',
-                  letterSpacing: '-0.5px'
-                }}>
-                  {sectionTitle}
-                </h2>
-                <p style={{
-                  fontSize: '12px',
-                  color: color.accent,
-                  fontWeight: '700',
-                  textTransform: 'uppercase',
-                  letterSpacing: '2px',
-                  margin: 0
-                }}>
-                  DETAILED EXPLORATION
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={onClose}
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#94a3b8',
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                transition: 'all 0.2s ease',
-                flexShrink: 0
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-                e.currentTarget.style.color = '#ef4444';
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                e.currentTarget.style.color = '#94a3b8';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-              }}
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Modal Content */}
-          <div style={{ padding: '40px' }}>
-            <div style={{
-              fontSize: '14px',
-              color: '#cbd5e1',
-              lineHeight: '1.8',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px'
-            }}>
-              {sectionContent.split('\n').map((line, i) => {
-                const trimmed = line.trim();
-                if (!trimmed) return null;
-
-                if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-                  return (
-                    <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                      <span style={{ color: color.accent, fontWeight: '700', marginTop: '2px', flexShrink: 0 }}>•</span>
-                      <span>{trimmed.replace(/^[-*]\s/, '')}</span>
-                    </div>
-                  );
-                }
-
-                return (
-                  <p key={i} style={{ margin: 0 }}>
-                    {trimmed}
-                  </p>
-                );
-              })}
-            </div>
-
-            {/* Footer CTA */}
-            <div
-              style={{
-                marginTop: '40px',
-                paddingTop: '24px',
-                borderTop: `1px solid ${color.border}`,
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '12px'
-              }}
-            >
-              <button
-                onClick={onClose}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#fff',
-                  padding: '12px 24px',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                }}
-              >
-                CLOSE
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div style={{
       display: 'flex',
@@ -4165,109 +3982,6 @@ function ModernPossibilitiesTab({ cutId }) {
         <p style={{ fontSize: '14px', fontWeight: '700', margin: 0, opacity: 0.95, textTransform: 'uppercase', letterSpacing: '2px' }}>
           {subtitle}
         </p>
-      </div>
-
-      {/* Content Cards Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '24px'
-      }}>
-        {sections.slice(1).map((section, idx) => {
-          const lines = section.trim().split('\n');
-          const sectionTitle = lines[0]?.replace(/^#+\s/, '') || `Section ${idx + 1}`;
-          const sectionContent = lines.slice(1).join('\n').trim();
-          const color = colors[idx % colors.length];
-
-          return (
-            <div
-              key={idx}
-              style={{
-                background: color.bg,
-                border: `2px solid ${color.border}`,
-                borderRadius: '24px',
-                padding: '32px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                transition: 'all 0.3s ease',
-                cursor: 'default',
-                backdropFilter: 'blur(8px)'
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.borderColor = color.accent;
-                e.currentTarget.style.boxShadow = `0 12px 32px ${color.accent}20`;
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = color.border;
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '24px' }}>{color.icon}</span>
-                <h3 style={{
-                  fontSize: '16px',
-                  fontWeight: '800',
-                  color: '#fff',
-                  margin: 0,
-                  letterSpacing: '0.5px'
-                }}>
-                  {sectionTitle}
-                </h3>
-              </div>
-
-              <div style={{
-                fontSize: '13px',
-                color: '#cbd5e1',
-                lineHeight: '1.6',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-              }}>
-                {sectionContent.split('\n').slice(0, 3).map((line, i) => (
-                  line.trim() && (
-                    <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                      <span style={{ color: color.accent, fontWeight: '700', marginTop: '2px' }}>•</span>
-                      <span>{line.replace(/^[-*]\s/, '')}</span>
-                    </div>
-                  )
-                ))}
-              </div>
-
-              <div
-                onClick={() => setSelectedSection({ content: section, index: idx })}
-                style={{
-                  marginTop: 'auto',
-                  paddingTop: '16px',
-                  borderTop: `1px solid ${color.border}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  color: color.accent,
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.gap = '12px';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.gap = '8px';
-                }}
-              >
-                EXPLORE
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          );
-        })}
       </div>
 
       {/* Full Content Section */}
@@ -4347,28 +4061,6 @@ function ModernPossibilitiesTab({ cutId }) {
           </ReactMarkdown>
         </div>
       </div>
-
-      {/* Modal */}
-      {selectedSection && (
-        <DetailModal
-          section={selectedSection.content}
-          index={selectedSection.index}
-          onClose={() => setSelectedSection(null)}
-        />
-      )}
-
-      <style>{`
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }
