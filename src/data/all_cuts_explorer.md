@@ -10,7 +10,7 @@ This document provides a comprehensive ASCII flow chart showing how screens, bat
 
 | Cut # | Cut Name | Type | Flows | Batch | Screen | Tables | Screens |
 |-------|----------|------|-------|-------|--------|--------|---------|
-| 1 | Collect User Data for Credit Card Demo | CLEAN_CUT | 14 | 0 | 14 | 11 | 14 |
+| 1 | Manage Accounts, Cards, Transactions, and Bill Payments | CLEAN_CUT | 14 | 0 | 14 | 11 | 14 |
 | 2 | User Access Security and Permission Management | CLEAN_CUT | 7 | 0 | 7 | 5 | 8 |
 | 3 | Manage Customer Loan Accounts and Processing | READ_ONLY_CUT | 2 | 2 | 0 | 10 | 0 |
 | 4 | Process and Report Cardholder Records Sequentially | READ_ONLY_CUT | 1 | 1 | 0 | 1 | 0 |
@@ -28,7 +28,7 @@ This document provides a comprehensive ASCII flow chart showing how screens, bat
 
 ---
 
-# CUT 1: Collect User Data for Credit Card Demo
+# CUT 1: Manage Accounts, Cards, Transactions, and Bill Payments
 
 ```
 ================================================================================
